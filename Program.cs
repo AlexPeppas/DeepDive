@@ -24,6 +24,8 @@ namespace DeepDiveTechnicals
         
         public static void Main(string[] args)
         {
+            ModerateProbs.SumSwap();
+
             #region Frequently Asked Questions
             FrequentlyAskedQuestions.Interview.LeftSideOfTree();
             FrequentlyAskedQuestions.Interview.RatInMaze();

@@ -5,14 +5,14 @@ using System.Text;
 
 namespace DeepDiveTechnicals.CrackingTheCode
 {
-    
+
     public static class ModerateProbs
     {
         /// <summary>
         /// Problem : 16.1
         /// Description : Write a function to swap a number in place (that is, without temporary variables).
         /// </summary>
-        public static Tuple<int,int> NumberSwapper(int a,int b)
+        public static Tuple<int, int> NumberSwapper(int a, int b)
         {
             //Approach to swap elements (in position) without temps
             // var a -> b and var b - > a
@@ -58,26 +58,26 @@ namespace DeepDiveTechnicals.CrackingTheCode
 
             //1,2,3,11,15     8,19,23,127,235
 
-            if (l1.Count==0 || l1==null || l2.Count==0 || l2== null)
+            if (l1.Count == 0 || l1 == null || l2.Count == 0 || l2 == null)
             {
                 Console.WriteLine("Invalid Input");
                 return;
-            }    
+            }
 
             int pointer1 = l1[0];
             int pointer2 = l2[0];
 
             int finalMinPointer1 = pointer1;
             int finalMinPointer2 = pointer2;
-            
-            int min = Math.Abs(pointer1-pointer2);
+
+            int min = Math.Abs(pointer1 - pointer2);
 
             int pos1 = 0;
             int pos2 = 0;
 
-            while (pos1<l1.Count-1 && pos2<l2.Count-1)
+            while (pos1 < l1.Count - 1 && pos2 < l2.Count - 1)
             {
-                if (pointer1<=pointer2)
+                if (pointer1 <= pointer2)
                 {
                     pos1++;
                     pointer1 = l1[pos1];
@@ -87,9 +87,9 @@ namespace DeepDiveTechnicals.CrackingTheCode
                     pos2++;
                     pointer2 = l2[pos2];
                 }
-                int tempMin =  Math.Abs(pointer1 - pointer2);
+                int tempMin = Math.Abs(pointer1 - pointer2);
                 if (tempMin < min)
-                { 
+                {
                     min = tempMin;
                     finalMinPointer1 = pointer1;
                     finalMinPointer2 = pointer2;
@@ -114,7 +114,7 @@ namespace DeepDiveTechnicals.CrackingTheCode
         {
             //birth: 01 10 10 12 13 20 23 75 83 90
             //death: 15 72 82 90 94 98 98 98 98 99
-            
+
             var births = SortIt(persons, true);
             var deaths = SortIt(persons, false);
 
@@ -124,9 +124,9 @@ namespace DeepDiveTechnicals.CrackingTheCode
             int deathIndex = 0;
             int currentAlive = 0;
 
-            while (birthIndex<births.Count)
+            while (birthIndex < births.Count)
             {
-                if (births[birthIndex]<=deaths[deathIndex])
+                if (births[birthIndex] <= deaths[deathIndex])
                 {
                     currentAlive++;
                     if (currentAlive > maxAlive)
@@ -136,7 +136,7 @@ namespace DeepDiveTechnicals.CrackingTheCode
                     }
                     birthIndex++;
                 }
-                else if (births[birthIndex]>deaths[deathIndex])
+                else if (births[birthIndex] > deaths[deathIndex])
                 {
                     currentAlive--;
                     deathIndex++;
@@ -145,15 +145,15 @@ namespace DeepDiveTechnicals.CrackingTheCode
             return yearOccured;
         }
 
-        public class Person 
+        public class Person
         {
             public int birthDate;
             public int deathDate;
         }
 
-        public static List<int> SortIt(List<Person> persons,bool births)
+        public static List<int> SortIt(List<Person> persons, bool births)
         {
-            var list = (births) ? persons.OrderBy(it => it.birthDate)?.Select(it=>it.birthDate).ToList() : persons.OrderBy(it => it.deathDate)?.Select(it=>it.deathDate).ToList();
+            var list = (births) ? persons.OrderBy(it => it.birthDate)?.Select(it => it.birthDate).ToList() : persons.OrderBy(it => it.deathDate)?.Select(it => it.deathDate).ToList();
             return list;
         }
 
@@ -163,7 +163,7 @@ namespace DeepDiveTechnicals.CrackingTheCode
         /// There are two types of planks, one of length shorter and one of length longer.You must use
         /// exactly K planks of wood.Write a method to generate all possible lengths for the diving board.
         /// Runtime O(totalPlanks^2)
-        public static void DivingBoard(int totalPlanks, int shorter, int longer) 
+        public static void DivingBoard(int totalPlanks, int shorter, int longer)
         {
             var memoSet = SetPlanksMemo(totalPlanks, 0, shorter, longer, new HashSet<int>(), new Dictionary<Tuple<int, int>, HashSet<int>>());
             foreach (var item in memoSet)
@@ -177,12 +177,12 @@ namespace DeepDiveTechnicals.CrackingTheCode
                 Console.WriteLine("Available combinations lead to length -> " + item);
             }
 
-            
+
         }
 
         public static HashSet<int> SetPlanks(int totalPlanks, int totalLength, int shorter, int longer, HashSet<int> lengths)
         {
-            if (totalPlanks ==0)
+            if (totalPlanks == 0)
             {
                 lengths.Add(totalLength);
             }
@@ -197,8 +197,8 @@ namespace DeepDiveTechnicals.CrackingTheCode
         public static HashSet<int> SetPlanksMemo(int totalPlanks, int totalLength, int shorter, int longer, HashSet<int> lengths,
             Dictionary<Tuple<int, int>, HashSet<int>> complexHash)
         {
-            
-            if (complexHash.ContainsKey(new Tuple<int,int>(totalPlanks,totalLength)))
+
+            if (complexHash.ContainsKey(new Tuple<int, int>(totalPlanks, totalLength)))
                 return complexHash[new Tuple<int, int>(totalPlanks, totalLength)];
             if (totalPlanks == 0)
             {
@@ -238,9 +238,9 @@ namespace DeepDiveTechnicals.CrackingTheCode
                     bool flg = false;
                     int first = ComputersChoice.IndexOf(ch);
                     if (first == position) hit++;
-                    else 
+                    else
                     {
-                        
+
                         while (first != -1)
                         {
                             first = ComputersChoice.IndexOf(ch, first + 1);
@@ -281,7 +281,7 @@ namespace DeepDiveTechnicals.CrackingTheCode
 
             SubSortHelperMinIndex(ls, 0);
             SubSortHelperMaxIndex(ls, ls.Count - 1);
-            Console.WriteLine($"Our Range is [{MinIndex},{MaxIndex})."+Environment.NewLine+$"Start at {MinIndex} and finish at {MaxIndex - 1}");
+            Console.WriteLine($"Our Range is [{MinIndex},{MaxIndex})." + Environment.NewLine + $"Start at {MinIndex} and finish at {MaxIndex - 1}");
         }
         public static void SubSortHelperMinIndex(List<int> ls, int indexStart)
         {
@@ -310,7 +310,7 @@ namespace DeepDiveTechnicals.CrackingTheCode
             temp = ls.Take(indexEnd).ToList();
             temp.Sort();
             List<int> tempFinal = new List<int>();
-            
+
             tempFinal.AddRange(temp);
             tempFinal.AddRange(ls.Skip(indexEnd));
             if (GlobalLs.SequenceEqual(tempFinal))
@@ -326,12 +326,12 @@ namespace DeepDiveTechnicals.CrackingTheCode
         //TODO
         public static void SubSortHelperOptimized(List<int> ls)
         {
-        ///left: 1, 2, 4, 7, 10, 11 -> max = 11
-        ///middle: 8, 12
-        ///right: 5, 6, 16, 18, 19 -> min = 5
-        ///
-        ///min(middle) > end(left)
-        ///max(middle) < start(right)
+            ///left: 1, 2, 4, 7, 10, 11 -> max = 11
+            ///middle: 8, 12
+            ///right: 5, 6, 16, 18, 19 -> min = 5
+            ///
+            ///min(middle) > end(left)
+            ///max(middle) < start(right)
         }
 
         /// <summary>
@@ -421,21 +421,21 @@ namespace DeepDiveTechnicals.CrackingTheCode
 
         public static int CalculatePondSize(int row, int col, int[,] land)
         {
-            int rowSize = land.GetLength(0)-1;
-            int colSize = land.GetLength(1)-1;
+            int rowSize = land.GetLength(0) - 1;
+            int colSize = land.GetLength(1) - 1;
             if (row > rowSize || row < 0 || col > colSize || col < 0 || land[row, col] != 0)
                 return 0;
 
             land[row, col] = -1;
             int size = 1;
-            for (int dr=-1;dr<=1;dr++)
+            for (int dr = -1; dr <= 1; dr++)
             {
-                for (int dc=-1;dc<=1;dc++)
+                for (int dc = -1; dc <= 1; dc++)
                 {
                     size += CalculatePondSize(row + dr, col + dc, land);
                 }
             }
-            
+
             return size;
         }
 
@@ -458,9 +458,9 @@ namespace DeepDiveTechnicals.CrackingTheCode
         public static HashSet<string> validWords = new HashSet<string> { "tree", "used" };
         public static List<string> T9Mobile(string input)
         {
-            
+
             char[] words = NumToWord[Convert.ToInt32(input[0].ToString())];
-            for (var i=0;i<words.Length;i++)
+            for (var i = 0; i < words.Length; i++)
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append(words[i]);
@@ -502,9 +502,98 @@ namespace DeepDiveTechnicals.CrackingTheCode
                 T9MobileHelper(input, sb, index + 1);
                 string temp = sb.ToString();
                 sb.Clear();
-                sb.Append(temp.Substring(0, temp.Length - 1)); 
+                sb.Append(temp.Substring(0, temp.Length - 1));
             }
         }
+
+        /// <summary>
+        /// Problem : 16.21
+        /// Description : Given two arrays of integers, find a pair of values (one value from each array) that you
+        /// can swap to give the two arrays the same sum.
+        /// EXAMPLE
+        /// lnput:{ 4, 1, 2, 1, 1, 2}
+        /// and{3, 6, 3, 3}
+        /// Output: {1, 3}
+        /// </summary>
+        /// <Time>Time for HashSet solution is O(A+B)</Time>
+        /// <Time>Time for Iterative solution is O(A+B) 
+        /// but sorting will cost O(AlogA) + O(BlogB) which will be our final time complexity cause its greater than A+B</Time>
+        
+        public static List<Tuple<int, int>> SumSwap()
+        {
+            //1,1,1,2,2,4 -> 11
+            //6,3,3,3, -> 15
+            int[] arr1 = new int[6] { 1, 2, 4, 2, 1, 1 };
+            int[] arr2 = new int[4] { 3, 6, 3, 3 };
+
+            arr1 = arr1.OrderBy(it => it).ToArray();
+            arr2 = arr2.OrderBy(it => it).ToArray();
+
+            //sum1 - a + b = sum2 + a - b
+            // a - b = (sum1-sum2)/2
+            SumSwapHelperHash(arr1, arr2);
+            return SumSwapHelper(arr1, arr2);
+        }
+
+        //Optimal Solution with Hashset
+        //This runs in O(A+B)
+        public static Tuple<int,int> SumSwapHelperHash(int[] arr1, int[] arr2)
+        {
+            int target = FindTarget(arr1, arr2);
+            if (target == -1) return new Tuple<int, int>(-1,-1);
+
+            HashSet<int> localSet = new HashSet<int>();
+            foreach ( var val in arr1)
+            {
+                localSet.Add(val);
+            }
+
+            // a- b = target --> a = target + b
+            foreach (var val in arr2)
+            {
+                int lookUpTarget = target + val; //target + b;
+                if (localSet.Contains(lookUpTarget))
+                    return new Tuple<int, int>(lookUpTarget, val);
+            }
+            return new Tuple<int, int>(-1, -1);
+        }
+
+        //Alternate Solution with Iterate
+        public static List<Tuple<int, int>> SumSwapHelper(int[] arr1, int[] arr2)
+        {
+            int? target= FindTarget(arr1, arr2);
+
+            if (target == -1) return new List<Tuple<int, int>>();
+
+            int indexa = 0;
+            int indexb = 0;
+            var output = new List<Tuple<int, int>>();
+
+            while (indexa<arr1.Length && indexb<arr2.Length)
+            {
+                //1,1,1,2,2,4 -> 11
+                //3,3,3,6 -> 15
+                int difference = arr1[indexa] - arr2[indexb];
+                if (difference == target)
+                    output.Add(new Tuple<int, int>(indexa, indexb));
+                else if (difference < target)
+                    indexa++;
+                else
+                    indexb++;
+            }
+            return output;
+        }
+
+        public static int FindTarget(int[] arr1, int[] arr2)
+        {
+            //sum1 - a + b = sum2 + a - b
+            // a - b = (sum1-sum2)/2
+            int sum1 = arr1.Sum();
+            int sum2 = arr2.Sum();
+            if ((sum1 - sum2) % 2 != 0) return -1;
+            return (sum1 - sum2) / 2;
+        }
+
         /// <summary>
         /// Problem : 16.26
         /// Description : Given an array of integers, write a method to find indices m and n such that if you sorted
