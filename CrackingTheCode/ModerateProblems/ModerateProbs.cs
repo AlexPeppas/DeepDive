@@ -526,12 +526,12 @@ namespace DeepDiveTechnicals.CrackingTheCode
             int[] arr1 = new int[6] { 1, 2, 4, 2, 1, 1 };
             int[] arr2 = new int[4] { 3, 6, 3, 3 };
 
-            arr1 = arr1.OrderBy(it => it).ToArray();
-            arr2 = arr2.OrderBy(it => it).ToArray();
-
             //sum1 - a + b = sum2 + a - b
             // a - b = (sum1-sum2)/2
             SumSwapHelperHash(arr1, arr2);
+
+            arr1 = arr1.OrderBy(it => it).ToArray();
+            arr2 = arr2.OrderBy(it => it).ToArray();
             return SumSwapHelper(arr1, arr2);
         }
 
@@ -594,6 +594,58 @@ namespace DeepDiveTechnicals.CrackingTheCode
             return (sum1 - sum2) / 2;
         }
 
+        /// <summary>
+        /// Problem : 16.24
+        /// Description : Design an algorithm to find all pairs of integers within an array which sum to a
+        /// specified value.
+        /// </summary>
+        /// Solution : Sort the array and iterate over it. For each element apply Binary Search for the complement
+        /// item1 + item2 = target --> item1 = target - item2 or complement = target- currentItem
+        /// <Time>O(nlogn)</Time>
+        /// Discuss tradeoff for hashset optimization which will cost additionaly O(N) space but can avoid duplicate checks.
+        public static void PairsWithSum (List<int> input,int target)
+        {
+            //3,4,12,5,2,2
+            //--> 2,2,3,4,5,12 and target = 9
+            //--> (4,5), (5,4) pairs (Remove Dups if needed? Discuss with interviewer)
+
+            var output = new List<Tuple<int, int>>();
+            var set = new HashSet<int>();
+            input= input.OrderBy(it => it)?.ToList();
+            //it1 + it2 = 9 --> 9-it2 = it1
+            for (int i = 0; i < input.Count; i++)
+            {
+                if (set.Contains(input[i]))
+                    continue;
+                else if (input[i] >= target)
+                    break;
+                else
+                {
+                    int secondItem = PairsWithSumHelper(input, 0, input.Count - 1, target - input[i]);
+                    if (secondItem != -1)
+                        output.Add(new Tuple<int, int>(input[i], secondItem));
+                    else
+                        set.Add(input[i]);
+                }
+            }
+        }
+        
+        public static int PairsWithSumHelper(List<int> input , int start, int finish, int target)
+        {
+            if (start > finish)
+                return -1;
+            int mid = (start + finish) / 2;
+            
+            if (input[mid] == target)
+                return input[mid];
+            else
+            {
+                if (input[mid] > target)
+                    return PairsWithSumHelper(input, start, mid - 1, target);
+                else
+                    return PairsWithSumHelper(input, mid + 1, finish, target);
+            }
+        }
         /// <summary>
         /// Problem : 16.26
         /// Description : Given an array of integers, write a method to find indices m and n such that if you sorted

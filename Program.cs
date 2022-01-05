@@ -24,6 +24,8 @@ namespace DeepDiveTechnicals
         
         public static void Main(string[] args)
         {
+           
+            ModerateProbs.PairsWithSum(new List<int> { 3, 4, 12, 5, 2, 2 }, 9);
             ModerateProbs.SumSwap();
 
             #region Frequently Asked Questions
