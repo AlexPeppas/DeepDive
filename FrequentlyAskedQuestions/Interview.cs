@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 {
@@ -135,7 +136,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 
             Node LCA = HelperBST(root);
 
-            return LCA; // if both targets have been identified return the commono node
+            return LCA; // if both targets have been identified return the common node
                         //otherwise return null
 
         }
@@ -155,6 +156,62 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             return null;
         }
 
+        public static Node firstNode;
+        public static Node secondNode;
+        
+        public static void FirstCommonAncestor()
+        {
+            Node root = new Node(20);
+            root.left = new Node(8);
+            root.right = new Node(22);
+            root.left.left = new Node(4);
+            root.left.right = new Node(19);
+            root.left.right.right = new Node(21);
+            root.right.right = new Node(10);
+            root.right.right.right = new Node(70);
+
+            Node First = new Node(4);
+            Node Second = new Node(21);
+            firstNode = First;
+            secondNode = Second;
+           
+
+            var nodeReturned = FirstCommonAncestorHelper(root);
+            if (nodeReturned == null)
+                Console.WriteLine("Not in the same tree");
+            else
+                Console.WriteLine(nodeReturned);
+        }
+
+        public static bool firstNodeFound = false;
+        public static bool secondNodeFound = false;
+
+        public static Node FirstCommonAncestorHelper(Node node)
+        {
+            if (node == null)
+                return null;
+            Node temp = null;
+            if (node.data == firstNode.data)
+            {
+                temp = node;
+                firstNodeFound = true;
+            }
+            else if (node.data == secondNode.data)
+            {
+                temp = node;
+                secondNodeFound = true;
+            }
+         
+            Node nodeLeft = FirstCommonAncestorHelper(node.left);
+            Node nodeRight = FirstCommonAncestorHelper(node.right);
+
+            if (nodeLeft != null && nodeRight != null)
+                return node;
+
+            if (temp != null)
+                return temp;
+            return (nodeLeft != null) ? nodeLeft : nodeRight;
+        }
         /// <summary>
         /// Print path from root to a given node in a binary tree
         /// <TimeComplexity>O(N) worst case the destination is the rightmost leaf</TimeComplexity>
@@ -618,6 +675,108 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         }
 
         /// <summary>
+        /// Check if a binary tree contains duplicate binary trees with size 2 or more
+        /// Approach : Preorder the tree and create a global stringBuilder. When you find a duplicated node in sb then keep the 
+        /// index of this. Keep traversing the tree and moving the index to check if the lower layers are continuation of the subtree
+        /// This is an optimization of the previous 2 verisons because it doesnt count null nodes "#" as extra layer and it has a precise
+        /// reset mechanism where if maxLayer<2 every time we reset we drawback to maxLayer = 0
+        /// <Hint>Google Interview Question</Hint>
+        /// <TimeComplexity>O(N)</TimeComplexity>
+        /// <SpaceComplexity>O(LogN)</SpaceComplexity>
+        /// </summary>
+        public static bool TreeWithDuplicateSubTreesDepth2()
+        {
+            var root1 = new Node(7);
+            root1.right = new Node(22);
+            root1.right.right = new Node(7);
+            root1.left = new Node(8);
+            root1.left.left = new Node(4);
+            root1.left.right = new Node(9);
+            root1.left.right.left = new Node(1);
+            root1.right.left = new Node(21);
+
+            root1.right.right.left = new Node(8);
+            root1.right.right.left.left = new Node(4);
+            root1.right.right.left.right = new Node(9);
+            root1.right.right.left.right.left = new Node(1);
+
+            TreeWithDuplicateSubTreesDepth2Helper(root1);
+            return (maxLayer >= 2) ? true : false;
+        }
+        public static int currLayer = 0;
+        public static int maxLayer = 0;
+        public static bool underRevision = false;
+        public static StringBuilder sb = new StringBuilder();
+        public static int index = 0;
+
+        public static void TreeWithDuplicateSubTreesDepth2Helper(Node node)
+        {
+            if (node == null)
+            {
+                if (underRevision)
+                {
+                    string toCheck = sb.ToString()[index].ToString();
+                    if (toCheck == "#")
+                    {
+                    //doNothing
+                    }    
+
+                    else
+                    {
+                        currLayer = 0;
+                        underRevision = false;
+                        if (maxLayer < 2) maxLayer = 0;
+                    }
+                }
+                sb.Append("#");
+                return;
+            }
+            else if (!sb.ToString().Contains(node.data.ToString()))
+            {
+                currLayer = 0;
+                if (underRevision) underRevision = false;
+                if (maxLayer < 2) maxLayer = 0;
+                sb.Append(node.data.ToString());
+                TreeWithDuplicateSubTreesDepth2Helper(node.left);
+                TreeWithDuplicateSubTreesDepth2Helper(node.right);
+            }
+            else if (underRevision)
+            {
+                string toCheck = sb.ToString()[index].ToString();
+                if (node.data.ToString()==toCheck)
+                {
+                    if (currLayer > maxLayer) maxLayer = currLayer;
+                    
+                    currLayer++;
+                    index++;
+                    TreeWithDuplicateSubTreesDepth2Helper(node.left);
+                    index++;
+                    TreeWithDuplicateSubTreesDepth2Helper(node.right);
+                }
+                else
+                {   // RESET
+                    currLayer = 0;
+                    underRevision = false;
+                    if (maxLayer < 2) maxLayer = 0;
+                    TreeWithDuplicateSubTreesDepth2Helper(node.left);
+                    TreeWithDuplicateSubTreesDepth2Helper(node.right);
+                }
+                sb.Append(node.data.ToString());
+            }
+            else //it is contained
+            {
+                underRevision = true;
+                index = sb.ToString().IndexOf(node.data.ToString());
+                sb.Append(node.data.ToString());
+                currLayer = 0; //initialize the root of the possible duplicated subTree
+                index++;
+                TreeWithDuplicateSubTreesDepth2Helper(node.left);
+                index++;
+                TreeWithDuplicateSubTreesDepth2Helper(node.right);
+            }
+        }
+
+        /// <summary>
         /// Serialize a Binary Tree
         /// Approach : Create a stack and push the root. While the stack != empty pop the top item, push right and left children
         /// (respectively so you can respect the order) and keep every popped node in an array. Mark every null node with a special char
@@ -780,7 +939,9 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
         }
 
-        
+        /// <summary>
+        /// Print Left and Right side of a Tree
+        /// </summary>
         public static void LeftSideOfTree()
         {
             var root1 = new Node(20);
@@ -830,8 +991,400 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             RightSideOfTreeHelper(node.left, layer);
             
         }
+
+        /// <summary>
+        /// Clone A Graph
+        /// Approach : Use a queue to store each node and its adjacents to perform a BFS on the incoming graph.
+        /// Use a HashSet to check if the Node has already been checked. If it has already been traversed do not
+        /// add it to the queue. For each incoming node wether it has been added to the hashet or not store his 
+        /// adjacents list to the clone node so you can transfer the structure.
+        /// <TimeComplexity>O(N)</TimeComplexity>
+        
+        public static void GraphClone()
+        {
+            #region Graph Seeding
+            Graph graph = new Graph(5);
+            graph.nodes[0] = new GraphNode("A",2);
+            graph.nodes[1] = new GraphNode("B", 3);
+            graph.nodes[2] = new GraphNode("C", 2);
+            graph.nodes[3] = new GraphNode("D", 3);
+            graph.nodes[4] = new GraphNode("E", 2);
+
+            //graph.nodes[0].adjacents[0].data = graph.nodes[1].data;
+            graph.nodes[0].adjacents[0] = graph.nodes[1];
+            graph.nodes[0].adjacents[1] = graph.nodes[2];
+
+            graph.nodes[1].adjacents[0] = graph.nodes[0];
+            graph.nodes[1].adjacents[1]= graph.nodes[3];
+            graph.nodes[1].adjacents[2]= graph.nodes[4];
+
+            graph.nodes[2].adjacents[0]= graph.nodes[0];
+            graph.nodes[2].adjacents[1]= graph.nodes[3];
+
+            graph.nodes[3].adjacents[0]= graph.nodes[1];
+            graph.nodes[3].adjacents[1]= graph.nodes[2];
+            graph.nodes[3].adjacents[2]= graph.nodes[4];
+
+            graph.nodes[4].adjacents[0]= graph.nodes[1];
+            graph.nodes[4].adjacents[1]= graph.nodes[3];
+            #endregion
+            if (graph == null) return;
+            GraphNode root = graph.nodes[0];
+            HashSet<GraphNode> setAdded = new HashSet<GraphNode>();
+            Queue<GraphNode> queue = new Queue<GraphNode>();
+
+            Graph cloneGraph = new Graph(graph.nodes.Length);
+        
+            queue.Enqueue(root);
+
+            int cloneIndex = 0;
+            while (queue.Count>0)
+            {
+                GraphNode currentNode = queue.Dequeue();
+                GraphNode cloneCurrentNode = new GraphNode(currentNode.data, currentNode.adjacents.Length);
+                
+                if (!setAdded.Contains(currentNode))
+                {
+                    
+                    setAdded.Add(currentNode);
+                }
+                int NeighborCounter = 0;
+                foreach (var neighb in currentNode.adjacents)
+                {
+                    cloneCurrentNode.adjacents[NeighborCounter] = neighb;
+                    NeighborCounter++;
+                    
+                    if (!setAdded.Contains(neighb) && !queue.Contains(neighb))
+                        queue.Enqueue(neighb);
+                }
+                cloneGraph.nodes[cloneIndex] = cloneCurrentNode;
+                cloneIndex++;
+            }
+            PrintGraph(cloneGraph);
+        }
+
+        public static void PrintGraph(Graph cloneGraph)
+        {
+            foreach (var node in cloneGraph.nodes)
+            {
+                Console.WriteLine($"NODE : {node.data} AND ADJACENT NODES" + Environment.NewLine + "{");
+                foreach (var item in node.adjacents)
+                {
+
+                    Console.WriteLine("   " + item.data + ",");
+                }
+                Console.WriteLine("}");
+            }
+        }
+
+        /// <summary>
+        /// Print All Permutations of a String
+        /// Approach : Build the base case and then recurse over the incoming string (based on decrement index -- st.Length--) until you finally 
+        /// build the list of all available permutaitons. Each permutation is the output of the previous layer and just append the current letter to 
+        /// every possible position (for every item in the list of strings).
+        
+        public static void PrintAllPermutations(string st)
+        {
+            // abcd
+            // d -> cd, dc -> bcd, cbd, cdb, bdc, dbc, dcb -> ...
+            var coms = PrintAllPermutationsHelper(st,0,new List<string>());
+        }
+        
+        public static List<string> PrintAllPermutationsHelper(string st, int index,List<string> combs)
+        {
+            if (index==st.Length)
+            {
+                combs.Add(" ");
+                return combs;
+            }
+            combs = PrintAllPermutationsHelper(st, index + 1, combs);
+            combs = Builder(combs, st[index].ToString());
+            return combs;
+        }
+
+        public static List<string> Builder (List<string> combs,string letter)
+        {
+            if (combs.FirstOrDefault()==" ")
+            {
+                combs[0] = letter;
+                return combs;
+            }
+            
+            List<string> outPut = new List<string>();
+            foreach (var item in combs)
+            {
+                int itemIndex = 0;
+                foreach (var letters in item)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    string temp = item.Substring(0, itemIndex);
+                    sb.Append(temp);
+                    sb.Append(letter);
+                    sb.Append(item.Substring(itemIndex));
+                    outPut.Add(sb.ToString());
+
+                    itemIndex++;
+                }
+                outPut.Add(item + letter);
+            }
+            return outPut;
+        }
+        /*
+         * 1,1,1,1
+         * 0,1,0,1
+         * 1,1,0,1
+         * 0,1,1,1
+         */
+        public static void RatWithTuples()
+        {
+            int[,] maze = new int[4, 4]
+            {
+                {1,1,1,1 },
+                {0,1,0,1 },
+                {1,1,0,1 },
+                {0,1,1,1 }
+            };
+            Tuple<int, int> source = new Tuple<int, int>(0, 0);
+            Tuple<int, int> dest = new Tuple<int, int>(3, 3);
+            RatWithTuplesHelper(maze, source, dest, new List<Tuple<int, int>>());
+        }
+        public static List<List<Tuple<int, int>>> allPaths = new List<List<Tuple<int, int>>>();
+        public static void RatWithTuplesHelper(int[,] maze, Tuple<int,int> src, Tuple<int, int> dest, List<Tuple<int, int>> path)
+        {
+            if (src.Item1 > dest.Item1 || src.Item2 > dest.Item2) return;
+            if (src.Item1 < 0 || src.Item2 < 0) return;
+            if (src.Item1 == dest.Item1 && src.Item2 == dest.Item2)
+            {
+                
+                var clonePath = new List<Tuple<int, int>>();
+                foreach (var item in path)
+                {
+                    clonePath.Add(item);
+                }
+                clonePath.Add(dest);
+                allPaths.Add(clonePath);
+            }
+            else
+            {
+                if (maze[src.Item1,src.Item2] == 1)
+                {
+                    path.Add(new Tuple<int, int>(src.Item1, src.Item2));
+                    RatWithTuplesHelper(maze, new Tuple<int, int>(src.Item1, src.Item2+1), dest, path);
+                    RatWithTuplesHelper(maze, new Tuple<int, int>(src.Item1+1, src.Item2), dest, path);
+                    if (path.Count > 0) path.RemoveAt(path.Count - 1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Write a method to sort an array of strings so that all tne anagrnms are next to each other.
+        /// <Time>O(n*s*logs) slogs for sorting each string and n for sorting each string</Time>
+        /// <Space>O(n+m) where n is the output list and m is the number of records of hashmap because 
+        /// m can have just one key and every other word of the list be containted in its list value cause it may be 
+        /// an array of anagrams</Space>
+        /// </summary>
+        public static List<string> GroupAnagrams(List<string> input)
+        {
+            input = new List<string> { "dog", "cat", "pizza", "god", "odg", "tac", "taco" };
+            var map = new Dictionary<string, List<string>>();
+            foreach (var item in input)
+            {
+                string sortedItem = SortString(item);
+                if (map.ContainsKey(sortedItem))
+                    map[sortedItem].Add(item);
+                else
+                    map.Add(sortedItem, new List<string> { item });
+            }
+            var outputList = new List<string>();
+            foreach (var item in map)
+            {
+                foreach (var val in item.Value)
+                {
+                    outputList.Add(val);
+                }
+            }
+            return outputList;
+        }
+        public static string SortString(string input)
+        {
+            var temp = input.ToCharArray();
+            Array.Sort(temp);
+            return new string(temp);
+        }
     }
-    
+    /// <summary>
+    /// LRU CACHE DESIGN
+    /// </summary>
+    public class LRU
+    {
+        public Dictionary<int, DoubleLinkedListNode> LRUmap;
+        private int maxSize;
+
+        public LRU(int maxSize)
+        {
+            LRUmap = new Dictionary<int, DoubleLinkedListNode>();
+            this.maxSize = maxSize;
+        }
+
+        public string Get(int key)
+        {
+            if (!LRUmap.ContainsKey(key))
+            {
+                return null;
+            }
+            else
+            {
+                var tempNode = LRUmap[key];
+                string value = tempNode.Value;
+                //cases
+                if (tempNode.Child == null) // first node of the linked list
+                {
+                    var newTail = tempNode.Parent;
+                    tempNode.Parent = null;
+
+                    newTail.Child = null;
+                    newTail.Parent = DoubleLinkedListStruct.Tail.Parent;
+                    if (newTail.Parent == null) newTail.Parent = tempNode; //just two nodes in the linked list
+                    DoubleLinkedListStruct.Tail = newTail;
+                    
+                    var prevHead = DoubleLinkedListStruct.Head;
+                    DoubleLinkedListStruct.Head.Parent = tempNode; //update the parent of the head pointer
+                    DoubleLinkedListStruct.Head = tempNode; //update the head pointer 
+                    DoubleLinkedListStruct.Head.Child = prevHead; //double link it
+                }
+                else if (tempNode.Parent == null)
+                {
+                    //if it's null then it's already at the end of the double linked list
+                    //which means it has been most recently accessed so do nothing
+                }
+                else
+                {
+                    tempNode.Child.Parent = tempNode.Parent;
+                    tempNode.Parent.Child = tempNode.Child;
+
+                    var prevHead = DoubleLinkedListStruct.Head;
+                    DoubleLinkedListStruct.Head.Parent = tempNode; //update the parent of the head pointer
+                    DoubleLinkedListStruct.Head = tempNode; //update the head pointer 
+                    DoubleLinkedListStruct.Head.Child = prevHead; //double link it
+                }
+                return value;
+            }
+        }
+
+        public void Add (int key, string value)
+        {
+            if (!LRUmap.ContainsKey(key))
+            {
+                if (LRUmap.Count() >= this.maxSize)
+                {
+                    //if it exceeds its size delete the least recently used node from cache
+                    //and update double linked list by removing the current tail and updating with the new.
+                    var nodeToDelete = DoubleLinkedListStruct.Tail;
+                    var nodesKey = nodeToDelete.key;
+                    LRUmap.Remove(nodesKey);
+                    DoubleLinkedListStruct.Tail.Child.Parent = null;
+                    DoubleLinkedListStruct.Tail = DoubleLinkedListStruct.Tail.Child;
+                }
+
+                var newNode = new DoubleLinkedListNode(value,key);
+                //DoubleLinkedListStruct.Nodes.Add(newNode);
+                LRUmap.Add(key, newNode);
+                if (DoubleLinkedListStruct.Head == null)
+                {
+                    DoubleLinkedListStruct.Head = newNode;
+                    if (DoubleLinkedListStruct.Tail == null) //struct is empty
+                        DoubleLinkedListStruct.Tail = newNode;
+                }
+                else
+                {
+                    var prevHead = DoubleLinkedListStruct.Head;
+                    DoubleLinkedListStruct.Head.Parent = newNode; //update the parent of the head pointer
+                    DoubleLinkedListStruct.Head = newNode; //update the head pointer 
+                    DoubleLinkedListStruct.Head.Child = prevHead; //double link it
+                }
+            }
+            else throw new Exception("This key is already contained");
+        }
+
+        public bool Contains(int key)
+        {
+            return (LRUmap.ContainsKey(key)) ? true : false;
+        }
+
+        public int Count()
+        {
+            return LRUmap.Count();
+        }
+    }
+
+    //PROPOSED CLASS FOR THE FINAL IMPLEMENTATION AS AN OPTIMIZATION
+    public static class DoubleLinkedListStruct2 
+    {
+        public static DLNode Head;
+
+        public static DLNode Tail;
+
+        public class DLNode
+        {
+            public int key;
+            public string Value;
+            public DoubleLinkedListNode Parent;
+            public DoubleLinkedListNode Child;
+            public DLNode(string Value, int key)
+            {
+                this.Value = Value;
+                this.key = key;
+                this.Parent = null;
+                this.Child = null;
+            }
+        }
+    }
+
+    //CURRENT ARCHITECTURE USED
+    public static class DoubleLinkedListStruct
+    {
+        //public static HashSet<DoubleLinkedListNode> Nodes;
+        public static DoubleLinkedListNode Head;
+        public static DoubleLinkedListNode Tail;
+    }
+
+    public class DoubleLinkedListNode
+    {
+        public int key;
+        public string Value;
+        public DoubleLinkedListNode Parent;
+        public DoubleLinkedListNode Child;
+        public DoubleLinkedListNode(string Value,int key)
+        {
+            this.Value = Value;
+            this.key = key;
+            this.Parent = null;
+            this.Child = null;
+        }
+    }
+
+
+    public class Graph
+    {
+        public GraphNode[] nodes;
+        public Graph(int nodesNo)
+        {
+            nodes = new GraphNode[nodesNo];
+        }
+        
+    }
+    public class GraphNode 
+    {
+        public string data;
+        public GraphNode[] adjacents;
+
+        public GraphNode(string data,int nodesNo)
+        {
+            this.data = data;
+            this.adjacents = new GraphNode[nodesNo];
+        }
+    }
+
     public class Node 
     {
         public int data;

@@ -710,6 +710,5 @@ namespace DeepDiveTechnicals.CrackingTheCode
             }
             return finalNumber;
         }
-        
     }
 }

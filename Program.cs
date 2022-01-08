@@ -24,11 +24,26 @@ namespace DeepDiveTechnicals
         
         public static void Main(string[] args)
         {
-           
-            ModerateProbs.PairsWithSum(new List<int> { 3, 4, 12, 5, 2, 2 }, 9);
-            ModerateProbs.SumSwap();
+            
+            #region LRU CACHE DESIGN 
+            FrequentlyAskedQuestions.LRU cache = new FrequentlyAskedQuestions.LRU(3);
+            cache.Add(1, "Alex");
+            cache.Add(2, "Lina");
+            var temp =cache.Get(1);
+            cache.Add(3, "Ermioni");
+            temp = cache.Get(2);
+            cache.Add(4, "Spyros");
+            cache.Add(5, "Katerina");
+            
+            #endregion
 
             #region Frequently Asked Questions
+            FrequentlyAskedQuestions.Interview.TreeWithDuplicateSubTreesDepth2();
+            var groupOfAnagrams = FrequentlyAskedQuestions.Interview.GroupAnagrams(new List<string>());
+            FrequentlyAskedQuestions.Interview.RatWithTuples();
+            FrequentlyAskedQuestions.Interview.PrintAllPermutations("abc");
+            FrequentlyAskedQuestions.Interview.GraphClone();
+            FrequentlyAskedQuestions.Interview.FirstCommonAncestor();
             FrequentlyAskedQuestions.Interview.LeftSideOfTree();
             FrequentlyAskedQuestions.Interview.RatInMaze();
             FrequentlyAskedQuestions.Interview.SerializeTree(null);
@@ -42,6 +57,8 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Moderate Problems
+            ModerateProbs.PairsWithSum(new List<int> { 3, 4, 12, 5, 2, 2 }, 9);
+            ModerateProbs.SumSwap();
             ModerateProbs.T9Mobile("8733");
             ModerateProbs.PondSizes();
             ModerateProbs.SubSort();

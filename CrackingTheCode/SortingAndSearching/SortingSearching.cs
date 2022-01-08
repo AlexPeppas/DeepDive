@@ -126,7 +126,7 @@ namespace DeepDiveTechnicals.CrackingTheCode
 
         /// <summary>
         /// Problem : 10.2
-        /// Description : Write a method to sort an array ot strings so that all tne anagrnms are next to each other.
+        /// Description : Write a method to sort an array of strings so that all tne anagrnms are next to each other.
         /// </summary>
         /// 
         //Custom NEEDS TO BE FIXED
