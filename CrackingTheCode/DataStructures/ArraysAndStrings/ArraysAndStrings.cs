@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace DeepDiveTechnicals.DataStructures.ArraysAndStrings
 {
@@ -242,6 +243,26 @@ namespace DeepDiveTechnicals.DataStructures.ArraysAndStrings
                 output.Append(sum);
             }
             return output.ToString();
+        }
+
+        /// <summary>
+        /// Problem : 1.9
+        /// Description : Assume you have a method isSubstring which checks if one word is a substring
+        /// of another.Given two strings, 51 and 52, write code to check if 52 is a rotation of 51 using only one
+        /// call to i5Sub5tring(e.g., "waterbottle" is a rotation of" erbottlewat").
+        /// </summary>
+        public static bool StringRotation (string s1, string s2)
+        {
+            if (s1.Length==s2.Length && s1.Length>0)
+            {
+                string s1s1 = s1 + s1;
+                return isSubstring(s1s1, s2);
+            }
+            return false;
+        }
+        public static bool isSubstring(string s1, string s2)
+        {
+            return true; //mock
         }
     }
 }

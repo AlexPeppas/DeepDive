@@ -633,6 +633,69 @@ namespace DeepDiveTechnicals.RecursionAndDynamicProgramming
             }
             return tempLayer;
         }
-        
+
+        public static int TripleStep()
+        {
+            int stairs = 5;
+            //5 stairs 
+            // 1 || 2 || 3 hops
+            int[] memo = new int[stairs + 1];
+            return TripleStepHelper(stairs,memo);
+
+        }
+        public static int TripleStepHelper(int index, int[] memo)
+        {
+            if (memo[index]>-1)
+            {
+                return memo[index];
+            }
+            if (index == 1 || index ==0)
+                return 1;
+            if (index < 0)
+                return 0;
+
+            memo[index] += TripleStepHelper(index - 1, memo) + TripleStepHelper(index - 2, memo) + TripleStepHelper(index - 3, memo);
+
+            return memo[index];
+        }
+
+        //{}
+        //{}{a}
+        //{}{a}{b}{ab}
+        public static void PowerSet()
+        {
+            List<string> list = new List<string> { "a", "b", "c" };
+            PowerSetHelper(list, list.Count);
+            //{}
+            //{} c
+        }
+        public static List<List<string>> allSets = new List<List<string>>();
+        public static List<List<string>> PowerSetHelper(List<string> list, int index)
+        {
+            List<List<string>> subSets;
+            if (index == list.Count)
+            {
+                subSets = new List<List<string>>();
+                subSets.Add(new List<string>());
+                return subSets;
+            }
+            else
+            {
+                subSets = PowerSetHelper(list, index+1);
+                string itemToAdd = list[index];
+                var tempSet = new List<List<string>>();
+                foreach (var set in subSets)
+                {
+                    var tempList = new List<string>();
+                    tempList.AddRange(set);
+                    tempList.Add(itemToAdd);
+                    tempSet.Add(tempList);
+                }
+                subSets.AddRange(tempSet);
+            }
+            return subSets;
+        }
+
+     
     }
 }

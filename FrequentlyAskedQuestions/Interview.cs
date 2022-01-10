@@ -1211,6 +1211,283 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             Array.Sort(temp);
             return new string(temp);
         }
+
+        /// <summary>
+        /// Approach the classic Lowest Common Ancestor on a typical Binary Tree. What if one of the given nodes is not contained in the tree ? Then there is no a common ancestor 
+        /// so handle this scenario with two public booleans firstFound and secondFound
+        /// </summary>
+        public static void LowestCommonAncestor()
+        {
+            var root1 = new Node(20);
+            root1.right = new Node(22);
+            root1.right.right = new Node(70);
+            root1.left = new Node(8);
+            root1.left.left = new Node(4);
+            root1.left.right = new Node(19);
+            root1.left.right.left = new Node(10);
+
+            fNod = root1.left.right.left; //10
+            sCnod = root1.left; //8
+            var LCA = LowestComHelper(root1);
+            if (sFound && fFound) Console.WriteLine($"Lowest Common Ancestor -> {LCA.data}");
+
+            fNod = root1.left.right.left; //10
+            sCnod = root1.left.left; // 4
+            sFound = false;
+            fFound = false;
+            LCA = LowestComHelper(root1);
+            if (sFound && fFound) Console.WriteLine($"Lowest Common Ancestor -> {LCA.data}");
+
+            fNod = root1.left.right.left; //10
+            sCnod = root1.right.right; // 70
+            sFound = false;
+            fFound = false;
+            LCA = LowestComHelper(root1);
+            if (sFound && fFound) Console.WriteLine($"Lowest Common Ancestor -> {LCA.data}");
+            /*
+             *          20
+             *       8      22
+             *    4    19      70
+                     10
+             */
+
+        }
+
+        public static Node fNod;
+        public static Node sCnod;
+        public static bool fFound = false;
+        public static bool sFound = false;
+
+        public static Node LowestComHelper(Node node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+            Node temp = null;
+            if (node == fNod)
+            {
+                temp = fNod;
+                fFound = true;
+            }
+            else if (node == sCnod)
+            {
+                temp = sCnod;
+                sFound = true;
+            }
+            Node nodeLeft = LowestComHelper(node.left);
+            Node nodeRight = LowestComHelper(node.right);
+            if (nodeLeft == null && nodeRight == null && temp == null)
+            {
+                return null;
+            }
+            else if (temp != null)
+            {
+                return temp;
+            }
+            else if (nodeLeft != null && nodeRight != null) return node;
+            return (nodeLeft == null) ? nodeRight : nodeLeft;
+
+        }
+
+        /// <summary>
+        /// Perform Cycle Detection in Directed Graph
+        /// Approach : Use a queue and a stringbuilder. BFS on graph and build the stringbuild foreach current node and neighbor. If the node is included in stringbuilder
+        /// keep the index and traverse on its neighbors (typical BFS) if you build a sequence which is already included in you SB then you're in a cycle.
+        /// </summary>
+        public static bool CyclesInDirectedGraph()
+        {
+            #region Graph Seeding
+            Graph graph = new Graph(4);
+            graph.nodes[0] = new GraphNode("A", 2);
+            graph.nodes[1] = new GraphNode("B", 1);
+            graph.nodes[2] = new GraphNode("C", 2);
+            graph.nodes[3] = new GraphNode("D", 1);
+            
+            //nodeA
+            graph.nodes[0].adjacents[0] = graph.nodes[1]; //B
+            graph.nodes[0].adjacents[1] = graph.nodes[2]; //C
+            //nodeB
+            graph.nodes[1].adjacents[0] = graph.nodes[2]; //C
+            //nodeC
+            graph.nodes[2].adjacents[0] = graph.nodes[3]; //D
+            graph.nodes[2].adjacents[1] = graph.nodes[0]; //A
+            //nodeD
+            //graph.nodes[3].adjacents[0] = graph.nodes[3]; //D
+
+            #endregion
+
+            GraphNode node = graph.nodes[0];
+            Queue<GraphNode> queue = new Queue<GraphNode>();
+            StringBuilder sb = new StringBuilder();
+            queue.Enqueue(node);
+            bool contains = false;
+            bool underRevision = false;
+            int index = 0;
+            int count = 0;
+            while (queue.Count>0)
+            {
+                var tempNode = queue.Dequeue();
+                if (!sb.ToString().Contains(tempNode.data))
+                {
+                    sb.Append(tempNode.data);
+                    underRevision = false;
+                }
+                else
+                {
+                    if (!underRevision)
+                    {
+                        count = 0;
+                        index = sb.ToString().IndexOf(tempNode.data);
+                        underRevision = true;
+                        sb.Append(tempNode.data);
+                    }
+                    else//if (underRevision)
+                    {
+                        if (sb.ToString()[index+1].ToString()==tempNode.data)
+                        {
+                            index++;
+                            count++;
+                            if (count > 2)
+                            { contains = true; break; }
+                        }
+                        else
+                        {
+                            if (count > 2)
+                            { contains = true; break; }
+                            //RESET
+                            index = 0;
+                            count = 0;
+                            underRevision = false;
+                        }
+                        sb.Append(tempNode.data);
+                    }
+                }
+                foreach (var neighbor in tempNode.adjacents)
+                {
+                    if (neighbor == null) break;
+                    if (neighbor == tempNode)
+                    {
+                        contains = true;
+                        break;
+                    }
+                    if (!queue.Contains(neighbor))
+                        queue.Enqueue(neighbor);
+                }
+            }
+            return contains;
+        }
+
+        /// <summary>
+        /// Perform Cycle Detection in Directed Graph
+        /// Approach : Use a stack and perform DFS with recursion on the root. If you end up adding a node in the stack which is already contained while you're in recursion (memory stack)
+        /// then you have entered a cycle.
+        /// </summary>
+        public static bool CyclesInDirectedGraphDFS()
+        {
+            #region Graph Seeding
+            Graph graph = new Graph(4);
+            graph.nodes[0] = new GraphNode("A", 2);
+            graph.nodes[1] = new GraphNode("B", 1);
+            graph.nodes[2] = new GraphNode("C", 2);
+            graph.nodes[3] = new GraphNode("D", 1);
+
+            //nodeA
+            graph.nodes[0].adjacents[0] = graph.nodes[1]; //B
+            graph.nodes[0].adjacents[1] = graph.nodes[2]; //C
+            //nodeB
+            graph.nodes[1].adjacents[0] = graph.nodes[2]; //C
+            //nodeC
+            graph.nodes[2].adjacents[0] = graph.nodes[3]; //D
+            graph.nodes[2].adjacents[1] = graph.nodes[0]; //A
+            //nodeD
+            //graph.nodes[3].adjacents[0] = graph.nodes[3]; //D
+
+            #endregion
+
+            GraphNode node = graph.nodes[0];
+            Stack<GraphNode> stack = new Stack<GraphNode>();
+            CyclesHelperDetection(node, stack);
+            return cycleDetected;
+        }
+        public static bool cycleDetected = false;
+        public static void CyclesHelperDetection(GraphNode node , Stack<GraphNode> stack)
+        {
+            if (cycleDetected) return;
+            if (node == null)
+                return;
+            if (!stack.Contains(node))
+            {
+                stack.Push(node);
+                foreach (var neighbor in node.adjacents)
+                {
+                    if (neighbor != null)
+                    {
+                        CyclesHelperDetection(neighbor, stack);
+                        if (cycleDetected) return;
+                        if (stack.Count>0) stack.Pop(); // backTrack
+                    }
+                }
+            }
+            else
+            {
+                cycleDetected = true;
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Sort a Nearly Sorted (K-Sorted) Array
+        /// Approach : For each value keep it in a current var and its previous value as well. Check the next k elements and find this which is previous <= valueToSwap < current
+        /// When you target the minimum valueToSwap of all k elements swap it and add it to the hashset. When you find it again while continuing with the while loop, ignore it.
+        /// <Time>O(nk)</Time>
+        /// </summary>
+        public static void KSortedArray()
+        {
+
+            List<int> karray = new List<int>
+            {6, 5, 3, 2, 8, 10, 9};
+            HashSet<int> set = new HashSet<int>();
+            int k = 3;
+            for (int i=0;i<karray.Count-1;i++) //do not check the last item it must be sorted by the previous 4
+            {
+                int current = karray[i];
+                if (set.Contains(current)) continue;
+                int prev;
+                prev = (i == 0) ? -1 : karray[i - 1];
+                int cloneK = 1;
+                int min = current;
+                int position = -1;
+                while (cloneK<=k)
+                {
+                    if (cloneK+i<karray.Count)
+                    {
+                        int temp = karray[i+cloneK];
+                        if (temp<min && temp>= prev)
+                        {
+                            min = temp;
+                            position = i + cloneK;
+                        }
+                    }
+                    else
+                    {
+                        //out of index
+                        break;
+                    }
+                    cloneK++;
+                }
+                if (position != -1)
+                {
+                    //swap
+                    int swapTemp = current;
+                    set.Add(swapTemp);
+                    set.Add(karray[position]);
+                    karray[i] = karray[position];
+                    karray[position] = swapTemp;
+                }
+            }
+        }
+        
     }
     /// <summary>
     /// LRU CACHE DESIGN

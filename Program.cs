@@ -21,10 +21,17 @@ namespace DeepDiveTechnicals
             comp = 0
         };
        
-        
         public static void Main(string[] args)
         {
-            
+            #region Twitter 1st
+            TwitterMain(new List<Tuple<int, long>>(), 2);
+            //input larget dataSet and binWidth (for histogram chunks) = 2 etc. [0,1] [2,3] [4,5]
+            #endregion
+
+            #region Hashing 
+            long hash =new Hashing().UniqueHash("01012022210324510005000 This is my very first unique hash of my very first tweet. Hello World I would like to recommend and adjust my previous tweets and also add some pictures and gifs and pngs. I will retweet about crypto and politics");
+            #endregion
+
             #region LRU CACHE DESIGN 
             FrequentlyAskedQuestions.LRU cache = new FrequentlyAskedQuestions.LRU(3);
             cache.Add(1, "Alex");
@@ -34,10 +41,14 @@ namespace DeepDiveTechnicals
             temp = cache.Get(2);
             cache.Add(4, "Spyros");
             cache.Add(5, "Katerina");
-            
+
             #endregion
 
             #region Frequently Asked Questions
+            FrequentlyAskedQuestions.Interview.KSortedArray();
+            FrequentlyAskedQuestions.Interview.CyclesInDirectedGraphDFS();
+            FrequentlyAskedQuestions.Interview.CyclesInDirectedGraph();
+            FrequentlyAskedQuestions.Interview.LowestCommonAncestor();
             FrequentlyAskedQuestions.Interview.TreeWithDuplicateSubTreesDepth2();
             var groupOfAnagrams = FrequentlyAskedQuestions.Interview.GroupAnagrams(new List<string>());
             FrequentlyAskedQuestions.Interview.RatWithTuples();
@@ -133,7 +144,9 @@ namespace DeepDiveTechnicals
             Console.WriteLine(RecursionAndDynamicProgramming.RecursionAndDynamic.Fibo(6));
             #endregion
 
+            #region Polymorphism
             InheritancePractices.MainFunc();
+            #endregion
 
             #region Trees
             TreesAndGraphs.FirstCommonNode();
@@ -152,33 +165,13 @@ namespace DeepDiveTechnicals
             oneAwayOutput = ArraysAndStrings.OneAway("pales", "pale");
             oneAwayOutput = ArraysAndStrings.OneAway("pale", "bale");
             oneAwayOutput = ArraysAndStrings.OneAway("pale", "bake");
-
+            var r = ArraysAndStrings.CheckPermutation("abcd", "cbda");
             var urlifyOutput = ArraysAndStrings.URLify("Mr John Smith ");
             #endregion
 
+            #region Previous Preparation
             permutation("ale","");
             string stop = string.Empty;
-
-
-            /*   
-             *   ========================== PLAYING WITH HASHSET & HASHMAP ===============================
-            var set = new HashSet<string> { "alex", "cat", "dog", "house", "agricultrural", "athens" };
-            set.Add("cats");
-            set = set.OrderByDescending(it => it).ToHashSet<string>() ;
-
-            var hMap = new HashMap<string, int> { { "cat", 1 }, {"dog",5 }, {"animals",6 } };
-            hMap.Add("elephants", 3);
-            hMap["animals"] = hMap["animals"] + hMap["elephants"];
-            set =set.Where(it => it.Length > 2).Select(it => it).ToHashSet<string>();
-            */
-            /* *   ========================== PLAYING WITH String Compare ===============================
-             * String Sorting and Comparing
-            string a = "daa";
-            string b = "dab";
-            int resultString = a.CompareTo(b);
-            List<string> list = new List<string> { "alex", "cat", "dog", "house", "agricultrural", "athens" };
-            list.Sort();
-            */
 
             //
             //array1: 50 5 20 30 40
@@ -188,7 +181,6 @@ namespace DeepDiveTechnicals
             arr[0] = 5; arr[1] = 6; arr[2] = 20; arr[3] = 10; arr[4] = 5;
             var rotatedArray = new SearchRotatedArray().Sort(arr, 0, arr.Length - 1, 10);
             //
-
             var result = new Parenthesis().isValid();
             new MagicIndex().ComputeWithFast();
             //1 , 1 , 2 , 3 , 5 , 8
@@ -205,59 +197,134 @@ namespace DeepDiveTechnicals
 
             var linkedlist = new RemoveDups();
             linkedlist.main();
-
             
-            var r = ArraysAndStrings.CheckPermutation("abcd", "cbda");
-            r = ArraysAndStrings.CheckPermutation("abcd", "bbac");
-            r = ArraysAndStrings.CheckPermutation("abcd", "abcd");
-            r = ArraysAndStrings.CheckPermutation("abcde","ebcad");
-            r = ArraysAndStrings.CheckPermutation("abcde", "eb");
-            r = ArraysAndStrings.CheckPermutation("abcde", "aaaaa");
-            r = ArraysAndStrings.CheckPermutation("abcde", "fghia");
-
+            //dummy tree traverse
             var treeLogic = new TreeLogic();
             treeLogic.TreeTraverse();
+            //
+
+            //dummy order date for balancer
             var datesOrdered = Order_DateTimes.OrderDate();
-            
+            //
+
             // table manipulation BP Services
             var tableManip = new TableManipulation();
             tableManip.Manipulate();
             //
-
-            var stack = new Stack<int>();
-            Console.WriteLine(stack.Peek());
-            stack.ElementAt<int>(stack.Peek() - 1);
-            var dicto = new Dictionary<char, char> { { '(', ')' },{ '[',']'}, { '{', '}' } };
-            
-            string killIt;
-            killIt = "1 100";
-            Console.WriteLine("this is killIt "+ killIt.Substring(2));
-
-            Console.WriteLine("Hello World!");
-
-            HashMap<string, Person> map = new HashMap<string, Person>();
-
-            map.Add("Alex", new Person { Surname = "Peppas", Age = 26, Address = "Koim25" });
-            map.Add("Ermioni", new Person { Surname = "Peppas", Age = 30, Address = "Koim25" });
-            
-            var flag = map.ContainsKey("Alex");
-
-            var o = map["Alex"];
-            map["Alex"].Age = 27;
-
-            foreach (var item in map)
-            {
-                Console.WriteLine(item.Value.Surname + " " + item.Value.Age + " " + item.Value.Address);
-            }
-
-
 
             var dict = new Dictionary<int, int>{ { 0, 2 } };
             var dum = 5;
             var pos = dict.FirstOrDefault(it => it.Value > dum);
             if (pos.Value == 0) throw new Exception("Empty Dict");
             Console.WriteLine("pos" + pos);
+
+            #endregion
         }
+        /// <summary>
+        /*
+            User Active Minutes - Problem statement:
+            We are interested in tracking user engagement at Twitter. 
+
+            Suppose we have a service that generates a log for any action taken on Twitter. Whenever a user takes any action on Twitter (for example, if they write a tweet, like a tweet, or view another user’s timeline), that user’s user_id and an epoch timestamp in seconds is logged. The log is written as a list of these pairs sorted chronologically by timestamp. For example:
+
+            [1, 1518290973]
+            [2, 1518291032]
+            [3, 1518291095]
+            [1, 1518291096]
+            [4, 1518291120]
+            [3, 1518291178]
+            [1, 1518291200]
+            [1, 1518291202]
+            [1, 1518291281]
+
+            Now, suppose that we would like to gauge user engagement by tracking a metric called User Active Minutes (UAM) for each user. We define this metric to be the number of distinct minutes that contained an action taken by that user. We can use the logs to determine the number of UAM that each user has.
+
+            We are interested in obtaining a histogram that shows the number of users whose UAM falls within certain ranges, determined by a bin size. For instance, if our bin size is 100, after processing our log we might find that 20 users fall between 0-99 UAM, 34 users fall between 100-199 UAM, 48 users fall between 200-299 UAM, and so on.
+
+            How would one implement a solution that creates a histogram for UAM as described above, given a raw log and a bin size?
+
+            1518290973/60
+            25304849
+            1518291032/60
+            25304850
+            1518291095/60
+            25304851
+
+            input = [
+            (1, 1518290973),
+            (2, 1518291032),
+            (3, 1518291095),
+            (1, 1518291096),
+            (4, 1518291120),
+            (3, 1518291178),
+            (1, 1518291200),
+            (1, 1518291202),
+            (1, 1518291281)
+            ]
+
+            def compute_uam_histogram(user_map, bin_width):
+            pass
+
+            assert compute_uam_histogram(input, 2) == [2, 1, 1], "Oh no!"
+            print("Success!")
+            */
+
+        //(0,1) (2,3) (4,5) ...
+        // 2
+        /// </summary>
+        public static void TwitterMain(List<Tuple<int, long>> input, int binWidth)
+        {
+            //List<Tuple<int,long>> input = new List<Tuple<int,long>>()
+            //Dictionary<int,int> userActivity = new Dictionary<int, int>();
+            Dictionary<int, Tuple<int, long>> userActivity = new Dictionary<int, Tuple<int, long>>();
+            //tuple.1 is my counter , tuple.2 is my epoch
+            foreach (Tuple<int, long> item in input)
+            {
+                int userId = item.Item1;
+                long epochSec = item.Item2;
+                long tempEpoch = epochSec / 60;
+                if (!userActivity.ContainsKey(userId))
+                {
+                    userActivity.Add(userId, new Tuple<int, long>(1, tempEpoch));
+                }
+                else
+                {
+                    var lastActiveEpoch = userActivity[userId].Item2;
+                    if (tempEpoch > lastActiveEpoch)
+                    {
+                        //build the max here
+                        userActivity[userId] = new Tuple<int, long>(userActivity[userId].Item1 + 1, tempEpoch);
+                        //userActivity[userId].Item1 = userActivity[userId].Item1 + 1;
+                        //userActivity[userId].Item2 = tempEpoch;
+                    }
+                }
+
+                int maxWidth = 100; //max Will be built in the iteration. this is dummy value
+                int[] histogram = new int[maxWidth + 1];
+                foreach (var user in userActivity)
+                {
+                    int bucket = user.Value.Item1 / binWidth;
+                    if (bucket > histogram.Length)
+                        continue;
+                    histogram[bucket]++;
+                }
+
+
+            }
+        }
+
+        public static void ParseInt(string input)
+        {
+            //"1012"
+            int res = input[0] - 48;
+            for (int i=1; i<input.Length;i++)
+            {
+                res *= 10;
+                int tempCode = input[i] - 48;
+                res += tempCode;
+            }
+        }
+
         public static void permutation(string str, string prefix)
         {
             if (str.Count() == 0)
@@ -274,8 +341,6 @@ namespace DeepDiveTechnicals
             }
         }
     }
-
-    
 
     public class Person 
     {

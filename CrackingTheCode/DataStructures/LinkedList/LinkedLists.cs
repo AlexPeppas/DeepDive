@@ -192,7 +192,52 @@ namespace DeepDiveTechnicals.DataStructures.LinkedList
         21 return head;
         22 }
          */
+        public class LinkedListNodeNew
+        {
+            public int data;
+            public LinkedListNodeNew next;
+            public LinkedListNodeNew previous;
+            public LinkedListNodeNew(int data)
+            {
+                this.data = data;
+                this.next = null;
+                this.previous = null;
+            }
+        }
 
+        public static LinkedListNodeNew head = null;
+        public static LinkedListNodeNew tail = null;
+
+        public static void Partition (LinkedListNodeNew root, int partition)
+        {
+            if (head==null && tail == null)
+            {
+                head = root;
+                tail = root;
+            }
+            var tempNode = root.next;
+            while (tempNode != null)
+            {
+                if (tempNode.data<partition)
+                {
+                    tail.next = tempNode;
+                    tail = tempNode;
+                }
+                else if (tempNode.data>partition)
+                {
+                    head.previous = tempNode;
+                    head = tempNode;
+                }
+                else //==partition
+                {
+                    tail.next = tempNode;
+                    tempNode.next = head;
+                }
+                tempNode = tempNode.next;
+            }
+
+
+        }
         /// <summary>
         /// Problem : 2.5
         /// Description : You have two numbers represented by a linked list, where each node contains a single

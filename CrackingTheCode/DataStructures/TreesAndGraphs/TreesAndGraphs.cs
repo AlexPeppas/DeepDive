@@ -658,5 +658,59 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
             GetOrderString(t1.left, sb);
             GetOrderString(t1.right, sb);
         }
+
+        /// <summary>
+        /// Problem : 4.2
+        /// </summary>
+        public static void MinimalTree()
+        {
+            List<int> sortedList = new List<int> { 0, 1, 3, 5, 6, 8, 9, 12 };
+        }
+        public static CustomNode CreateBinarySearchTree(List<int> sortedList, int start, int end)
+        {
+            if (start > end) return null;
+            int mid = (start+end)/ 2;
+            CustomNode node = new CustomNode(sortedList[mid]);
+            node.left = CreateBinarySearchTree(sortedList, start, mid - 1);
+            node.left = CreateBinarySearchTree(sortedList, mid+1, end);
+
+            return node;
+        }
+
+        /// <summary>
+        /// Problem : 4.8
+        /// </summary>
+        public static void FirstCommonAncestor()
+        {
+            CustomNode root = new CustomNode(1);
+        }
+        public static CustomNode firstAncestor;
+        public static CustomNode secondAncestor;
+
+        public static CustomNode FCAHelper(CustomNode node)
+        {
+            if (node == null)
+                return null;
+            CustomNode temp = null;
+            if (node == firstAncestor)
+            {
+                temp = firstAncestor;
+            }
+            else if (node == secondAncestor)
+            {
+                temp = secondAncestor;
+            }
+
+            CustomNode nodeLeft = FCAHelper(node.left);
+            CustomNode nodeRight = FCAHelper(node.right);
+
+            if (nodeLeft == null && nodeRight == null)
+                return null;
+            else if (temp != null)
+                return temp;
+            else if (nodeLeft != null && nodeRight != null)
+                return node;
+            return (nodeLeft != null) ? nodeLeft : nodeRight;
+        }
     }
 }
