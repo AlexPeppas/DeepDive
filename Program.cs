@@ -20,9 +20,15 @@ namespace DeepDiveTechnicals
         {
             comp = 0
         };
-       
+
         public static void Main(string[] args)
         {
+            
+            #region Hard Problems
+            HardProblems.Shuffle();
+            HardProblems.RandomSet();
+            #endregion
+
             #region Twitter 1st
             TwitterMain(new List<Tuple<int, long>>(), 2);
             //input larget dataSet and binWidth (for histogram chunks) = 2 etc. [0,1] [2,3] [4,5]
@@ -45,6 +51,8 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Frequently Asked Questions
+            FrequentlyAskedQuestions.Interview.FindPathRobotInGridWithCycle(); //HARD MICROSOFT
+            FrequentlyAskedQuestions.Interview.StrictlyIncreasingPathTwitter(); //HARD TWITTER
             FrequentlyAskedQuestions.Interview.KSortedArray();
             FrequentlyAskedQuestions.Interview.CyclesInDirectedGraphDFS();
             FrequentlyAskedQuestions.Interview.CyclesInDirectedGraph();
@@ -220,6 +228,7 @@ namespace DeepDiveTechnicals
 
             #endregion
         }
+
         /// <summary>
         /*
             User Active Minutes - Problem statement:

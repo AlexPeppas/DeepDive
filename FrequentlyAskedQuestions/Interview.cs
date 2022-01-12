@@ -1487,7 +1487,205 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 }
             }
         }
-        
+
+        /// <summary>
+        /// ASKED BY TWITTER
+        /// 1. (Boggle–like a question) In a 2D array (M x N, in the given ex. 3×3) of numbers,
+        /// find the strictly increasing path from the specified origin cell (1,0) to the specified destination cell (0, 2).
+        /// The array may contain duplicates, and the solution should work with the dups. 
+        /// <Approach>
+        /// Start from (1,0) in matrix. Every time split in three different directions. Right , Upwards, Downwoards if the 
+        /// next neighbor is > current. If it is add the current value to the path and jump on the neighbor.
+        /// Keep doing until you hit the destination or build one of the base cases (out of index i, out of index j, or no neighbor
+        /// satisfy the greate (neighbor>current) condition).
+        /// If you have multiple paths with equal maxSum then keep them all in a List<List<Tuple<int,int>>> so you can provide all 
+        /// possible paths.
+        /// Upon backtrack POP the top of the list when you finish with all neighbor jumps. Handle the scenario that you have backtracked 
+        /// to the first position which is going to be at index=0 (DO NOT POP).
+        /// </Approach>
+        /// </summary>
+        public static void StrictlyIncreasingPathTwitter()
+        {
+            int[,] matrix = new int[3, 3]
+            {
+                { 0,0,8},
+                { 1,4,7},
+                { 4,5,6}
+            };
+            StrictlyIncreasingPathTwitterHelper(matrix, position, new List<Tuple<int, int>>());
+        }
+        public static Tuple<int, int> position = new Tuple<int, int>(1, 0);
+        public static Tuple<int, int> destination = new Tuple<int, int>(0, 2);
+        public static List<List<Tuple<int, int>>> LongestPaths = new List<List<Tuple<int, int>>>();
+        public static int pathMaxSum = 0;
+
+        public static void StrictlyIncreasingPathTwitterHelper(int[,] matrix,Tuple<int,int> position, List<Tuple<int,int>> positions)
+        {
+            if (position.Item1 == destination.Item1 && position.Item2 == destination.Item2)
+            {
+                if (pathMaxSum == 0)
+                {
+                    List<Tuple<int, int>> tempList = new List<Tuple<int, int>>();
+                    foreach (var item in positions)
+                    {
+                        pathMaxSum += matrix[item.Item1, item.Item2];
+                        tempList.Add(item);
+                    }
+                    pathMaxSum += matrix[destination.Item1, destination.Item2];
+                    tempList.Add(destination);
+                    LongestPaths.Add(tempList);
+                }
+                else
+                {
+                    int max = 0;
+                    List<Tuple<int,int>> tempList = new List<Tuple<int, int>>();
+                    foreach (var item in positions)
+                    {
+                        max += matrix[item.Item1, item.Item2];
+                        tempList.Add(item);
+                    }
+                    max+= matrix[destination.Item1, destination.Item2];
+                    tempList.Add(destination);
+                    if (max>=pathMaxSum)
+                    {
+                        pathMaxSum = max;
+                        LongestPaths.Add(tempList);
+                    }
+                    else
+                    {
+                        //ignore this path;
+                    }
+                }
+            }
+            if (position.Item1 >= matrix.GetLength(0) || position.Item1 < 0)
+                return; //out of bounds row
+            if (position.Item2 >= matrix.GetLength(1) || position.Item2 < 0)
+                return; // out of bounds col
+            if (position.Item1 + 1 < matrix.GetLength(0))
+            {
+                if (matrix[position.Item1, position.Item2] < matrix[position.Item1 + 1, position.Item2])
+                {
+                    positions.Add(position);
+                    StrictlyIncreasingPathTwitterHelper(matrix, new Tuple<int, int>(position.Item1 + 1, position.Item2), positions);
+                }
+            }
+            if (position.Item2 + 1 < matrix.GetLength(1))
+            {
+                if (matrix[position.Item1, position.Item2] < matrix[position.Item1, position.Item2+1])
+                {
+                    positions.Add(position);
+                    StrictlyIncreasingPathTwitterHelper(matrix, new Tuple<int, int>(position.Item1, position.Item2+1), positions);
+                }
+            }
+            if (position.Item1-1>=0)
+            {
+                if (matrix[position.Item1, position.Item2] < matrix[position.Item1-1, position.Item2])
+                {
+                    positions.Add(position);
+                    StrictlyIncreasingPathTwitterHelper(matrix, new Tuple<int, int>(position.Item1-1, position.Item2), positions);
+                }
+            }
+            if (positions.Count>0)
+                positions.RemoveAt(positions.Count - 1);
+            return;
+        }
+        /// <summary>
+        /// ASKED BY MICROSOFT
+        /// Start from (0,0) in a grid. Your robot starts moving forward. Every time it hits a blocking position (=-1) or
+        /// out of bounds rotate 90degrees and keep moving.
+        /// When you detect a cycle throw an exception with cycle detection and print how many blocks in the grid it has visited.
+        /// </summary>
+        public static void FindPathRobotInGridWithCycle()
+        {
+            int[,] maze = new int[3, 4]
+            {
+                { 1,1,-1,1},
+                {-1,1,-1,-1},
+                { 1,1,1,1}
+            };
+            var roboPos = new RoboPosition(0,0);
+            FindPathRobotInGridWithCycleHelper(roboPos.row, roboPos.col, maze);
+        }
+
+        public static void FindPathRobotInGridWithCycleHelper(int row, int col, int[,] maze)
+        {
+            //var roboPosition = new RoboPosition(row, col);
+            if (row >= maze.GetLength(0) || row < 0)
+            {
+                if (Angle < 270)
+                    Angle += 90;
+                else
+                    Angle = 0;
+                return;
+            }//out of row bounds
+            if (col >= maze.GetLength(1) || col < 0)
+            {
+                if (Angle < 270)
+                    Angle += 90;
+                else
+                    Angle = 0;
+                return;
+            }//out of col bounds
+            if (maze[row, col] == -1)
+            {
+                if (Angle < 270)
+                    Angle += 90;
+                else
+                    Angle = 0;
+                return ;
+            }
+            /*if (RoboPositionWithDirection.ContainsKey(roboPosition))
+            {
+                if (RoboPositionWithDirection[roboPosition].Contains((Directions)Angle))
+                    throw new Exception($"Cycle Detected. Max Squares Visited -> {maxSquaresVisited}");
+                RoboPositionWithDirection[roboPosition].Add((Directions)Angle);
+            }
+            else RoboPositionWithDirection.Add(roboPosition, new List<Directions> { (Directions)Angle });*/
+            if (RoboPositionWithDirection.ContainsKey(new Tuple<int,int>(row,col)))
+            {
+                if (RoboPositionWithDirection[new Tuple<int, int>(row, col)].Contains((Directions)Angle))
+                    throw new Exception($"Cycle Detected. Max Squares Visited -> {maxSquaresVisited}");
+                RoboPositionWithDirection[new Tuple<int, int>(row, col)].Add((Directions)Angle);
+            }
+            else RoboPositionWithDirection.Add(new Tuple<int, int>(row, col), new List<Directions> { (Directions)Angle });
+            maxSquaresVisited++;
+            for (int i=0;i<4;i++)
+            { //try 4 directions
+                if (Angle == 0)
+                    FindPathRobotInGridWithCycleHelper(row - 1, col, maze);
+                else if (Angle == 90)
+                    FindPathRobotInGridWithCycleHelper(row, col + 1, maze);
+                else if (Angle == 180)
+                    FindPathRobotInGridWithCycleHelper(row + 1, col, maze);
+                else if (Angle == 270)
+                    FindPathRobotInGridWithCycleHelper(row, col - 1, maze);
+            }
+        }
+        public class RoboPosition
+        {
+            public int row;
+            public int col;
+
+            public RoboPosition(int row, int col)
+            {
+                this.row = row;
+                this.col = col;
+            }
+        }
+        public static int Angle = 90;
+        public static int maxSquaresVisited = 0;
+        public enum Directions
+        {
+            Upward = 0,
+            Forward = 90,
+            Downward = 180,
+            Backward = 270
+        };
+        /*public static Dictionary<RoboPosition, List<Directions>> RoboPositionWithDirection
+        = new Dictionary<RoboPosition, List<Directions>>();*/
+        public static Dictionary<Tuple<int, int>, List<Directions>> RoboPositionWithDirection
+        = new Dictionary<Tuple<int, int>, List<Directions>>();
+
     }
     /// <summary>
     /// LRU CACHE DESIGN
