@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DeepDiveTechnicals
@@ -380,6 +381,155 @@ namespace DeepDiveTechnicals
             }
 
             return (linkedListNode.left != null) ? linkedListNode.left : linkedListNode;
+        }
+
+        /// <summary>
+        /// Problem : 17.13
+        /// Description : Oh, no! You have accidentally removed all spaces, punctuation, and capitalization in a
+        /// lengthy document.A sentence like "I reset the c omputer. It still didn't boot!"
+        /// became "iresetthec omputeri tstilldidntboot''. You'll deal with the punctuation and capitalization
+        /// later; right now you need to re-insert the spaces.Most of the words are in a dictionary but
+        /// a few are not.Given a dictionary(a list of strings) and the document(a string), design an algorithm
+        /// to unconcatenate the document in a way that minimizes the number of unrecognized characters.
+        /// EXAMPLE
+        /// Input jesslookedjustliketimherbrother
+        /// Output: jess looked just like tim her brother(7 unrecognized characters)
+        /// Approach : 
+        /// Iterate over the document. If your current character is not contained in the trie just continue, add it to your output stringBuild and increment the running index.
+        /// Otherwise if it is contained check if in the HashMap that you keep the character and the list of the corresponding nodes if there exists a node which is a starting word (startsWith = true)
+        /// Foreach of these prefixes perform the HelperFunction which does a BFS on the Trie and in parallel moves the index of the document. If you finish with Trie traverse and you find a 
+        /// letter which is final word (isFinal = true) then return the incremented index for the last letter of the valid sentence. 
+        /// If your returned index > -1 it means that you had a Trie Hit and you found a valid world. Prepend a space " " to your strinbuilder
+        /// and until your running index reaches your returned index keep Appending letters from your input Doc into you stringbuilder.
+        /// After that Append a final space " " and keep iterating over the remaining chars of the doc. 
+        /// </summary>
+        public static void ReSpace()
+        {
+            //Trie Seed
+            var root = new TrieNode("*");
+            root.children.Add(new TrieNode("l", true, false));
+
+            root.children[0].children.Add(new TrieNode("o", false, false));
+            root.children[0].children[0].children.Add(new TrieNode("o", false, false));
+            root.children[0].children[0].children[0].children.Add(new TrieNode("k", false, true));
+
+            root.children[0].children.Add(new TrieNode("i", false, false));
+            root.children[0].children[1].children.Add(new TrieNode("k", false, false));
+            root.children[0].children[1].children[0].children.Add(new TrieNode("e", false, true));
+
+            root.children.Add(new TrieNode("h", true, false));
+            root.children[1].children.Add(new TrieNode("e", false, false));
+            root.children[1].children[0].children.Add(new TrieNode("e", false, true));
+
+            root.children.Add(new TrieNode("b", true, false));
+            root.children[2].children.Add(new TrieNode("r", false, false));
+            root.children[2].children[0].children.Add(new TrieNode("o", false, false));
+            root.children[2].children[0].children[0].children.Add(new TrieNode("t", false, false));
+            root.children[2].children[0].children[0].children[0].children.Add(new TrieNode("h", false, false));
+            root.children[2].children[0].children[0].children[0].children[0].children.Add(new TrieNode("e", false, false));
+            root.children[2].children[0].children[0].children[0].children[0].children[0].children.Add(new TrieNode("r", false, true));
+            //End of Seed
+            var TrieMapper = new Dictionary<string, List<TrieNode>>
+            {
+                { "l", new List<TrieNode>{ root.children[0] } },
+                { "o", new List<TrieNode>{root.children[0].children[0],root.children[0].children[0].children[0] ,root.children[2].children[0].children[0] } },
+                { "k", new List<TrieNode>{ root.children[0].children[0].children[0].children[0], root.children[0].children[1].children[0] } },
+                { "i", new List<TrieNode>{ root.children[0].children[1] } },
+                { "e", new List<TrieNode>{ root.children[0].children[1].children[0].children[0], root.children[1].children[0].children[0], root.children[2].children[0].children[0].children[0].children[0].children[0] } },
+                { "h", new List<TrieNode>{root.children[1], root.children[2].children[0].children[0].children[0].children[0] } },
+                { "r", new List<TrieNode>{ root.children[1].children[0].children[0], root.children[2].children[0], root.children[2].children[0].children[0].children[0].children[0].children[0].children[0] } },
+                { "b", new List<TrieNode>{ root.children[2] } },
+                {"t", new List<TrieNode>{ root.children[2].children[0].children[0].children[0] } }
+            };
+
+            string document = "jesslookedjustliketimherbrother";
+            int index = 0;
+            StringBuilder sbOut = new StringBuilder();
+            while (index<document.Length)
+            {
+                string toCheck = document[index].ToString();
+                if (!TrieMapper.ContainsKey(toCheck))
+                {
+                    sbOut.Append(toCheck);
+                    index++;
+                }
+                else
+                {
+                    var prefixes = TrieMapper[toCheck];
+                    prefixes = prefixes.Where(node => node.startsWith == true)?.Select(it => it).ToList();
+                    bool foundOne = false;
+                    foreach (var prefix in prefixes)
+                    {
+                        int result = reSpaceHelper(prefix, index, document);
+                        if (result == -1) continue;
+                        else
+                        {
+                            sbOut.Append(" ");
+                            while (index <= result)
+                            {
+                                sbOut.Append(document[index].ToString());
+                                index++;
+                            }
+                            sbOut.Append(" ");
+                            foundOne = true;
+                            break;
+                        }
+                    }
+                    if (!foundOne)
+                    {
+                        sbOut.Append(toCheck);
+                        index++;
+                    }
+                }
+            }
+            string outputDoc = sbOut.ToString();
+        }
+
+        public static int reSpaceHelper(TrieNode prefix,int index, string document)
+        {
+            var queue = new Queue<TrieNode>();
+            queue.Enqueue(prefix);
+            bool flag = false;
+            while (queue.Count>0)
+            {
+                var tempNode = queue.Dequeue();
+                //If you found the word return the index
+                if (tempNode.isFinal)
+                {
+                    flag = true; 
+                    break;
+                }
+
+                if (tempNode.Sentence != document[index].ToString()) continue;
+                else
+                {
+                    foreach (var neighbor in tempNode.children)
+                    {
+                        queue.Enqueue(neighbor);
+                    }
+                    index++;
+                }
+                
+            }
+            return (flag) ? index : -1;
+        }
+    }
+
+    public class TrieNode
+    {
+        public bool isVisited;
+        public string Sentence;
+        public bool startsWith;
+        public bool isFinal;
+        public List<TrieNode> children;
+
+        public TrieNode(string sentence,bool startsWith = false, bool isFinal = false)
+        {
+            this.Sentence = sentence;
+            this.startsWith = startsWith;
+            this.isFinal = isFinal;
+            this.children = new List<TrieNode>();
+            this.isVisited = false;
         }
     }
 

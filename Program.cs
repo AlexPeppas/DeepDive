@@ -24,6 +24,7 @@ namespace DeepDiveTechnicals
         public static void Main(string[] args)
         {
             #region Hard Problems
+            HardProblems.ReSpace(); // HARD. Used a Trie. Nice Technique
             HardProblems.BiNodeFunc();
             HardProblems.BabyNames();
             HardProblems.LettersAndNumber(); //HARD. Nice Technique
