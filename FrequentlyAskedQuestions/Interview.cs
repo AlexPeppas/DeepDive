@@ -1686,6 +1686,100 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         public static Dictionary<Tuple<int, int>, List<Directions>> RoboPositionWithDirection
         = new Dictionary<Tuple<int, int>, List<Directions>>();
 
+        /// <summary>
+        /// Twitter First Round
+        /*
+            User Active Minutes - Problem statement:
+            We are interested in tracking user engagement at Twitter. 
+
+            Suppose we have a service that generates a log for any action taken on Twitter. Whenever a user takes any action on Twitter (for example, if they write a tweet, like a tweet, or view another user’s timeline), that user’s user_id and an epoch timestamp in seconds is logged. The log is written as a list of these pairs sorted chronologically by timestamp. For example:
+
+            [1, 1518290973]
+            [2, 1518291032]
+            [3, 1518291095]
+            [1, 1518291096]
+            [4, 1518291120]
+            [3, 1518291178]
+            [1, 1518291200]
+            [1, 1518291202]
+            [1, 1518291281]
+
+            Now, suppose that we would like to gauge user engagement by tracking a metric called User Active Minutes (UAM) for each user. We define this metric to be the number of distinct minutes that contained an action taken by that user. We can use the logs to determine the number of UAM that each user has.
+
+            We are interested in obtaining a histogram that shows the number of users whose UAM falls within certain ranges, determined by a bin size. For instance, if our bin size is 100, after processing our log we might find that 20 users fall between 0-99 UAM, 34 users fall between 100-199 UAM, 48 users fall between 200-299 UAM, and so on.
+
+            How would one implement a solution that creates a histogram for UAM as described above, given a raw log and a bin size?
+
+            1518290973/60
+            25304849
+            1518291032/60
+            25304850
+            1518291095/60
+            25304851
+
+            input = [
+            (1, 1518290973),
+            (2, 1518291032),
+            (3, 1518291095),
+            (1, 1518291096),
+            (4, 1518291120),
+            (3, 1518291178),
+            (1, 1518291200),
+            (1, 1518291202),
+            (1, 1518291281)
+            ]
+
+            def compute_uam_histogram(user_map, bin_width):
+            pass
+
+            assert compute_uam_histogram(input, 2) == [2, 1, 1], "Oh no!"
+            print("Success!")
+            */
+
+        //(0,1) (2,3) (4,5) ...
+        // 2
+        /// </summary>
+        public static void TwitterMain(List<Tuple<int, long>> input, int binWidth)
+        {
+            //List<Tuple<int,long>> input = new List<Tuple<int,long>>()
+            //Dictionary<int,int> userActivity = new Dictionary<int, int>();
+            Dictionary<int, Tuple<int, long>> userActivity = new Dictionary<int, Tuple<int, long>>();
+            //tuple.1 is my counter , tuple.2 is my epoch
+            foreach (Tuple<int, long> item in input)
+            {
+                int userId = item.Item1;
+                long epochSec = item.Item2;
+                long tempEpoch = epochSec / 60;
+                if (!userActivity.ContainsKey(userId))
+                {
+                    userActivity.Add(userId, new Tuple<int, long>(1, tempEpoch));
+                }
+                else
+                {
+                    var lastActiveEpoch = userActivity[userId].Item2;
+                    if (tempEpoch > lastActiveEpoch)
+                    {
+                        //build the max here
+                        userActivity[userId] = new Tuple<int, long>(userActivity[userId].Item1 + 1, tempEpoch);
+                        //userActivity[userId].Item1 = userActivity[userId].Item1 + 1;
+                        //userActivity[userId].Item2 = tempEpoch;
+                    }
+                }
+
+                int maxWidth = 100; //max Will be built in the iteration. this is dummy value
+                int[] histogram = new int[maxWidth + 1];
+                foreach (var user in userActivity)
+                {
+                    int bucket = user.Value.Item1 / binWidth;
+                    if (bucket > histogram.Length)
+                        continue;
+                    histogram[bucket]++;
+                }
+
+
+            }
+        }
+
     }
     /// <summary>
     /// LRU CACHE DESIGN
