@@ -23,8 +23,14 @@ namespace DeepDiveTechnicals
 
         public static void Main(string[] args)
         {
-            
+
+
+
             #region Hard Problems
+            HardProblems.BiNodeFunc();
+            HardProblems.BabyNames();
+            HardProblems.LettersAndNumber(); //HARD. Nice Technique
+            HardProblems.MissingNumberNonBinary(); //Do the binary approach
             HardProblems.Shuffle();
             HardProblems.RandomSet();
             #endregion
@@ -35,7 +41,12 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Hashing 
+            long hashWithShift = new Hashing().UniqueHashShifting(
+            "Tesla Community in California, Please help stop the Solar Tax by "
+            + " GavinNewsom  ! Make your voice heard! All the information is posted here!"
+            + " @Tesla @TeslaSolar @elonmusk Please RT and get the word out.");
             long hash =new Hashing().UniqueHash("01012022210324510005000 This is my very first unique hash of my very first tweet. Hello World I would like to recommend and adjust my previous tweets and also add some pictures and gifs and pngs. I will retweet about crypto and politics");
+            long hashNoShift = new Hashing().UniqueHash("Hello World. This is a large set of data to be hashed so I am trying to overflow my long variable. Author AlexP and Date : 15/01/2022.");
             #endregion
 
             #region LRU CACHE DESIGN 

@@ -6,6 +6,7 @@ namespace DeepDiveTechnicals
 {
     public class Hashing
     {
+        
         public long UniqueHash(string input)
         {
             /*
@@ -26,6 +27,27 @@ namespace DeepDiveTechnicals
                 //hash = (hash + Convert.ToInt64(Math.Pow(g, i) * input[i]));
                 hash = (hash + g_pow * input[i])% m;
                 g_pow = (g_pow * g) % m;
+            }
+            return hash;
+        }
+
+        /// <summary>
+        /// Create a unique Hash Function for a larget input string
+        /// </summary>
+        /// Approach : g is our base prime number to multiply with each character (increasing the power respectively with the char.array's index as we're 
+        /// iterating over the input. This will avoid collisions for hashCodes of permutations of our input.
+        /// Example : input : Hello
+        /// Hash -> int(H)*31^0 + e*31^1 + l*31^2 + l*31^3 + o*31^4
+        /// which is equal to -> ch[0] + g(ch[1] + g(ch[2] + g(ch[3] + g(ch[4]))))
+        /// <returns>HashCode (a large int)</returns>
+        public long UniqueHashShifting(string input)
+        {
+            int g = 31;
+            long hash = 0;
+            
+            for (int i=input.Length-1;i>=0;i--)
+            {
+                hash = g * hash + Convert.ToInt32(input[i]);
             }
             return hash;
         }
