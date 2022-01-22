@@ -23,6 +23,10 @@ namespace DeepDiveTechnicals
 
         public static void Main(string[] args)
         {
+            #region My Custom Problems
+            MyCustomProblems.RatInMazeCached();
+            #endregion
+
             #region Hard Problems
             HardProblems.ReSpace(); // HARD. Used a Trie. Nice Technique
             HardProblems.BiNodeFunc();
@@ -64,6 +68,7 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Frequently Asked Questions
+            FrequentlyAskedQuestions.WarmUp.LCA();
             FrequentlyAskedQuestions.Interview.StrictlyIncreasingPathTwitter(); //HARD TWITTER
             FrequentlyAskedQuestions.Interview.KSortedArray();
             FrequentlyAskedQuestions.Interview.CyclesInDirectedGraphDFS();
