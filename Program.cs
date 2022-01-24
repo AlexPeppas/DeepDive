@@ -23,6 +23,7 @@ namespace DeepDiveTechnicals
 
         public static void Main(string[] args)
         {
+    
             #region My Custom Problems
             MyCustomProblems.RatInMazeCached();
             #endregion
@@ -68,6 +69,8 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Frequently Asked Questions
+            FrequentlyAskedQuestions.Interview.BinaryTreeToDLL(); // AMAZON Medium
+            FrequentlyAskedQuestions.Interview.KLargestElements(2); // AMAZON Easy
             FrequentlyAskedQuestions.WarmUp.LCA();
             FrequentlyAskedQuestions.Interview.StrictlyIncreasingPathTwitter(); //HARD TWITTER
             FrequentlyAskedQuestions.Interview.KSortedArray();

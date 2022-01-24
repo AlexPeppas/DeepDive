@@ -1497,7 +1497,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// Start from (1,0) in matrix. Every time split in three different directions. Right , Upwards, Downwoards if the 
         /// next neighbor is > current. If it is add the current value to the path and jump on the neighbor.
         /// Keep doing until you hit the destination or build one of the base cases (out of index i, out of index j, or no neighbor
-        /// satisfy the greate (neighbor>current) condition).
+        /// satisfy the greater (neighbor>current) condition).
         /// If you have multiple paths with equal maxSum then keep them all in a List<List<Tuple<int,int>>> so you can provide all 
         /// possible paths.
         /// Upon backtrack POP the top of the list when you finish with all neighbor jumps. Handle the scenario that you have backtracked 
@@ -1686,6 +1686,127 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         public static Dictionary<Tuple<int, int>, List<Directions>> RoboPositionWithDirection
         = new Dictionary<Tuple<int, int>, List<Directions>>();
 
+
+        /// <summary>
+        /// ASKED BY AMAZON
+        /// Write an efficient program for printing k largest elements in an array. Elements in an array can be in any order.
+        /// For example, if the given array is [1, 23, 12, 9, 30, 2, 50] and you are asked for the largest 3 elements i.e., k = 3 then your program should print 50, 30, and 23.
+        /// <Time>O(n*k) where n items of the array and k the number of items in k largest records</Time>
+        /// </summary>
+       
+        public static void KLargestElements(int k)
+        {
+            List<int> input = new List<int>
+            {
+                1, 23, 12, 9, 30, 2, 50
+            };
+            List<int> kLargestRecords = new List<int>();
+
+            int index = 0;
+            for (var i=0;i<input.Count;i++)
+            {
+                if (index < k)
+                {
+                    kLargestRecords.Add(input[i]);
+                    index++;
+                }
+                else
+                {
+                    //find the min value among largestRecords and compare it to current item input[i]
+                    int min = int.MaxValue;
+                    int minpos = 0;
+                    for (int j=0;j<kLargestRecords.Count;j++)
+                    {
+                        if (kLargestRecords[j]<min)
+                        {
+                            min = kLargestRecords[j];
+                            minpos = j;
+                        }
+                    }
+                    if (input[i]>min)
+                    {
+                        kLargestRecords[minpos] = input[i];
+                    }
+                }
+            }
+
+            Console.WriteLine("STOP");
+        }
+
+        /// <summary>
+        /// ASKED BY AMAZON
+        /// Given a Binary Tree (BT), convert it to a Doubly Linked List(DLL) In-Place. The left and right pointers in nodes are to be used as previous and next pointers respectively in converted DLL. The order of nodes in DLL must be same as Inorder of the given Binary Tree.
+        /// The first node of Inorder traversal (left most node in BT) must be head node of the DLL.
+        /// Example : 
+        ///         10
+        ///     12      15
+        ///   25 30   36
+        ///   
+        /// DLL : 25<->12<->30<->10<->36<->15
+        /// </summary>
+        public static void BinaryTreeToDLL()
+        {
+            var root1 = new Node(10);
+            root1.right = new Node(15);
+            root1.right.left = new Node(36);
+            root1.left = new Node(12);
+            root1.left.left = new Node(25);
+            root1.left.right = new Node(30);
+
+            BTreeToDLLHelper(root1);
+        }
+        public static DoubleLinkedLNode BTreeToDLLHelper(Node node)
+        {
+            if (node == null)
+                return null;
+            DoubleLinkedListStruct._nodesCount++;
+
+            var leftNeighbor = BTreeToDLLHelper(node.left);
+
+            var tempNode = new DoubleLinkedLNode(node.data);
+
+            if (leftNeighbor == null && DoubleLinkedListStruct.tail == null)
+                DoubleLinkedListStruct.tail = tempNode;
+
+            var rightNeihbor = BTreeToDLLHelper(node.right);
+
+            if (rightNeihbor == null)
+                DoubleLinkedListStruct.head = tempNode;
+
+            
+            tempNode.previous = leftNeighbor;
+            if (leftNeighbor != null)
+                leftNeighbor.next = tempNode;
+            tempNode.next = rightNeihbor;
+            if (rightNeihbor != null)
+                rightNeihbor.previous = tempNode;
+
+            if (rightNeihbor == null && leftNeighbor != null) return tempNode.previous;
+            else if (rightNeihbor != null && leftNeighbor == null) return tempNode.next;
+            else if (rightNeihbor != null && leftNeighbor != null) return tempNode.next;
+            else return tempNode;
+        }
+
+        public static class DoubleLinkedListStruct
+        {
+            internal static int _nodesCount=0;
+            public static DoubleLinkedLNode head =null;
+            public static DoubleLinkedLNode tail =null;
+        }
+
+        public class DoubleLinkedLNode
+        {
+            public int data;
+            public DoubleLinkedLNode next;
+            public DoubleLinkedLNode previous;
+
+            public DoubleLinkedLNode(int data)
+            {
+                this.data = data;
+                this.next = null;
+                this.previous = null;
+            }
+        }
         /// <summary>
         /// Twitter First Round
         /*
@@ -1775,8 +1896,6 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                         continue;
                     histogram[bucket]++;
                 }
-
-
             }
         }
 
