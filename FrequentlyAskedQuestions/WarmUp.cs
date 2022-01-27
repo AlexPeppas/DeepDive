@@ -78,5 +78,52 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 return node;
             return (leftNode != null) ? leftNode : rightNode;
         }
+
+        public static int[] QuickSort()
+        {
+            int[] arr = new int[6] { 1, 3, 9, 7, 5, 4 };
+
+            QuickSortHelper(0, arr.GetLength(0) - 1, arr);
+            return arr;
+        }
+
+        public static void QuickSortHelper(int low,int high, int[] arr)
+        {
+            if (low >= high)
+                return;
+
+            int pivot = arr[(low + high)/ 2];
+            var index = Partition(arr,pivot,low,high); // build items around partition (middle element)
+
+            QuickSortHelper(low, index - 1, arr); //continue for the left and right sub-arrays
+            QuickSortHelper(index, high, arr);
+        }
+
+        public static int Partition(int[] arr, int partitionKey,int leftPntr, int rightPntr)
+        {
+            while (leftPntr<=rightPntr)
+            {
+                while (arr[leftPntr] < partitionKey)
+                { 
+                    leftPntr++; 
+                }
+                
+                while (arr[rightPntr]> partitionKey)
+                {
+                    rightPntr--;
+                }
+                if (leftPntr <= rightPntr)
+                {
+                    //swap
+                    int temp = arr[rightPntr];
+                    arr[rightPntr] = arr[leftPntr];
+                    arr[leftPntr] = temp;
+                    rightPntr--;
+                    leftPntr++;
+                }
+            }
+            
+            return leftPntr;
+        }
     }
 }

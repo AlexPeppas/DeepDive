@@ -1807,6 +1807,219 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 this.previous = null;
             }
         }
+
+        /// <summary>
+        /// Given a linked list, write a function to reverse every k nodes(where k is an input to the function). 
+        /// Example: 
+        /// Input: 1->2->3->4->5->6->7->8->NULL, K = 3 
+        /// Output: 3->2->1->6->5->4->8->7->NULL
+        /// Input: 1->2->3->4->5->6->7->8->NULL, K = 5 
+        /// Output: 5->4->3->2->1->8->7->6->NULL
+        /// Approach : Iterate over the linked list and for every k elements store them in a stack (so you can respect reversal).
+        /// that means every k elements you're going to create a new stack of k elements and store it in stacks list. 
+        /// When you finish iterate over that stacks list and by popping values from each stack until you empty them in the 
+        /// respective sequential order repeat. Finally you have your k reversed linked list
+        /// <Time>O(n)</Time>
+        /// <Space>O(n)</Space>
+        /// </summary>
+        public static void ReverseLinkedListInGroupsOfSize(int k)
+        {
+            //1->2->3->4->5->6->7->8->9
+            //k=3
+            //3->2->1->6->5->4->9->8->7
+            #region LinkedList seed
+            LinkedListNodeCustom<int> llNode = new LinkedListNodeCustom<int>(1);
+            llNode.next = new LinkedListNodeCustom<int>(2);
+            llNode.next.next = new LinkedListNodeCustom<int>(3);
+            llNode.next.next.next = new LinkedListNodeCustom<int>(4);
+            llNode.next.next.next.next = new LinkedListNodeCustom<int>(5);
+            llNode.next.next.next.next.next = new LinkedListNodeCustom<int>(6);
+            llNode.next.next.next.next.next.next = new LinkedListNodeCustom<int>(7);
+            llNode.next.next.next.next.next.next.next = new LinkedListNodeCustom<int>(8);
+            llNode.next.next.next.next.next.next.next.next = new LinkedListNodeCustom<int>(9);
+            #endregion
+
+            List<Stack<int>> stacks = new List<Stack<int>>();
+            var stack = new Stack<int>();
+            while (llNode!=null)
+            {
+                if (stack.Count<k)
+                {
+                    stack.Push(llNode.data);
+                }
+                else
+                {
+                    stacks.Add(stack);
+                    stack = new Stack<int>();
+                    stack.Push(llNode.data);
+                }
+                llNode = llNode.next;
+                if (llNode == null)
+                    stacks.Add(stack);
+            }
+            
+            var head = stacks[0].Pop();
+            var headLL = new LinkedListNodeCustom<int>(head);
+            var realHeadLL = headLL;
+            foreach (var stackOfK in stacks)
+            {
+                while (stackOfK.Count > 0)
+                {
+                    var tempNode = new LinkedListNodeCustom<int>(stackOfK.Pop());
+                    headLL.next = tempNode;
+                    headLL = tempNode;
+                }
+            }
+
+        }
+        public class LinkedListNodeCustom<T> 
+        {
+            public int data;
+            public LinkedListNodeCustom<T> next;
+
+            public LinkedListNodeCustom(int data)
+            {
+                this.data = data;
+                next = null;
+            }
+        }
+
+        /// <summary>
+        /// The stock span problem is a financial problem where we have a series of n daily price quotes for a stock and we need to calculate span of stock’s price for all n days.
+        /// The span Si of the stock’s price on a given day i is defined as the maximum number of consecutive days just before the given day, for which the price of the stock on the current day is less than its price on the given day.
+        /// For example, if an array of 7 days prices is given
+        /// as {100, 80, 60, 70, 60, 75, 85}, then the span values for corresponding 7 days are {1, 1, 1, 2, 1, 4, 6}
+        /// Approach : Iterate over the input and keep a dictionary of each item as a key and value the index of this item in the initial list
+        /// if we have the same key just update the value of its index. Whenever you find an item which is greater than its prior 
+        /// iterate in the dictionary and search for the first key,value that your current integer >= dict.key. So the distance 
+        /// from your current item will be distance = currentIndex - dict.value of the exact prior k,v pair before you hit the above case.
+        /// Update the dict, add it to the output list .Add(distance) and keep iterating for the rest of the list with the same logic.
+        /// </summary>
+        public static void StockSpanProblem()
+        {
+            var input = new List<int> { 100, 80, 60, 70, 60, 75, 85 };
+            var dict = new Dictionary<int, int>();
+            dict.Add(input[0],0);
+            var outPut = new List<int>();
+            outPut.Add(1);
+            for (int index=1;index<input.Count;index++)
+            {
+                if (input[index] <= input[index - 1])
+                {
+                    if (dict.ContainsKey(input[index]))
+                        dict[input[index]] = index;
+                    else 
+                        dict.Add(input[index], index);
+                    outPut.Add(1);
+                }
+                else
+                {
+                    int tempDistance = 0;
+                    foreach (var item in dict)
+                    {
+                        if (item.Key > input[index])
+                            tempDistance = item.Value;
+                        else 
+                        {
+                            tempDistance = index - tempDistance;
+                            if (dict.ContainsKey(input[index]))
+                                dict[input[index]] = index;
+                            else
+                                dict.Add(input[index], index);
+                            outPut.Add(tempDistance);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asked by Goldman Sachs to me
+        /// You're given a Hashet of strings. You must return a hashet of hashets and every distinc hashet is going to include the 
+        /// anagrams grouped together.
+        /// Example :
+        /// Input <"cat", "tac", "god", "dog", "ogd", "taco">
+        /// Output < <"cat","tac"> , <"god","dog","ogd"> , <"taco">
+        /// </summary>
+        /// <Time>N*(slogs)</Time>
+        public static HashSet<HashSet<string>> SetOfSets()
+        {
+            HashSet<string> set = new HashSet<string> { "cat", "tac", "god", "dog", "ogd", "act", "taco" };
+            var output = new HashSet<HashSet<string>>();
+            /*
+             * cat,tac,act
+             * god,dog,ogd
+             * taco
+             */
+            var dict = new Dictionary<string, List<string>>();
+            foreach (var item in set)
+            {
+                var key = item.ToCharArray();
+                Array.Sort(key);
+                if (dict.ContainsKey(new string(key)))
+                    dict[new string(key)].Add(item);
+                else
+                    dict.Add(new string(key), new List<string> { item });
+            }
+            foreach (var item in dict)
+            {
+                var newSet = new HashSet<string>();
+                foreach (var val in item.Value)
+                {
+                    if (!newSet.Contains(val))
+                        newSet.Add(val);
+                }
+                output.Add(newSet);
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// Given an array of positive numbers, find the maximum sum of a subsequence with the constraint 
+        /// that no 2 numbers in the sequence should be adjacent in the array. 
+        /// So 3 2 7 10 should return 13 (sum of 3 and 10) 
+        /// or 3 2 5 10 7 should return 15 (sum of 3, 5 and 7).
+        /// Answer the question in most efficient way.
+        /// </summary>
+        /// Approach : After writing some examples you can observe that every time we produce 4 possible sums. 
+        /// The first starts from index 0 and adds the even indexes to this sum1.
+        /// Second starts at index 0 and adds even indexes (after 1 which is adjacent) to this sum2.
+        /// Third starts at index 1 and adds even indexes (after 2 which is adjacent) to this sum3.
+        /// Fourth starts at index 1 and adds odd indexes to this sum4.
+        /// Return the max accumulator among these four. Operates in O(N-2).
+        /// <Time>O(N-2) --> O(N)</Time>
+        public static int MaxSumNoAdjacents()
+        {
+            var list = new List<int> { 1,3,7,-1,5,0,11,4 };
+            
+            if (list.Count <= 1)
+                return list[0];
+
+            int sumi1 = list[0];
+            int sumi2 = list[0];
+            int sumj1 = list[1];
+            int sumj2 = list[1];
+            int[] sums = new int[4] { sumi1, sumi2, sumj1, sumj2 };
+            for (int i=2;i<list.Count;i++)
+            {
+                if (i == 2)
+                    sums[0] += list[i];
+                else if (i%2==0)
+                {
+                    sums[0] += list[i];
+                    sums[2] += list[i];
+                }
+                else
+                {
+                    sums[1] += list[i];
+                    sums[3] += list[i];
+                }
+            }
+
+            return sums.Max();
+        }
+
         /// <summary>
         /// Twitter First Round
         /*
