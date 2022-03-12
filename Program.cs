@@ -23,7 +23,36 @@ namespace DeepDiveTechnicals
 
         public static void Main(string[] args)
         {
-      
+            #region WarmUp
+            var obstacles = new List<List<int>>
+            { new List<int>(),
+            new List<int>(),
+            //new List<int>{ 4},
+            new List<int>(),
+                new List<int>(),
+            new List<int>(),
+            new List<int>(),
+            new List<int>(),
+            new List<int>()};
+            
+            
+            FrequentlyAskedQuestions.WarmUp.QueensAttack(7, 1, 3, 3, obstacles);
+            FrequentlyAskedQuestions.WarmUp.SumSwap();
+            FrequentlyAskedQuestions.WarmUp.RotationalCipher("Zebra-493?", 3);
+            FrequentlyAskedQuestions.WarmUp.LeftView();
+            FrequentlyAskedQuestions.WarmUp.MinLengthSubstring("cbedfebce", "fqd");
+            var fourStep = FrequentlyAskedQuestions.WarmUp.FourStepMemo(5);
+            FrequentlyAskedQuestions.WarmUp.Decode("1234");
+            var outputIndex = FrequentlyAskedQuestions.WarmUp.RotatedArray(new List<int> { 15, 16, 19, 20, 25, 1, 2, 4, 5, 7, 10, 14 }, 20);
+            FrequentlyAskedQuestions.WarmUp.GroupOfAnagrams(new List<string> { "taco", "cat", "dog", "tac", "god", "badas", "testing", "db", "bb", "stingte" });
+            int[] largeA = new int[100];
+            largeA[0] = 1;largeA[1] = 2;largeA[2] = 7;largeA[3] = 9;largeA[4] = 10;
+            int[] smallB = new int[5] { 3, 4, 7, 30, 50 };
+            FrequentlyAskedQuestions.WarmUp.MergeArrays(largeA,smallB,4);
+            FrequentlyAskedQuestions.WarmUp.StringCompression("aabcccccaaa");
+            FrequentlyAskedQuestions.WarmUp.IsRotation("waterbottle", "erbottlewat");
+            #endregion
+
             #region My Custom Problems
             MyCustomProblems.RatInMazeCached();
             #endregion
@@ -36,6 +65,11 @@ namespace DeepDiveTechnicals
             HardProblems.MissingNumberNonBinary(); //Do the binary approach
             HardProblems.Shuffle();
             HardProblems.RandomSet();
+            #endregion
+
+            #region Amazon 1st
+            FrequentlyAskedQuestions.Interview.AmazonMainFirstProb(); // To Optimize, Tricky Medium~Hard
+            FrequentlyAskedQuestions.Interview.AmazonMainSecondProb(new List<int> { -5,-3,0,1,2},3,8); // AMAZON MEDIUM Tricky
             #endregion
 
             #region Twitter 1st
@@ -68,7 +102,15 @@ namespace DeepDiveTechnicals
 
             #endregion
 
-            #region Frequently Asked Questions
+            #region Frequently Asked Questions and GeeksForGeeks
+
+            FrequentlyAskedQuestions.WarmUp.NQueens(4);
+            FrequentlyAskedQuestions.WarmUp.RatInMaze(); //cache approach needs fixing
+            FrequentlyAskedQuestions.WarmUp.LCAClassic(new FrequentlyAskedQuestions.Node(-1));
+            FrequentlyAskedQuestions.WarmUp.LCA();
+            FrequentlyAskedQuestions.WarmUp.SubSetOfValidParensPairs(3);
+            FrequentlyAskedQuestions.WarmUp.TripleStep(5);
+            FrequentlyAskedQuestions.Interview.FindMaximumMeetingsInOneRoom(new List<int>(), new List<int>()); // GeeksForGeeks MEDIUM tricky
             FrequentlyAskedQuestions.Interview.MaxSumNoAdjacents(); // AMAZON Easy but tricky for efficiency
             FrequentlyAskedQuestions.WarmUp.QuickSort();
             var tempGS = FrequentlyAskedQuestions.Interview.SetOfSets(); // GoldMan Sachs Medium
@@ -76,7 +118,6 @@ namespace DeepDiveTechnicals
             FrequentlyAskedQuestions.Interview.ReverseLinkedListInGroupsOfSize(3);
             FrequentlyAskedQuestions.Interview.BinaryTreeToDLL(); // AMAZON Medium
             FrequentlyAskedQuestions.Interview.KLargestElements(2); // AMAZON Easy
-            FrequentlyAskedQuestions.WarmUp.LCA();
             FrequentlyAskedQuestions.Interview.StrictlyIncreasingPathTwitter(); //HARD TWITTER
             FrequentlyAskedQuestions.Interview.KSortedArray();
             FrequentlyAskedQuestions.Interview.CyclesInDirectedGraphDFS();
@@ -174,6 +215,7 @@ namespace DeepDiveTechnicals
             int magic = RecursionAndDynamicProgramming.RecursionAndDynamic.MagicIndexDuplicates(new List<int>());
             RecursionAndDynamicProgramming.RecursionAndDynamic.RobotInAGrid();
             RecursionAndDynamicProgramming.RecursionAndDynamic.FibMain();
+            RecursionAndDynamicProgramming.RecursionAndDynamic.TripleStep();
             Console.WriteLine(RecursionAndDynamicProgramming.RecursionAndDynamic.Fibo(6));
             #endregion
 

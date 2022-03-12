@@ -1735,7 +1735,8 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 
         /// <summary>
         /// ASKED BY AMAZON
-        /// Given a Binary Tree (BT), convert it to a Doubly Linked List(DLL) In-Place. The left and right pointers in nodes are to be used as previous and next pointers respectively in converted DLL. The order of nodes in DLL must be same as Inorder of the given Binary Tree.
+        /// Given a Binary Tree (BT), convert it to a Doubly Linked List(DLL) In-Place. The left and right pointers in nodes are to be used as previous and next pointers respectively in converted DLL. 
+        /// The order of nodes in DLL must be same as Inorder of the given Binary Tree.
         /// The first node of Inorder traversal (left most node in BT) must be head node of the DLL.
         /// Example : 
         ///         10
@@ -2021,6 +2022,51 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         }
 
         /// <summary>
+        /// There is one meeting room in a firm.There are N meetings in the form of (S[i], F[i]) where S[i] is the start time of meeting i 
+        /// and F[i] is finish time of meeting i.The task is to find the maximum number of meetings that can be accommodated in the meeting room.
+        /// Print all meeting numbers
+        /// </summary>
+        /// Approach : Iterate over the Start list and create a List of pairs (Start,Finish), then sort this list by the Finish property ascending.
+        /// Add to your output list of pairs the first room and keep its Finish time in a local variable "lastFinished"
+        /// Iterate over the next records and if the next pair's Start is greater than lastFinished (current.Start>previous.Finish) then add this pair
+        /// to the List of pairs output and update the lastFinished to be equal to the current's Finish --> lastFinished = current.Finish
+        ///<Time>O(n*logn)</Time>
+        public static void FindMaximumMeetingsInOneRoom(List<int> Start, List<int>Finish)
+        {
+            Start = new List<int> { 1, 3, 0, 5, 8, 5 };
+            Finish = new List<int> { 2, 4, 6, 7, 9, 9};
+
+            List<Tuple<int, int>> pairs = new List<Tuple<int, int>>();
+            int index = 0;
+
+            while (index<Start.Count)
+            {
+                pairs.Add(new Tuple<int, int>(Start[index], Finish[index]));
+                index++;
+            }
+
+            pairs = pairs.OrderBy(it => it.Item2).ToList();
+            var output = new List<Tuple<int, int>>();
+            int lastFinished = pairs[0].Item2;
+            output.Add(pairs[0]);
+
+            for (int i=1;i<pairs.Count;i++)
+            {
+                if (pairs[i].Item1>lastFinished)
+                {
+                    output.Add(pairs[i]);
+                    lastFinished = pairs[i].Item2;
+                }
+            }
+            Console.WriteLine($"Total pairs for specific business hours : {output.Count}");
+            Console.WriteLine("Pairs specifically below , ");
+            foreach (var item in output)
+            {
+                Console.WriteLine($"({item.Item1},{item.Item2})");
+            }
+        }
+
+        /// <summary>
         /// Twitter First Round
         /*
             User Active Minutes - Problem statement:
@@ -2112,6 +2158,37 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
         }
 
+        /// <summary>
+        /// AMAZON Improve old sorting method. Count number of swaps
+        /// </summary>
+        public static  void AmazonMainFirstProb()
+        {
+
+        }
+
+        /// <summary>
+        /// AMAZON Analogous Array
+        /// </summary>
+        public static int AmazonMainSecondProb(List<int> consecutiveDifference, int lowerBound, int upperBound)
+        {
+            List<int> cloneArray = new List<int>();
+            int maxNumber = int.MinValue;
+            cloneArray.Add(lowerBound);
+            bool broke = false;
+            foreach (var item in consecutiveDifference)
+            {
+                int temp = cloneArray[cloneArray.Count - 1] - item;
+                if (temp > upperBound)
+                { broke = true; break; }
+                if (temp < lowerBound)
+                { broke = true; break; }
+                cloneArray.Add(temp);
+                if (temp > maxNumber)
+                { maxNumber = temp; }
+            }
+            int numberOfArrays = upperBound - maxNumber + 1;
+        return (!broke) ? numberOfArrays : 0;
+        }
     }
     /// <summary>
     /// LRU CACHE DESIGN

@@ -710,5 +710,118 @@ namespace DeepDiveTechnicals.CrackingTheCode
             }
             return finalNumber;
         }
+
+        /// <summary>
+        /// <Author>Hackerrank - https://www.hackerrank.com/challenges/queens-attack-2/problem?isFullScreen=true </Author>
+        /// You will be given a square chess board with one queen and a number of obstacles placed on it. Determine how many squares the queen can attack.
+        /// A queen is standing on an chessboard.The chess board's rows are numbered from  to , going from bottom to top. Its columns are numbered from  to , going from left to right. Each square is referenced by a tuple, , describing the row, , and column, , where the square is located.
+        /// The queen is standing at position.In a single move, she can attack any square in any of the eight directions (left, right, up, down, and the four diagonals). In the diagram below, the green circles denote all the cells the queen can attack from :
+        /// There are obstacles on the chessboard, each preventing the queen from attacking any square beyond it on that path. For example, an obstacle at location  in the diagram above prevents the queen from attacking cells , , and :
+        /// 
+        /// 5 3
+        /// 4 3
+        /// 5 5
+        /// 4 2
+        /// 2 3
+        /// Sample Output 1
+        /// 10
+        /// Explanation 1
+        /// The queen is standing at position (4,3) on a (5,5) chessboard with k = 3 obstacles:
+        /// The number of squares she can attack from that position is 10 .
+        /// </summary>
+        public static int totalBlocks = 0;
+        public static HashSet<Tuple<int, int>> Hset = new HashSet<Tuple<int, int>>();
+        public static int queensAttack(int n, int k, int r_q, int c_q, List<List<int>> obstacles)
+        {
+            for (int i = 0; i < obstacles.Count; i++)
+            {
+                Hset.Add(new Tuple<int, int>(obstacles[i][0], obstacles[i][1]));
+            }
+
+            UpperLeftHelper(n, r_q - 1, c_q - 1, obstacles);
+            UpperHelper(n, r_q - 1, c_q, obstacles);
+            UpperRightHelper(n, r_q - 1, c_q + 1, obstacles);
+            LeftHelper(n, r_q, c_q - 1, obstacles);
+            RightHelper(n, r_q, c_q + 1, obstacles);
+            LowerLeftHelper(n, r_q + 1, c_q - 1, obstacles);
+            LowerHelper(n, r_q + 1, c_q, obstacles);
+            LowerRightHelper(n, r_q + 1, c_q + 1, obstacles);
+
+
+            return totalBlocks;
+        }
+
+        public static void UpperLeftHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            UpperLeftHelper(n, row - 1, col - 1, obstacles);
+            return;
+        }
+        public static void UpperHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            UpperHelper(n, row - 1, col, obstacles);
+            return;
+        }
+        public static void UpperRightHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            UpperRightHelper(n, row - 1, col + 1, obstacles);
+            return;
+        }
+        public static void LeftHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            LeftHelper(n, row, col - 1, obstacles);
+            return;
+        }
+        public static void RightHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            RightHelper(n, row, col + 1, obstacles);
+            return;
+        }
+        public static void LowerLeftHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            LowerLeftHelper(n, row + 1, col - 1, obstacles);
+            return;
+        }
+        public static void LowerHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            LowerHelper(n, row + 1, col, obstacles);
+            return;
+        }
+        public static void LowerRightHelper(int n, int row, int col, List<List<int>> obstacles)
+        {
+            if (ShouldReturn(row, col, n, obstacles)) return;
+            totalBlocks++;
+            LowerRightHelper(n, row + 1, col + 1, obstacles);
+            return;
+        }
+
+        public static bool ShouldReturn(int row, int col, int n, List<List<int>> obstacles)
+        {
+            if (row < 1 || row > n)
+                return true;
+            if (col < 1 || col > n)
+                return true;
+            return isObstacle(row, col, obstacles);
+        }
+
+        public static bool isObstacle(int r, int c, List<List<int>> obstacles)
+        {
+            if (Hset.Contains(new Tuple<int, int>(r, c)))
+                return true;
+            return false;
+        }
     }
 }

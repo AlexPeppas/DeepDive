@@ -191,7 +191,7 @@ namespace DeepDiveTechnicals
         /// Names: John(15), Jon(12), Chris(13), Kris(4), Christopher(19)
         /// Synonyms: (Jon, John), (John, Johnny), (Chris, Kris), (Chris, Christopher)
         /// Output: John(27), Kris(36)
-        /// Approach : Iterate over the synonyms and create a bidirectional braph for each node. By following this technique
+        /// Approach : Iterate over the synonyms and create a bidirectional graph for each node. By following this technique
         /// when you finish with the dictionary you will have distinct components of all the correlated names. For extra 
         /// explanation of the distinct components see the description above "components" local dictionary
         /// Then foreach distinct component, perform a BFS and foreach node check its frequency in the given NameFrequency dictionary.
