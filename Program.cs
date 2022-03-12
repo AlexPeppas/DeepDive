@@ -142,6 +142,7 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Moderate Problems
+            ModerateProbs.queensAttack(9, 3, 2, 2, new List<List<int>> { new List<int> {1,1 },new List<int> {4,4 },new List<int> {5,7 }});
             ModerateProbs.PairsWithSum(new List<int> { 3, 4, 12, 5, 2, 2 }, 9);
             ModerateProbs.SumSwap();
             ModerateProbs.T9Mobile("8733");

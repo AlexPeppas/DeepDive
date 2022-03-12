@@ -953,6 +953,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 }
             }
         }
+
         public static int totalBlocks = 0;
         public static void QueensAttack(int n, int k, int r_q, int c_q, List<List<int>> obstacles)
         {
