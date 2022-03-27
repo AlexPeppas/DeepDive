@@ -158,7 +158,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 
         public static Node firstNode;
         public static Node secondNode;
-        
+
         public static void FirstCommonAncestor()
         {
             Node root = new Node(20);
@@ -174,7 +174,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             Node Second = new Node(21);
             firstNode = First;
             secondNode = Second;
-           
+
 
             var nodeReturned = FirstCommonAncestorHelper(root);
             if (nodeReturned == null)
@@ -201,7 +201,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 temp = node;
                 secondNodeFound = true;
             }
-         
+
             Node nodeLeft = FirstCommonAncestorHelper(node.left);
             Node nodeRight = FirstCommonAncestorHelper(node.right);
 
@@ -551,7 +551,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             root1.right.right.left.right = new Node(19);
             root1.right.right.left.right.left = new Node(10);
 
-            CheckIfTreeContainsDuplicateSubTreesHelp(root1,0);
+            CheckIfTreeContainsDuplicateSubTreesHelp(root1, 0);
             CheckIfTreeContainsDuplicateSubTreesHelper(root1);
             return (maxLevel >= 2) ? true : false;
         }
@@ -569,7 +569,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 if (flag)
                 {
                     string sbCheck = sbChecker.ToString();
-                    if (sbCheck[indexFound+1]=='%')
+                    if (sbCheck[indexFound + 1] == '%')
                     {
                         indexFound++;
                         counter++;
@@ -620,7 +620,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 
         /// This helper handles the previous problem by passing the currentLayer to the nextNode and updates the maxlayer 
         /// only when the current layer exceeds the max
-        public static void CheckIfTreeContainsDuplicateSubTreesHelp(Node root,int layer)
+        public static void CheckIfTreeContainsDuplicateSubTreesHelp(Node root, int layer)
         {
             if (root == null)
             {
@@ -664,13 +664,13 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     if (nextIndex == indexFound + 1)
                     {
                         indexFound++;
-                        
+
                         if (layer > maxLevel)
                             maxLevel++;
                     }
                 }
-                CheckIfTreeContainsDuplicateSubTreesHelp(root.left, layer+1);
-                CheckIfTreeContainsDuplicateSubTreesHelp(root.right, layer+1);
+                CheckIfTreeContainsDuplicateSubTreesHelp(root.left, layer + 1);
+                CheckIfTreeContainsDuplicateSubTreesHelp(root.right, layer + 1);
             }
         }
 
@@ -718,8 +718,8 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     string toCheck = sb.ToString()[index].ToString();
                     if (toCheck == "#")
                     {
-                    //doNothing
-                    }    
+                        //doNothing
+                    }
 
                     else
                     {
@@ -743,10 +743,10 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             else if (underRevision)
             {
                 string toCheck = sb.ToString()[index].ToString();
-                if (node.data.ToString()==toCheck)
+                if (node.data.ToString() == toCheck)
                 {
                     if (currLayer > maxLayer) maxLayer = currLayer;
-                    
+
                     currLayer++;
                     index++;
                     TreeWithDuplicateSubTreesDepth2Helper(node.left);
@@ -808,11 +808,11 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 
             stack.Push(root1);
             int index = 0;
-            while (stack.Count>0)
+            while (stack.Count > 0)
             {
                 Node tempNode = stack.Pop();
                 if (tempNode == null)
-                    sb[index]="#";
+                    sb[index] = "#";
                 else
                 {
                     sb[index] = tempNode.data.ToString();
@@ -843,7 +843,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// <TimeComplexity>O(N)</TimeComplexity>
         /// <SpaceComplexity>O(logN)</SpaceComplexity>
         /// </summary>
-        public static void Deserialize (string data) 
+        public static void Deserialize(string data)
         {
             if (data == null || data == string.Empty)
                 return;
@@ -853,11 +853,11 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             PreOrder(root);
         }
 
-        public static int indexHelper = 0 ;
+        public static int indexHelper = 0;
 
         public static Node DeserializeHelper(string[] data)
         {
-            if (indexHelper >= data.Length) return null ;
+            if (indexHelper >= data.Length) return null;
             if (data[indexHelper] == "#") return null;
             var node = new Node(Convert.ToInt32(data[indexHelper].ToString()));
             indexHelper++;
@@ -906,12 +906,12 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         public static int squaresSize = 4;
         public static List<Tuple<int, int>> paths = new List<Tuple<int, int>>();
         public static List<List<Tuple<int, int>>> differentPaths = new List<List<Tuple<int, int>>>();
-        
-        public static bool RatInMazeHelper(int row,int col, Tuple<int,int> dest, int[,] grid)
+
+        public static bool RatInMazeHelper(int row, int col, Tuple<int, int> dest, int[,] grid)
         {
-            if (row >= squaresSize || col>=squaresSize)
+            if (row >= squaresSize || col >= squaresSize)
                 return false;
-            if (row==dest.Item1 && col==dest.Item2)
+            if (row == dest.Item1 && col == dest.Item2)
             {
                 //paths.Add(new Tuple<int, int>(row, col)); don't add it to the path cause you'll always be 1 entity behind at the backtrack.
                 var tempPath = new List<Tuple<int, int>>();
@@ -930,7 +930,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     paths.Add(new Tuple<int, int>(row, col));
                     bool flag1 = RatInMazeHelper(row, col + 1, dest, grid);
                     bool flag2 = RatInMazeHelper(row + 1, col, dest, grid);
-                    if (paths.Count>0)
+                    if (paths.Count > 0)
                         paths.RemoveAt(paths.Count - 1); //backtrack
                     return (flag1 || flag2);
                 }
@@ -966,10 +966,10 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         {
             if (node == null)
                 return;
-            if (layer>MaxLayer)
+            if (layer > MaxLayer)
             {
                 MaxLayer = layer;
-                Console.WriteLine(node.data); 
+                Console.WriteLine(node.data);
             }
             layer++;
             LeftSideOfTreeHelper(node.left, layer);
@@ -989,7 +989,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             layer++;
             RightSideOfTreeHelper(node.right, layer);
             RightSideOfTreeHelper(node.left, layer);
-            
+
         }
 
         /// <summary>
@@ -999,12 +999,12 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// add it to the queue. For each incoming node wether it has been added to the hashet or not store his 
         /// adjacents list to the clone node so you can transfer the structure.
         /// <TimeComplexity>O(N)</TimeComplexity>
-        
+
         public static void GraphClone()
         {
             #region Graph Seeding
             Graph graph = new Graph(5);
-            graph.nodes[0] = new GraphNode("A",2);
+            graph.nodes[0] = new GraphNode("A", 2);
             graph.nodes[1] = new GraphNode("B", 3);
             graph.nodes[2] = new GraphNode("C", 2);
             graph.nodes[3] = new GraphNode("D", 3);
@@ -1015,18 +1015,18 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             graph.nodes[0].adjacents[1] = graph.nodes[2];
 
             graph.nodes[1].adjacents[0] = graph.nodes[0];
-            graph.nodes[1].adjacents[1]= graph.nodes[3];
-            graph.nodes[1].adjacents[2]= graph.nodes[4];
+            graph.nodes[1].adjacents[1] = graph.nodes[3];
+            graph.nodes[1].adjacents[2] = graph.nodes[4];
 
-            graph.nodes[2].adjacents[0]= graph.nodes[0];
-            graph.nodes[2].adjacents[1]= graph.nodes[3];
+            graph.nodes[2].adjacents[0] = graph.nodes[0];
+            graph.nodes[2].adjacents[1] = graph.nodes[3];
 
-            graph.nodes[3].adjacents[0]= graph.nodes[1];
-            graph.nodes[3].adjacents[1]= graph.nodes[2];
-            graph.nodes[3].adjacents[2]= graph.nodes[4];
+            graph.nodes[3].adjacents[0] = graph.nodes[1];
+            graph.nodes[3].adjacents[1] = graph.nodes[2];
+            graph.nodes[3].adjacents[2] = graph.nodes[4];
 
-            graph.nodes[4].adjacents[0]= graph.nodes[1];
-            graph.nodes[4].adjacents[1]= graph.nodes[3];
+            graph.nodes[4].adjacents[0] = graph.nodes[1];
+            graph.nodes[4].adjacents[1] = graph.nodes[3];
             #endregion
             if (graph == null) return;
             GraphNode root = graph.nodes[0];
@@ -1034,18 +1034,18 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             Queue<GraphNode> queue = new Queue<GraphNode>();
 
             Graph cloneGraph = new Graph(graph.nodes.Length);
-        
+
             queue.Enqueue(root);
 
             int cloneIndex = 0;
-            while (queue.Count>0)
+            while (queue.Count > 0)
             {
                 GraphNode currentNode = queue.Dequeue();
                 GraphNode cloneCurrentNode = new GraphNode(currentNode.data, currentNode.adjacents.Length);
-                
+
                 if (!setAdded.Contains(currentNode))
                 {
-                    
+
                     setAdded.Add(currentNode);
                 }
                 int NeighborCounter = 0;
@@ -1053,7 +1053,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 {
                     cloneCurrentNode.adjacents[NeighborCounter] = neighb;
                     NeighborCounter++;
-                    
+
                     if (!setAdded.Contains(neighb) && !queue.Contains(neighb))
                         queue.Enqueue(neighb);
                 }
@@ -1082,17 +1082,17 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// Approach : Build the base case and then recurse over the incoming string (based on decrement index -- st.Length--) until you finally 
         /// build the list of all available permutaitons. Each permutation is the output of the previous layer and just append the current letter to 
         /// every possible position (for every item in the list of strings).
-        
+
         public static void PrintAllPermutations(string st)
         {
             // abcd
             // d -> cd, dc -> bcd, cbd, cdb, bdc, dbc, dcb -> ...
-            var coms = PrintAllPermutationsHelper(st,0,new List<string>());
+            var coms = PrintAllPermutationsHelper(st, 0, new List<string>());
         }
-        
-        public static List<string> PrintAllPermutationsHelper(string st, int index,List<string> combs)
+
+        public static List<string> PrintAllPermutationsHelper(string st, int index, List<string> combs)
         {
-            if (index==st.Length)
+            if (index == st.Length)
             {
                 combs.Add(" ");
                 return combs;
@@ -1102,14 +1102,14 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             return combs;
         }
 
-        public static List<string> Builder (List<string> combs,string letter)
+        public static List<string> Builder(List<string> combs, string letter)
         {
-            if (combs.FirstOrDefault()==" ")
+            if (combs.FirstOrDefault() == " ")
             {
                 combs[0] = letter;
                 return combs;
             }
-            
+
             List<string> outPut = new List<string>();
             foreach (var item in combs)
             {
@@ -1149,13 +1149,13 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             RatWithTuplesHelper(maze, source, dest, new List<Tuple<int, int>>());
         }
         public static List<List<Tuple<int, int>>> allPaths = new List<List<Tuple<int, int>>>();
-        public static void RatWithTuplesHelper(int[,] maze, Tuple<int,int> src, Tuple<int, int> dest, List<Tuple<int, int>> path)
+        public static void RatWithTuplesHelper(int[,] maze, Tuple<int, int> src, Tuple<int, int> dest, List<Tuple<int, int>> path)
         {
             if (src.Item1 > dest.Item1 || src.Item2 > dest.Item2) return;
             if (src.Item1 < 0 || src.Item2 < 0) return;
             if (src.Item1 == dest.Item1 && src.Item2 == dest.Item2)
             {
-                
+
                 var clonePath = new List<Tuple<int, int>>();
                 foreach (var item in path)
                 {
@@ -1166,11 +1166,11 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
             else
             {
-                if (maze[src.Item1,src.Item2] == 1)
+                if (maze[src.Item1, src.Item2] == 1)
                 {
                     path.Add(new Tuple<int, int>(src.Item1, src.Item2));
-                    RatWithTuplesHelper(maze, new Tuple<int, int>(src.Item1, src.Item2+1), dest, path);
-                    RatWithTuplesHelper(maze, new Tuple<int, int>(src.Item1+1, src.Item2), dest, path);
+                    RatWithTuplesHelper(maze, new Tuple<int, int>(src.Item1, src.Item2 + 1), dest, path);
+                    RatWithTuplesHelper(maze, new Tuple<int, int>(src.Item1 + 1, src.Item2), dest, path);
                     if (path.Count > 0) path.RemoveAt(path.Count - 1);
                 }
             }
@@ -1303,7 +1303,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             graph.nodes[1] = new GraphNode("B", 1);
             graph.nodes[2] = new GraphNode("C", 2);
             graph.nodes[3] = new GraphNode("D", 1);
-            
+
             //nodeA
             graph.nodes[0].adjacents[0] = graph.nodes[1]; //B
             graph.nodes[0].adjacents[1] = graph.nodes[2]; //C
@@ -1325,7 +1325,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             bool underRevision = false;
             int index = 0;
             int count = 0;
-            while (queue.Count>0)
+            while (queue.Count > 0)
             {
                 var tempNode = queue.Dequeue();
                 if (!sb.ToString().Contains(tempNode.data))
@@ -1344,7 +1344,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     }
                     else//if (underRevision)
                     {
-                        if (sb.ToString()[index+1].ToString()==tempNode.data)
+                        if (sb.ToString()[index + 1].ToString() == tempNode.data)
                         {
                             index++;
                             count++;
@@ -1411,7 +1411,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             return cycleDetected;
         }
         public static bool cycleDetected = false;
-        public static void CyclesHelperDetection(GraphNode node , Stack<GraphNode> stack)
+        public static void CyclesHelperDetection(GraphNode node, Stack<GraphNode> stack)
         {
             if (cycleDetected) return;
             if (node == null)
@@ -1425,7 +1425,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     {
                         CyclesHelperDetection(neighbor, stack);
                         if (cycleDetected) return;
-                        if (stack.Count>0) stack.Pop(); // backTrack
+                        if (stack.Count > 0) stack.Pop(); // backTrack
                     }
                 }
             }
@@ -1449,7 +1449,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             {6, 5, 3, 2, 8, 10, 9};
             HashSet<int> set = new HashSet<int>();
             int k = 3;
-            for (int i=0;i<karray.Count-1;i++) //do not check the last item it must be sorted by the previous 4
+            for (int i = 0; i < karray.Count - 1; i++) //do not check the last item it must be sorted by the previous 4
             {
                 int current = karray[i];
                 if (set.Contains(current)) continue;
@@ -1458,12 +1458,12 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 int cloneK = 1;
                 int min = current;
                 int position = -1;
-                while (cloneK<=k)
+                while (cloneK <= k)
                 {
-                    if (cloneK+i<karray.Count)
+                    if (cloneK + i < karray.Count)
                     {
-                        int temp = karray[i+cloneK];
-                        if (temp<min && temp>= prev)
+                        int temp = karray[i + cloneK];
+                        if (temp < min && temp >= prev)
                         {
                             min = temp;
                             position = i + cloneK;
@@ -1519,7 +1519,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         public static List<List<Tuple<int, int>>> LongestPaths = new List<List<Tuple<int, int>>>();
         public static int pathMaxSum = 0;
 
-        public static void StrictlyIncreasingPathTwitterHelper(int[,] matrix,Tuple<int,int> position, List<Tuple<int,int>> positions)
+        public static void StrictlyIncreasingPathTwitterHelper(int[,] matrix, Tuple<int, int> position, List<Tuple<int, int>> positions)
         {
             if (position.Item1 == destination.Item1 && position.Item2 == destination.Item2)
             {
@@ -1538,15 +1538,15 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 else
                 {
                     int max = 0;
-                    List<Tuple<int,int>> tempList = new List<Tuple<int, int>>();
+                    List<Tuple<int, int>> tempList = new List<Tuple<int, int>>();
                     foreach (var item in positions)
                     {
                         max += matrix[item.Item1, item.Item2];
                         tempList.Add(item);
                     }
-                    max+= matrix[destination.Item1, destination.Item2];
+                    max += matrix[destination.Item1, destination.Item2];
                     tempList.Add(destination);
-                    if (max>=pathMaxSum)
+                    if (max >= pathMaxSum)
                     {
                         pathMaxSum = max;
                         LongestPaths.Add(tempList);
@@ -1571,21 +1571,21 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
             if (position.Item2 + 1 < matrix.GetLength(1))
             {
-                if (matrix[position.Item1, position.Item2] < matrix[position.Item1, position.Item2+1])
+                if (matrix[position.Item1, position.Item2] < matrix[position.Item1, position.Item2 + 1])
                 {
                     positions.Add(position);
-                    StrictlyIncreasingPathTwitterHelper(matrix, new Tuple<int, int>(position.Item1, position.Item2+1), positions);
+                    StrictlyIncreasingPathTwitterHelper(matrix, new Tuple<int, int>(position.Item1, position.Item2 + 1), positions);
                 }
             }
-            if (position.Item1-1>=0)
+            if (position.Item1 - 1 >= 0)
             {
-                if (matrix[position.Item1, position.Item2] < matrix[position.Item1-1, position.Item2])
+                if (matrix[position.Item1, position.Item2] < matrix[position.Item1 - 1, position.Item2])
                 {
                     positions.Add(position);
-                    StrictlyIncreasingPathTwitterHelper(matrix, new Tuple<int, int>(position.Item1-1, position.Item2), positions);
+                    StrictlyIncreasingPathTwitterHelper(matrix, new Tuple<int, int>(position.Item1 - 1, position.Item2), positions);
                 }
             }
-            if (positions.Count>0)
+            if (positions.Count > 0)
                 positions.RemoveAt(positions.Count - 1);
             return;
         }
@@ -1603,7 +1603,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 {-1,1,-1,-1},
                 { 1,1,1,1}
             };
-            var roboPos = new RoboPosition(0,0);
+            var roboPos = new RoboPosition(0, 0);
             FindPathRobotInGridWithCycleHelper(roboPos.row, roboPos.col, maze);
         }
 
@@ -1632,7 +1632,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     Angle += 90;
                 else
                     Angle = 0;
-                return ;
+                return;
             }
             /*if (RoboPositionWithDirection.ContainsKey(roboPosition))
             {
@@ -1641,7 +1641,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 RoboPositionWithDirection[roboPosition].Add((Directions)Angle);
             }
             else RoboPositionWithDirection.Add(roboPosition, new List<Directions> { (Directions)Angle });*/
-            if (RoboPositionWithDirection.ContainsKey(new Tuple<int,int>(row,col)))
+            if (RoboPositionWithDirection.ContainsKey(new Tuple<int, int>(row, col)))
             {
                 if (RoboPositionWithDirection[new Tuple<int, int>(row, col)].Contains((Directions)Angle))
                     throw new Exception($"Cycle Detected. Max Squares Visited -> {maxSquaresVisited}");
@@ -1649,7 +1649,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
             else RoboPositionWithDirection.Add(new Tuple<int, int>(row, col), new List<Directions> { (Directions)Angle });
             maxSquaresVisited++;
-            for (int i=0;i<4;i++)
+            for (int i = 0; i < 4; i++)
             { //try 4 directions
                 if (Angle == 0)
                     FindPathRobotInGridWithCycleHelper(row - 1, col, maze);
@@ -1693,7 +1693,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// For example, if the given array is [1, 23, 12, 9, 30, 2, 50] and you are asked for the largest 3 elements i.e., k = 3 then your program should print 50, 30, and 23.
         /// <Time>O(n*k) where n items of the array and k the number of items in k largest records</Time>
         /// </summary>
-       
+
         public static void KLargestElements(int k)
         {
             List<int> input = new List<int>
@@ -1703,7 +1703,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             List<int> kLargestRecords = new List<int>();
 
             int index = 0;
-            for (var i=0;i<input.Count;i++)
+            for (var i = 0; i < input.Count; i++)
             {
                 if (index < k)
                 {
@@ -1715,15 +1715,15 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     //find the min value among largestRecords and compare it to current item input[i]
                     int min = int.MaxValue;
                     int minpos = 0;
-                    for (int j=0;j<kLargestRecords.Count;j++)
+                    for (int j = 0; j < kLargestRecords.Count; j++)
                     {
-                        if (kLargestRecords[j]<min)
+                        if (kLargestRecords[j] < min)
                         {
                             min = kLargestRecords[j];
                             minpos = j;
                         }
                     }
-                    if (input[i]>min)
+                    if (input[i] > min)
                     {
                         kLargestRecords[minpos] = input[i];
                     }
@@ -1774,7 +1774,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             if (rightNeihbor == null)
                 DoubleLinkedListStruct.head = tempNode;
 
-            
+
             tempNode.previous = leftNeighbor;
             if (leftNeighbor != null)
                 leftNeighbor.next = tempNode;
@@ -1790,9 +1790,9 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 
         public static class DoubleLinkedListStruct
         {
-            internal static int _nodesCount=0;
-            public static DoubleLinkedLNode head =null;
-            public static DoubleLinkedLNode tail =null;
+            internal static int _nodesCount = 0;
+            public static DoubleLinkedLNode head = null;
+            public static DoubleLinkedLNode tail = null;
         }
 
         public class DoubleLinkedLNode
@@ -1842,9 +1842,9 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 
             List<Stack<int>> stacks = new List<Stack<int>>();
             var stack = new Stack<int>();
-            while (llNode!=null)
+            while (llNode != null)
             {
-                if (stack.Count<k)
+                if (stack.Count < k)
                 {
                     stack.Push(llNode.data);
                 }
@@ -1858,7 +1858,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 if (llNode == null)
                     stacks.Add(stack);
             }
-            
+
             var head = stacks[0].Pop();
             var headLL = new LinkedListNodeCustom<int>(head);
             var realHeadLL = headLL;
@@ -1873,7 +1873,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
 
         }
-        public class LinkedListNodeCustom<T> 
+        public class LinkedListNodeCustom<T>
         {
             public int data;
             public LinkedListNodeCustom<T> next;
@@ -1900,16 +1900,16 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         {
             var input = new List<int> { 100, 80, 60, 70, 60, 75, 85 };
             var dict = new Dictionary<int, int>();
-            dict.Add(input[0],0);
+            dict.Add(input[0], 0);
             var outPut = new List<int>();
             outPut.Add(1);
-            for (int index=1;index<input.Count;index++)
+            for (int index = 1; index < input.Count; index++)
             {
                 if (input[index] <= input[index - 1])
                 {
                     if (dict.ContainsKey(input[index]))
                         dict[input[index]] = index;
-                    else 
+                    else
                         dict.Add(input[index], index);
                     outPut.Add(1);
                 }
@@ -1920,7 +1920,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     {
                         if (item.Key > input[index])
                             tempDistance = item.Value;
-                        else 
+                        else
                         {
                             tempDistance = index - tempDistance;
                             if (dict.ContainsKey(input[index]))
@@ -1992,8 +1992,8 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// <Time>O(N-2) --> O(N)</Time>
         public static int MaxSumNoAdjacents()
         {
-            var list = new List<int> { 1,3,7,-1,5,0,11,4 };
-            
+            var list = new List<int> { 1, 3, 7, -1, 5, 0, 11, 4 };
+
             if (list.Count <= 1)
                 return list[0];
 
@@ -2002,11 +2002,11 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             int sumj1 = list[1];
             int sumj2 = list[1];
             int[] sums = new int[4] { sumi1, sumi2, sumj1, sumj2 };
-            for (int i=2;i<list.Count;i++)
+            for (int i = 2; i < list.Count; i++)
             {
                 if (i == 2)
                     sums[0] += list[i];
-                else if (i%2==0)
+                else if (i % 2 == 0)
                 {
                     sums[0] += list[i];
                     sums[2] += list[i];
@@ -2031,15 +2031,15 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// Iterate over the next records and if the next pair's Start is greater than lastFinished (current.Start>previous.Finish) then add this pair
         /// to the List of pairs output and update the lastFinished to be equal to the current's Finish --> lastFinished = current.Finish
         ///<Time>O(n*logn)</Time>
-        public static void FindMaximumMeetingsInOneRoom(List<int> Start, List<int>Finish)
+        public static void FindMaximumMeetingsInOneRoom(List<int> Start, List<int> Finish)
         {
             Start = new List<int> { 1, 3, 0, 5, 8, 5 };
-            Finish = new List<int> { 2, 4, 6, 7, 9, 9};
+            Finish = new List<int> { 2, 4, 6, 7, 9, 9 };
 
             List<Tuple<int, int>> pairs = new List<Tuple<int, int>>();
             int index = 0;
 
-            while (index<Start.Count)
+            while (index < Start.Count)
             {
                 pairs.Add(new Tuple<int, int>(Start[index], Finish[index]));
                 index++;
@@ -2050,9 +2050,9 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             int lastFinished = pairs[0].Item2;
             output.Add(pairs[0]);
 
-            for (int i=1;i<pairs.Count;i++)
+            for (int i = 1; i < pairs.Count; i++)
             {
-                if (pairs[i].Item1>lastFinished)
+                if (pairs[i].Item1 > lastFinished)
                 {
                     output.Add(pairs[i]);
                     lastFinished = pairs[i].Item2;
@@ -2161,7 +2161,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// <summary>
         /// AMAZON Improve old sorting method. Count number of swaps
         /// </summary>
-        public static  void AmazonMainFirstProb()
+        public static void AmazonMainFirstProb()
         {
 
         }
@@ -2187,7 +2187,75 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 { maxNumber = temp; }
             }
             int numberOfArrays = upperBound - maxNumber + 1;
-        return (!broke) ? numberOfArrays : 0;
+            return (!broke) ? numberOfArrays : 0;
+        }
+
+        /// <summary>
+        /// ASKED BY MICROSOFT 13/3/2022 
+        /// A company is planning N projects, numbered from 0 to N−1. Completing the K-th project will bring value V[K] to the company.
+        /// For some projects there may be additional requirements - the L-th requirement states that before starting project B[L], project A[L] should be completed.
+        /// There are M such requirements.
+        /// </summary>
+        public static int ProjectsBuildOrder(int N, int[] A, int[] B, int[] V) 
+        {
+            return -1;
+        }
+        
+        
+        /// <summary>
+        /// ASKED BY MICROSOFT 13/3/2022 
+        /// Between A[N] and B[N] districts there are streets. There are Hospitals[K] on some districts. Each node hop costs 1 minute. Minimum time/hops for any patient on
+        /// a district. Build the bidirectional graph, place the hospitals and for each patient input traverse over the graph to see if there is a route to any hospital. Return min.
+        /// </summary>
+        public static int HospitalsGraph(int N, int[] A, int[] B, int[] H)
+        {
+            // write your code in C# 6.0 with .NET 4.5 (Mono)
+            //HashSet<BiDirectGraph> set = new HashSet<BiDirectGraph>();
+            var graphNodeCreated = new Dictionary<int, BiDirectGraph>();
+            for (int i = 0; i < N; i++)
+            {
+
+                BiDirectGraph currentNode = new BiDirectGraph(A[i]);
+                BiDirectGraph neighbor = new BiDirectGraph(B[i]);
+                if (graphNodeCreated.ContainsKey(A[i]))
+                {
+                    if (!graphNodeCreated.ContainsKey(B[i]))
+                    {
+                        graphNodeCreated.Add(B[i], neighbor);
+                    }
+                    if (!currentNode.adjacents.Contains(neighbor))
+                        currentNode.adjacents.Add(neighbor);
+                    if (!neighbor.adjacents.Contains(currentNode))
+                        neighbor.adjacents.Add(currentNode);
+                }
+                else
+                {
+                    graphNodeCreated.Add(A[i], currentNode);
+
+                    if (!graphNodeCreated.ContainsKey(B[i]))
+                    {
+                        graphNodeCreated.Add(B[i], neighbor);
+                    }
+                    if (!currentNode.adjacents.Contains(neighbor))
+                        currentNode.adjacents.Add(neighbor);
+                    if (!neighbor.adjacents.Contains(currentNode))
+                        neighbor.adjacents.Add(currentNode);
+                }
+
+            }
+            //TO BE DONE
+            return -1;
+        }
+        public class BiDirectGraph
+        {
+            public int node;
+            public List<BiDirectGraph> adjacents;
+
+            public BiDirectGraph(int node)
+            {
+                this.node = node;
+                this.adjacents = new List<BiDirectGraph>();
+            }
         }
     }
     /// <summary>
@@ -2224,7 +2292,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     newTail.Parent = DoubleLinkedListStruct.Tail.Parent;
                     if (newTail.Parent == null) newTail.Parent = tempNode; //just two nodes in the linked list
                     DoubleLinkedListStruct.Tail = newTail;
-                    
+
                     var prevHead = DoubleLinkedListStruct.Head;
                     DoubleLinkedListStruct.Head.Parent = tempNode; //update the parent of the head pointer
                     DoubleLinkedListStruct.Head = tempNode; //update the head pointer 
@@ -2249,7 +2317,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
         }
 
-        public void Add (int key, string value)
+        public void Add(int key, string value)
         {
             if (!LRUmap.ContainsKey(key))
             {
@@ -2264,7 +2332,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                     DoubleLinkedListStruct.Tail = DoubleLinkedListStruct.Tail.Child;
                 }
 
-                var newNode = new DoubleLinkedListNode(value,key);
+                var newNode = new DoubleLinkedListNode(value, key);
                 //DoubleLinkedListStruct.Nodes.Add(newNode);
                 LRUmap.Add(key, newNode);
                 if (DoubleLinkedListStruct.Head == null)
@@ -2296,7 +2364,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
     }
 
     //PROPOSED CLASS FOR THE FINAL IMPLEMENTATION AS AN OPTIMIZATION
-    public static class DoubleLinkedListStruct2 
+    public static class DoubleLinkedListStruct2
     {
         public static DLNode Head;
 
@@ -2332,7 +2400,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         public string Value;
         public DoubleLinkedListNode Parent;
         public DoubleLinkedListNode Child;
-        public DoubleLinkedListNode(string Value,int key)
+        public DoubleLinkedListNode(string Value, int key)
         {
             this.Value = Value;
             this.key = key;
@@ -2349,21 +2417,21 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         {
             nodes = new GraphNode[nodesNo];
         }
-        
+
     }
-    public class GraphNode 
+    public class GraphNode
     {
         public string data;
         public GraphNode[] adjacents;
 
-        public GraphNode(string data,int nodesNo)
+        public GraphNode(string data, int nodesNo)
         {
             this.data = data;
             this.adjacents = new GraphNode[nodesNo];
         }
     }
 
-    public class Node 
+    public class Node
     {
         public int data;
         public Node left;

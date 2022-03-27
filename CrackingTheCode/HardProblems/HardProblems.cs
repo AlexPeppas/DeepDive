@@ -513,6 +513,43 @@ namespace DeepDiveTechnicals
             }
             return (flag) ? index : -1;
         }
+
+        /// <summary>
+        /// Starting with a 1-indexed array of zeros and a list of operations, for each operation add a value to each the array element between two given indices, inclusive.
+        /// Once all operations have been performed, return the maximum value in the array.
+        /// Example
+        /// n = 10
+        /// queries = [[1,5,3],[4,8,7],[6,9,1]]
+        /// Output after m operations (m are the number of distinct updates which are 3 for the example)
+        /// [3,3,3,10,10,8,8,8,1,0] so return Max which is 10
+        /// </summary>
+        /// Strategy : 
+        /// Iterate over the given array and foreach starter point (query[0]) add the operation number (query[2]) and foreach finish 
+        /// point (query[1]+1) subtract the opretaion number (query[2])
+        /// Now by computing the prefix Sum for each index in arr (or with a simple variable currentPrefix) we will have the maximum 
+        /// occurence in the sequence
+        public static long ArrayManipulation_HackerRank(int n, List<List<int>> queries)
+        {
+            int[] arr = new int[n + 1];
+
+            foreach (var query in queries)
+            {
+                arr[query[0]] += query[2];
+                if (query[1] + 1 <= n)
+                    arr[query[1] + 1] -= query[2];
+            }
+
+            long outputMax = 0;
+            long currentPrefix = 0;
+
+            foreach (var item in arr)
+            {
+                currentPrefix += item;
+                if (currentPrefix > outputMax)
+                    outputMax = currentPrefix;
+            }
+            return outputMax;
+        }
     }
 
     public class TrieNode

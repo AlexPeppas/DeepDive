@@ -1003,7 +1003,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             if (obstacles[row].Contains(col))
                 return;
             totalBlocks++;
-            UpperRightHelper(n, row - 1, col+1, obstacles);
+            UpperRightHelper(n, row - 1, col + 1, obstacles);
             return;
         }
         public static void LeftHelper(int n, int row, int col, List<List<int>> obstacles)
@@ -1066,31 +1066,149 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             LowerRightHelper(n, row + 1, col + 1, obstacles);
             return;
         }
-    }
 
-
-    public class LinkedListNode
-    {
-        public int data;
-        public LinkedListNode next;
-        public LinkedListNode(int data)
+        /// <summary>
+        /// Problem : 16.15
+        /// Description : The computer has four slots, and each slot will contain a ball that is red (R), yellow (Y), green (G) or
+        /// blue(B). For example, the computer might have RGGB(Slot #1 is red, Slots #2 and #3 are green, Slot
+        /// #4 is blue).
+        /// You, the user, are trying to guess the solution. You might, for example, guess YRGB.
+        /// When you guess the correct color for the correct slot, you get a "hit:' If you guess a color that exists
+        /// but is in the wrong slot, you get a "pseudo-hit:' Note that a slot that is a hit can never count as a
+        ///pseudo-hit.
+        /// For example, if the actual solution is RGBY and you guess GGRR , you have one hit and one pseudohit
+        /// Write a method that, given a guess and a solution, returns the number of hits and pseudo-hits
+        /// </summary>
+        public static void RYGB(string input, string guess)
         {
-            this.data = data;
-            this.next = null;
+            //RGBBY
+            //string key,<Tuple<int,List<int>> value --> R,1[0], G,1[1], B,2[2,3], Y,1[4]
+            //GGRRY
+            var colorFrequencyPositions = new Dictionary<string, Tuple<int, List<int>>>();
+            int index = 0;
+            foreach (var item in input)
+            {
+                if (colorFrequencyPositions.ContainsKey(item.ToString()))
+                {
+                    var tempTuple = colorFrequencyPositions[item.ToString()];
+                    tempTuple.Item2.Add(index);
+                    colorFrequencyPositions[item.ToString()] = new Tuple<int, List<int>>(tempTuple.Item1 + 1, tempTuple.Item2);
+                }
+                else
+                {
+                    colorFrequencyPositions.Add(item.ToString(), new Tuple<int, List<int>>(1, new List<int> { index }));
+                }
+                index++;
+            }
+
+            index = 0; //reset
+            int pseudohits = 0;
+            int hits = 0;
+            foreach (var item in guess)
+            {
+                if (colorFrequencyPositions.ContainsKey(item.ToString()))
+                {
+                    int frequency = colorFrequencyPositions[item.ToString()].Item1;
+                    List<int> listIndexes = colorFrequencyPositions[item.ToString()].Item2;
+                    if (colorFrequencyPositions[item.ToString()].Item2.Contains(index))
+                    {
+                        hits++;
+                        if (frequency > 0)
+                            colorFrequencyPositions[item.ToString()] = new Tuple<int, List<int>>(frequency - 1, listIndexes);
+                        else
+                        {
+                            colorFrequencyPositions[item.ToString()] = new Tuple<int, List<int>>(frequency, listIndexes);
+                            pseudohits--;
+                        }
+                    }
+                    else
+                    {
+                        if (frequency > 0)
+                        {
+                            colorFrequencyPositions[item.ToString()] = new Tuple<int, List<int>>(frequency - 1, listIndexes);
+                            pseudohits++;
+                        }
+                    }
+                }
+                index++;
+            }
+            Console.WriteLine($"Number of pseudo-hits {pseudohits} and number of actual hits {hits}");
         }
-    }
 
-    public class TreeNode
-    {
-        public int data;
-        public TreeNode left;
-        public TreeNode right;
-
-        public TreeNode(int data)
+        /// <summary>
+        /// Find all palindrome substrings
+        /// </summary>
+        public static HashSet<string> palindromSets = new HashSet<string>();
+        public static void AllPalindrom (string input)
         {
-            this.data = data;
-            this.left = null;
-            this.right = null;
+            PalindromHelper(input, 0);
+        }
+        
+        public static void PalindromHelper(string input, int index)
+        {
+            if (index==input.Length-1)
+            {
+                palindromSets.Add(input[index].ToString());
+                return;
+            }
+            PalindromHelper(input, index + 1);
+
+            HashSet<string> cloneSets = new HashSet<string>();
+            foreach (var set in palindromSets)
+            {
+                var tempSet = SubstringBuilder(input[index].ToString(),set);
+                foreach (var item in tempSet)
+                {
+                    cloneSets.Add(item);
+                }
+            }
+            palindromSets = cloneSets;
+
+        }
+
+        public static HashSet<string> SubstringBuilder (string letter,string word)
+        {
+            HashSet<string> tempSet = new HashSet<string>();
+            for (int i=0; i<word.Length;i++)
+            {
+                StringBuilder sb = new StringBuilder();
+                string tempFirst = word.Substring(0, i);
+                if (tempFirst != null || !string.IsNullOrEmpty(tempFirst))
+                    sb.Append(tempFirst);
+                sb.Append(letter);
+                sb.Append(word.Substring(i));
+                tempSet.Add(sb.ToString());
+            }
+            StringBuilder finalSb = new StringBuilder();
+            finalSb.Append(word);
+            finalSb.Append(letter);
+            tempSet.Add(finalSb.ToString());
+            return tempSet;
+        }
+
+        public class LinkedListNode
+        {
+            public int data;
+            public LinkedListNode next;
+            public LinkedListNode(int data)
+            {
+                this.data = data;
+                this.next = null;
+            }
+        }
+
+        public class TreeNode
+        {
+            public int data;
+            public TreeNode left;
+            public TreeNode right;
+
+            public TreeNode(int data)
+            {
+                this.data = data;
+                this.left = null;
+                this.right = null;
+            }
         }
     }
 }

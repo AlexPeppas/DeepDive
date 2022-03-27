@@ -399,6 +399,75 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
 
         }
 
+
+        public static int Solution(int[] V, int[] A, int[] B)
+        {
+            var map = new Dictionary<int, Tuple<int, List<int>>>();
+            HashSet<int> keysToDelete = new HashSet<int>();
+            for (int i=0;i<B.GetLength(0);i++)
+            {
+                if (!map.ContainsKey(B[i]))
+                    map.Add(B[i], new Tuple<int, List<int>>(1, new List<int> { A[i] }));
+                else
+                {
+                    int freq = map[B[i]].Item1;
+                    List<int> relations = map[B[i]].Item2;
+                    if (!relations.Contains(A[i]))
+                    {
+                        relations.Add(A[i]);
+                        freq++;
+                    }
+                    if (freq > 2)
+                        keysToDelete.Add(B[i]);
+                    map[B[i]] = new Tuple<int, List<int>>(freq, relations);
+                }
+            }
+            var cloneMap = new Dictionary<int, Tuple<int, List<int>>>();
+            foreach (var item in map)
+            {
+                if (keysToDelete.Contains(item.Key) || keysToDelete.Any(key => item.Value.Item2.Contains(key)))
+                {
+                    //don't include
+                }
+                else
+                    cloneMap.Add(item.Key, item.Value);
+            }
+
+            for (int i=0; i<V.Length;i++)
+            {
+                if (!B.Contains(i))
+                    cloneMap.Add(i, new Tuple<int, List<int>>(0, new List<int>()));
+            }
+
+
+            //var positions = new Tuple<int, int, int, int>(0,0,0,0);
+            var scores = new Tuple<int, int, int, int>(-1, -1, -1, -1);
+            foreach (var proj in cloneMap)
+            {
+                if (proj.Value.Item1 > 0 && proj.Value.Item1 < 2)
+                {
+                    if (V[proj.Value.Item2[0]] + V[proj.Key] > scores.Item1 + scores.Item2)
+                    {
+                        //positions = new Tuple<int, int, int, int>(proj.Value.Item2[0], proj.Value.Item2[1], positions.Item3, positions.Item4);
+                        scores = new Tuple<int, int, int, int>(V[proj.Value.Item2[0]], V[proj.Key], scores.Item3, scores.Item4);
+                    }
+                }
+                else if (proj.Value.Item1 >= 2) continue;
+                else
+                {
+                    int min = Math.Min(scores.Item3, scores.Item4);
+                    if (V[proj.Key] > min)
+                        scores = new Tuple<int, int, int, int>(scores.Item1, scores.Item2, Math.Max(scores.Item3, scores.Item4), V[proj.Key]);
+                }
+            }
+            int independentScores = 0;
+            if (scores.Item3 > -1)
+                independentScores += scores.Item3;
+            if (scores.Item4 > -1)
+                independentScores += scores.Item4;
+            int dependentScores = scores.Item1 + scores.Item2;
+            return Math.Max(independentScores, dependentScores);
+        }
         /// <summary>
         /// Problem : 4.8
         /// Description : Design an algorithm and write code to find the first common ancestor

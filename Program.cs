@@ -24,6 +24,11 @@ namespace DeepDiveTechnicals
         public static void Main(string[] args)
         {
             #region WarmUp
+            FrequentlyAskedQuestions.WarmUp.AllPalindrom("bac");
+            FrequentlyAskedQuestions.WarmUp.RYGB("RGBBY", "YBRGB"); //5pseudohits
+            FrequentlyAskedQuestions.WarmUp.RYGB("RGBBY", "RGBBY"); //5hits
+            FrequentlyAskedQuestions.WarmUp.RYGB("RGBBY", "YYYBR"); //2 pseudohits, 1 hit
+
             var obstacles = new List<List<int>>
             { new List<int>(),
             new List<int>(),
@@ -34,7 +39,6 @@ namespace DeepDiveTechnicals
             new List<int>(),
             new List<int>(),
             new List<int>()};
-            
             
             FrequentlyAskedQuestions.WarmUp.QueensAttack(7, 1, 3, 3, obstacles);
             FrequentlyAskedQuestions.WarmUp.SumSwap();
@@ -65,6 +69,12 @@ namespace DeepDiveTechnicals
             HardProblems.MissingNumberNonBinary(); //Do the binary approach
             HardProblems.Shuffle();
             HardProblems.RandomSet();
+            HardProblems.ArrayManipulation_HackerRank(3, new List<List<int>>
+            {
+                new List<int>{ 1,5,3},
+                new List<int>{4,8,7},
+                new List<int>{6,9,1}
+            });
             #endregion
 
             #region Amazon 1st
@@ -78,6 +88,9 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Microsoft Final Problem
+            TreesAndGraphs.Solution(new int[5] { 5, 6, 6, 7, -10 }, new int[6] { 0, 0, 0, 1, 2, 3 }, new int[6] { 1, 2, 3, 3, 1, 2 });
+            FrequentlyAskedQuestions.Interview.ProjectsBuildOrder(5, new int[1],new int[1],new int[1]); //HARD MICROSOFT dummy inputs
+            FrequentlyAskedQuestions.Interview.HospitalsGraph(5, new int[1], new int[1], new int[1]); //HARD MICROSOFT dummy inputs
             FrequentlyAskedQuestions.Interview.FindPathRobotInGridWithCycle(); //HARD MICROSOFT
             #endregion
 
@@ -142,6 +155,27 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Moderate Problems
+            ModerateProbs.TextEditor("abcde", new List<string>
+            {
+                "1fg",
+                "36",
+                "25",
+                "4",
+                "37",
+                "4",
+                "34"
+            });
+            ModerateProbs.TextEditor("", new List<string>
+            {
+                "1abc",
+                "33",
+                "23",
+                "1xy",
+                "32",
+                "4",
+                "4",
+                "31"
+            });
             ModerateProbs.queensAttack(9, 3, 2, 2, new List<List<int>> { new List<int> {1,1 },new List<int> {4,4 },new List<int> {5,7 }});
             ModerateProbs.PairsWithSum(new List<int> { 3, 4, 12, 5, 2, 2 }, 9);
             ModerateProbs.SumSwap();
