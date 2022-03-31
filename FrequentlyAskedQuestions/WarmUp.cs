@@ -1185,6 +1185,88 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             tempSet.Add(finalSb.ToString());
             return tempSet;
         }
+        
+        /// <summary>
+        /// FaceBook
+        /// https://www.facebookrecruiting.com/portal/coding_practice_question/?problem_id=840934449713537&ppid=454615229006519&practice_plan=0
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="k"></param>
+        /// <returns></returns>
+        public static int numberOfWays(int[] arr, int k)
+        {
+            Dictionary<int, int> map = new Dictionary<int, int>();
+            foreach (var item in arr)
+            {
+                if (map.ContainsKey(item))
+                    map[item]++;
+                else
+                    map.Add(item, 1);
+            }
+            int totalPairs = 0;
+            int totalToDividePairs = 0;
+            foreach (var pair in map)
+            {
+                int key = k - pair.Key;
+                if (pair.Key*2==k)
+                {
+                    totalPairs += pair.Value * (pair.Value - 1) / 2;
+                }
+                else if (map.ContainsKey(key))
+                {
+                    totalToDividePairs += map[key];
+                }
+            }
+            return totalPairs+ (totalToDividePairs/2);
+        }
+
+        /// <summary>
+        /// FaceBook https://www.facebookrecruiting.com/portal/coding_practice_question/?problem_id=559324704673058&ppid=454615229006519&practice_plan=0
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static int matchingPairs(string s, string t)
+        {
+            int pointer = 0;
+
+            int validPairs = 0;
+            var map = new Dictionary<char, Tuple<int, int>>();
+            while (pointer < s.Length)
+            {
+                if (s[pointer] == t[pointer])
+                    validPairs++;
+                else
+                {
+                    if (s.Contains(t[pointer]))
+                        map.Add(t[pointer], new Tuple<int, int>(pointer, s.IndexOf(t[pointer])));
+                }
+                pointer++;
+            }
+            bool foundPerfectSwap = false;
+            if (map.Count > 0)
+            {
+                foreach (var pair in map)
+                {
+                    var tPointer = pair.Value.Item1;
+                    var sPointer = pair.Value.Item2;
+                    if (map.ContainsKey(t[sPointer]))
+                    {
+                        if (map[t[sPointer]].Item2 == tPointer)
+                        {
+                            foundPerfectSwap = true;
+                            break;
+                        }
+                    }
+                }
+                if (!foundPerfectSwap)
+                    validPairs += 1;
+                else
+                    validPairs += 2;
+            }
+            
+            return validPairs;
+        }
 
         public class LinkedListNode
         {

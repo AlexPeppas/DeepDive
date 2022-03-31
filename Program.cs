@@ -23,7 +23,11 @@ namespace DeepDiveTechnicals
 
         public static void Main(string[] args)
         {
+            
+            
             #region WarmUp
+            FrequentlyAskedQuestions.WarmUp.matchingPairs("abcd", "adcb"); //Facebook
+            FrequentlyAskedQuestions.WarmUp.numberOfWays(new int[5] { 1, 2, 3, 4, 3 }, 6); // Facebook
             FrequentlyAskedQuestions.WarmUp.AllPalindrom("bac");
             FrequentlyAskedQuestions.WarmUp.RYGB("RGBBY", "YBRGB"); //5pseudohits
             FrequentlyAskedQuestions.WarmUp.RYGB("RGBBY", "RGBBY"); //5hits
@@ -89,6 +93,7 @@ namespace DeepDiveTechnicals
 
             #region Microsoft Final Problem
             TreesAndGraphs.Solution(new int[5] { 5, 6, 6, 7, -10 }, new int[6] { 0, 0, 0, 1, 2, 3 }, new int[6] { 1, 2, 3, 3, 1, 2 });
+            FrequentlyAskedQuestions.Interview.MicrosoftValidPair(); //Dublin, AZURE 365
             FrequentlyAskedQuestions.Interview.ProjectsBuildOrder(5, new int[1],new int[1],new int[1]); //HARD MICROSOFT dummy inputs
             FrequentlyAskedQuestions.Interview.HospitalsGraph(5, new int[1], new int[1], new int[1]); //HARD MICROSOFT dummy inputs
             FrequentlyAskedQuestions.Interview.FindPathRobotInGridWithCycle(); //HARD MICROSOFT
@@ -115,8 +120,30 @@ namespace DeepDiveTechnicals
 
             #endregion
 
-            #region Frequently Asked Questions and GeeksForGeeks
-
+            #region Frequently Asked Questions and GeeksForGeeks and HackerRank
+            FrequentlyAskedQuestions.Interview.FindNeighborSubarrays(new int[5] { 3, 4, 1, 6, 2 }); //Facebook Advanced
+            var subArraysOutput = FrequentlyAskedQuestions.Interview.CountSubarrays(new int[5] { 3, 4, 1, 6, 2 }); //Facebook
+            FrequentlyAskedQuestions.Interview.TextEditor("abcde", new List<string>
+            {
+                "1fg",
+                "36",
+                "25",
+                "4",
+                "37",
+                "4",
+                "34"
+            });
+            FrequentlyAskedQuestions.Interview.TextEditor("", new List<string>
+            {
+                "1abc",
+                "33",
+                "23",
+                "1xy",
+                "32",
+                "4",
+                "4",
+                "31"
+            });
             FrequentlyAskedQuestions.WarmUp.NQueens(4);
             FrequentlyAskedQuestions.WarmUp.RatInMaze(); //cache approach needs fixing
             FrequentlyAskedQuestions.WarmUp.LCAClassic(new FrequentlyAskedQuestions.Node(-1));
@@ -155,27 +182,6 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Moderate Problems
-            ModerateProbs.TextEditor("abcde", new List<string>
-            {
-                "1fg",
-                "36",
-                "25",
-                "4",
-                "37",
-                "4",
-                "34"
-            });
-            ModerateProbs.TextEditor("", new List<string>
-            {
-                "1abc",
-                "33",
-                "23",
-                "1xy",
-                "32",
-                "4",
-                "4",
-                "31"
-            });
             ModerateProbs.queensAttack(9, 3, 2, 2, new List<List<int>> { new List<int> {1,1 },new List<int> {4,4 },new List<int> {5,7 }});
             ModerateProbs.PairsWithSum(new List<int> { 3, 4, 12, 5, 2, 2 }, 9);
             ModerateProbs.SumSwap();

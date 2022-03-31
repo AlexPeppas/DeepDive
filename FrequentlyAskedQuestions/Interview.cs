@@ -2246,7 +2246,73 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             //TO BE DONE
             return -1;
         }
-        public class BiDirectGraph
+
+        /// <summary>
+        /// Create a method that will have as an input an integer S and an array of integers and will output true/false 
+        /// in case it finds a pair that its sum is equal to S
+        /// Example
+        /// Numbers = [1,-4,3,9,27,7] S=10
+        /// Output True
+        /// Approach 1 -> Dictionary, Time O(n) Space O(n)
+        /// What if we need to change the output and we need to return a list of pairs of al the indeces that have the sum equal to S
+        /// Example = [1, -4,3,9,27,7] S=10 return [{0,3} , {2,5}]
+        /// Approach 2 -> Iterate nested foreach on loop Time O(n^2) Space O(1)
+        /// Approach 3 -> Sort the array and perform binary search, Time O(nlogn) Space O(logn)
+        /// </summary>
+        public static void MicrosoftValidPair()
+        {
+            /*
+            1,-4,3,9,27,7
+            10
+            1+9 = 10 
+            */
+            Console.WriteLine(ValidPair(new List<int> { 1, -4, 3, 9, 27, 7, 1 }, 2));
+            //Console.WriteLine(ValidPair(new List<int>{1,-4,3,9,27,7,7}, 14));
+            //Console.WriteLine(ValidPair(new List<int>{1,-4,3,9,27,7}, 2000));
+            // you can write to stdout for debugging purposes, e.g.
+            Console.WriteLine("This is a debug message");
+        }
+
+        public static bool ValidPair(List<int> input, int target)
+        {
+            var enhancedMap = new Dictionary<int, List<int>>();
+            //1 , [0]
+            //7,7,7,7
+            // temp = currentInput[i]
+            // (target-temp)
+            var map = new Dictionary<int, int>(); //key and occurencies
+            foreach (var item in input)
+            {
+                if (!map.ContainsKey(item))
+                    map.Add(item, 1);
+                else
+                    map[item]++;
+            }
+
+            foreach (var pair in map)
+            {
+
+                int lookupKey = target - pair.Key;
+
+                if (map.ContainsKey(lookupKey) && lookupKey != pair.Key)
+                    return true;
+                if (pair.Value > 1)
+                {
+                    if (pair.Key * 2 == target)
+                        return true;
+                }
+            }
+            //7 7 7 7
+            //target 14
+            // (0,1)
+            // (0,2)
+            // (0,3)
+            // (1,2)
+
+            return false;
+        }
+    
+    public class BiDirectGraph
         {
             public int node;
             public List<BiDirectGraph> adjacents;
@@ -2256,6 +2322,261 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 this.node = node;
                 this.adjacents = new List<BiDirectGraph>();
             }
+        }
+
+        /// <summary>
+        /// HackerRank https://www.hackerrank.com/challenges/simple-text-editor/problem?isFullScreen=true
+        /// Implement a simple text editor. The editor initially contains an empty string, S. Perform Q operations of the following 4 types:
+        /// 1 append(W) - Append string W to the end of S.
+        /// 2 delete - Delete the last k characters of S.
+        /// 3 print - Print the kth character of s.
+        /// 4 undo - Undo the last (not previously undone) operation of type 1 or 2, reverting S to the state it was in prior to that operation.
+        /// Example
+        /// S = 'abcde'
+        /// ops = ["1fg","36","25","4","37","4","34"]
+        /// operation
+        /// index S       ops[index] explanation
+
+        /// 0       abcde   1 fg append fg
+        /// 1       abcdefg 3 6         print the 6th letter - f
+        /// 2       abcdefg 2 5         delete the last 5 letters
+        /// 3       ab      4           undo the last operation, index 2
+        /// 4       abcdefg 3 7         print the 7th characgter - g
+        /// 5       abcdefg 4           undo the last operation, index 0
+        /// 6       abcde   3 4         print the 4th character - d
+        /// </summary>
+
+        public static void TextEditor(string input, List<string> operations)
+        {
+            //precompute to reform the operations in a desired more readable format
+            var textEditorOperations = new List<Tuple<int, string>>();
+            foreach (var operation in operations)
+            {
+                if (operation[0].ToString() == "4")
+                    textEditorOperations.Add(new Tuple<int, string>(4, null));
+                else
+                    textEditorOperations.Add(new Tuple<int, string>(Convert.ToInt32(operation[0].ToString()), operation.Substring(1)));
+            }
+
+            var stack = new Stack<string>();
+            stack.Push(input);
+            //Use a stack to keep all the previous states. Can be done with a linked list as well.
+            foreach (var operation in textEditorOperations)
+            {
+                if (operation.Item1 == 4) //Undo
+                {
+                    if (stack.Count > 0)
+                        stack.Pop();
+                }
+                else
+                {
+                    string peek = stack.Peek();
+
+                    if (operation.Item1 == 1) //Append
+                    {
+                        stack.Push(peek + operation.Item2);
+                    }
+                    else if (operation.Item1 == 2) //Delete
+                    {
+                        stack.Push(peek.Substring(0, peek.Length - Convert.ToInt32(operation.Item2)));
+                    }
+                    else if (operation.Item1 == 3) //Print
+                    {
+                        Console.WriteLine(peek[Convert.ToInt32(operation.Item2) - 1]);
+                    }
+                    else //Not Valid
+                    {
+                        Console.WriteLine($"There is no such condition {operation.Item1}");
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// TOFINISH FACEBOOK
+        /// </summary>
+        public static void MinimizePermutations()
+        {
+            int[] arr = new int[13]
+            {1,2,3,7,5,6,4,8,9,10,12,13,11};
+
+            int startingPointer = 0;
+            int finishPointer = arr.Length - 1;
+
+            int[] output = new int[13];
+
+            while (startingPointer<finishPointer && startingPointer<arr.Length-1 && finishPointer >=0)
+            {
+                if (arr[startingPointer+1]<arr[startingPointer])
+                {
+                    int subPortionFinish = SortSubPortionHelper(arr, startingPointer, startingPointer+1, true);
+
+                }
+                else if (arr[finishPointer - 1] > arr[finishPointer])
+                {
+                    int subPortionFinish = SortSubPortionHelper(arr, finishPointer, finishPointer - 1, false);
+                }
+                else
+                {
+                    output[startingPointer] = arr[startingPointer];
+                    startingPointer++;
+                    finishPointer--;
+                }
+
+                
+            }
+        }
+
+        public static int SortSubPortionHelper(int[] arr, int startIndex, int index, bool increasing)
+        {
+            if (increasing)
+            {
+                while(arr[startIndex]>arr[index])
+                {
+                    index++;
+                }
+            }else
+            {
+                while(arr[startIndex]<arr[index])
+                {
+                    index--;
+                }
+            }
+            return index;
+        }
+
+        /// <summary>
+        /// FAEBOOK
+        /// You are given an array arr of N integers. For each index i, you are required to determine the number of contiguous subarrays that fulfill the following conditions:
+        /// The value at index i must be the maximum element in the contiguous subarrays, and
+        /// These contiguous subarrays must either start from or end on index i.
+        /// </summary>
+        /// Example:
+        /// arr = [3, 4, 1, 6, 2]
+        /// output = [1, 3, 1, 5, 1]
+        /// Explanation:
+        /// For index 0 - [3] is the only contiguous subarray that starts(or ends) with 3, and the maximum value in this subarray is 3.
+        /// For index 1 - [4], [3, 4], [4, 1]
+        /// For index 2 - [1]
+        /// For index 3 - [6], [6, 2], [1, 6], [4, 1, 6], [3, 4, 1, 6]
+        /// For index 4 - [2]
+        public static int[] CountSubarrays(int[] arr)
+        {
+            //3 4 1 6 2 
+            int[] output = new int[arr.Length];
+            for (int i=0;i<arr.Length;i++)
+            {
+                leftSubarrays = 0;
+                rightSubarrays = 0;
+                LeftHelper(arr, i-1, arr[i]);
+                RightHelper(arr, i + 1, arr[i]);
+                output[i] = leftSubarrays + rightSubarrays + 1 ;//add +1 to include itself as the default subarray
+            }
+            return output;
+        }
+
+        private static int leftSubarrays = 0;
+        private static int rightSubarrays = 0;
+
+        private static void LeftHelper(int[] arr, int index, int currentItem)
+        {
+            if (index < 0)
+                return ;
+            if (arr[index] < currentItem)
+            {
+                leftSubarrays++;
+                LeftHelper(arr, index - 1, currentItem);
+            }
+            else return;
+        }
+
+        private static void RightHelper(int[] arr, int index, int currentItem)
+        {
+            if (index > arr.GetLength(0) - 1)
+                return;
+            if (arr[index] < currentItem)
+            {
+                rightSubarrays++;
+                RightHelper(arr, index + 1, currentItem);
+            }
+            else return;
+        }
+
+        /// <summary>
+        /// FAEBOOK
+        /// You are given an array arr of N integers. For each index i, you are required to determine the number of contiguous subarrays that fulfill the following conditions:
+        /// The value at index i must be the maximum element in the contiguous subarrays, and
+        /// These contiguous subarrays must either start from or end on index i.
+        /// </summary>
+        /// Example:
+        /// arr = [3, 4, 1, 6, 2]
+        /// output = [1, 3, 1, 5, 1]
+        /// Explanation:
+        /// For index 0 - [3] is the only contiguous subarray that starts(or ends) with 3, and the maximum value in this subarray is 3.
+        /// For index 1 - [4], [3, 4], [4, 1]
+        /// For index 2 - [1]
+        /// For index 3 - [6], [6, 2], [1, 6], [4, 1, 6], [3, 4, 1, 6]
+        /// For index 4 - [2]
+        /// Return a structure for each index that holds the List<List<int>> with all possible subSets
+        public static void FindNeighborSubarrays(int[] arr)
+        {
+            //3 4 1 6 2 
+            List<List<List<int>>> output = new List<List<List<int>>>();
+            for (int i = 0; i < arr.Length; i++)
+            {
+                var totalSubarraysOfCurrent = new List<List<int>>();
+
+                var leftClone = LeftNeighborHelper(arr, i - 1, arr[i], new List<int> { arr[i]}, new List<List<int>>());
+                var rightClone = RightNeighborHelper(arr, i + 1, arr[i], new List<int> { arr[i] }, new List<List<int>>());
+                
+                totalSubarraysOfCurrent.Add(new List<int> { arr[i]}); //add default subset
+                totalSubarraysOfCurrent.AddRange(leftClone); //find all left neighbor subsets
+                totalSubarraysOfCurrent.AddRange(rightClone); //find all right neighbor subsets
+
+                output.Add(totalSubarraysOfCurrent);
+            }
+        }
+
+        public static List<List<int>> LeftNeighborHelper(int[] arr, int index, int currentItem, List<int> subArray, List<List<int>> totalSubarraysOfCurrent)
+        {
+            if (index < 0)
+                return totalSubarraysOfCurrent;
+            if (arr[index] < currentItem)
+            {
+                subArray.Add(arr[index]);
+                List<int> tempArray = new List<int>(); 
+                foreach (var item in subArray)
+                {
+                    tempArray.Add(item);
+                    //create a swallow copy and add it in totalSubArraysOfCurrent
+                    //beacuse if you add the subArray as a pointer every time it gets updated the whole totalSub is going to be modified
+                    //and end up with the latest record duplicated n times
+                }
+                totalSubarraysOfCurrent.Add(tempArray);
+                LeftNeighborHelper(arr, index - 1, currentItem, subArray, totalSubarraysOfCurrent);
+            }
+            return totalSubarraysOfCurrent;
+        }
+
+        private static List<List<int>> RightNeighborHelper(int[] arr, int index, int currentItem, List<int> subArray, List<List<int>> totalSubarraysOfCurrent)
+        {
+            if (index > arr.GetLength(0) - 1)
+                return totalSubarraysOfCurrent;
+            if (arr[index] < currentItem)
+            {
+                subArray.Add(arr[index]);
+                List<int> tempArray = new List<int>();
+                foreach (var item in subArray)
+                {
+                    tempArray.Add(item);
+                    //create a swallow copy and add it in totalSubArraysOfCurrent
+                    //beacuse if you add the subArray as a pointer every time it gets updated the whole totalSub is going to be modified
+                    //and end up with the latest record duplicated n times
+                }
+                totalSubarraysOfCurrent.Add(tempArray);
+                RightNeighborHelper(arr, index + 1, currentItem, subArray, totalSubarraysOfCurrent);
+            }
+            return totalSubarraysOfCurrent;
         }
     }
     /// <summary>
