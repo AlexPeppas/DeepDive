@@ -22,9 +22,7 @@ namespace DeepDiveTechnicals
         };
 
         public static void Main(string[] args)
-        {
-            
-            
+        {   
             #region WarmUp
             FrequentlyAskedQuestions.WarmUp.matchingPairs("abcd", "adcb"); //Facebook
             FrequentlyAskedQuestions.WarmUp.numberOfWays(new int[5] { 1, 2, 3, 4, 3 }, 6); // Facebook
@@ -121,6 +119,7 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Frequently Asked Questions and GeeksForGeeks and HackerRank
+            FrequentlyAskedQuestions.Interview.ElementSwapping(); //Facebook nice approach
             FrequentlyAskedQuestions.Interview.FindNeighborSubarrays(new int[5] { 3, 4, 1, 6, 2 }); //Facebook Advanced
             var subArraysOutput = FrequentlyAskedQuestions.Interview.CountSubarrays(new int[5] { 3, 4, 1, 6, 2 }); //Facebook
             FrequentlyAskedQuestions.Interview.TextEditor("abcde", new List<string>

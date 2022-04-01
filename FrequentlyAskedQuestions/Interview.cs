@@ -2578,6 +2578,71 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
             return totalSubarraysOfCurrent;
         }
+
+        /// <summary>
+        /// Facebook https://www.facebookrecruiting.com/portal/coding_practice_question/?problem_id=838749853303393&ppid=454615229006519&practice_plan=0
+        /// Given a sequence of n integers arr, determine the lexicographically smallest sequence which may be obtained from it after performing at most k element swaps, each involving a pair of consecutive elements in the sequence.
+        /// Note: A list x is lexicographically smaller than a different equal-length list y if and only if, for the earliest index at which the two lists differ, x's element at that index is smaller than y's element at that index.
+        /// </summary>
+        /// Example 1
+        /// n = 3
+        /// k = 2
+        /// arr = [5, 3, 1]
+        /// output = [1, 5, 3]
+        /// We can swap the 2nd and 3rd elements, followed by the 1st and 2nd elements, to end up with the sequence[1, 5, 3]. This is the lexicographically smallest sequence achievable after at most 2 swaps.
+        /// Example 2
+        /// n = 5
+        /// k = 3
+        /// arr = [8, 9, 11, 2, 1]
+        /// output = [2, 8, 9, 11, 1]
+        /// We can swap[11, 2], followed by[9, 2], then[8, 2].
+        /// <param name="args"></param>
+        public static void ElementSwapping()
+        {
+            int k = 3;
+            var array = FindMinArray(new int[5] { 8, 9, 11, 2, 1 }, k);
+            StringBuilder outputS = new StringBuilder();
+            foreach (var item in array)
+            {
+                outputS.Append($"{item.ToString()},");
+            }
+            Console.WriteLine($"Output after {k} swaps is {outputS.ToString()}");
+        }
+
+        public static int minValue = int.MaxValue;
+        public static int minIndex = 0;
+
+        private static int[] FindMinArray(int[] arr, int k)
+        {
+
+            if (arr.Length == 0) return arr;
+            //8,9,11,2,1
+            //8,0 9,1 11,2 2,3 1,4
+            //k=3
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (i - k > 0) break;
+                if (arr[i] < minValue)
+                {
+                    minValue = arr[i];
+                    minIndex = i;
+                }
+            }
+            return CreateOutput(arr);
+
+        }
+
+        private static int[] CreateOutput(int[] arr)
+        {
+            int[] output = arr;
+            for (int index = minIndex; index > 0; index--)
+            {
+                int temp = output[index];
+                output[index] = output[index - 1];
+                output[index - 1] = temp;
+            }
+            return output;
+        }
     }
     /// <summary>
     /// LRU CACHE DESIGN
