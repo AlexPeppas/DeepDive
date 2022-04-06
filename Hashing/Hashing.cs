@@ -54,7 +54,9 @@ namespace DeepDiveTechnicals
 
         public string Base62(int deci)
         {
-            string input = "10201401jdsadjajdaisjdOEasmdoafjaoksFOAPSFJAPRWJAPR";
+            //string input = "10201401jdsadjajdaisjdOEasmdoafjaoksFOAPSFJAPRWJAPR";
+            string input = "123456789A";
+            int s = input.Length;
             string hash_str = "";
             while (deci>0)
             {

@@ -22,8 +22,14 @@ namespace DeepDiveTechnicals
         };
 
         public static void Main(string[] args)
-        {   
+        {
+            
+            var toTest = new Hashing().Base62(999);
             #region WarmUp
+            FrequentlyAskedQuestions.WarmUp.RemoveLoopFromLinkedList(); //GeekForGeeks
+            FrequentlyAskedQuestions.WarmUp.FindLCA(); //GeekForGeeks
+            FrequentlyAskedQuestions.WarmUp.ConnectNodesSameLevel(); //GeekForGeeks
+            FrequentlyAskedQuestions.WarmUp.SearchInRotatedArray(); //GeekForGeeks
             FrequentlyAskedQuestions.WarmUp.matchingPairs("abcd", "adcb"); //Facebook
             FrequentlyAskedQuestions.WarmUp.numberOfWays(new int[5] { 1, 2, 3, 4, 3 }, 6); // Facebook
             FrequentlyAskedQuestions.WarmUp.AllPalindrom("bac");
@@ -264,6 +270,7 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Trees
+            TreesAndGraphs.TreeFromList(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
             TreesAndGraphs.FirstCommonNode();
             TreesAndGraphs.BuildOrder();
             var partitionOutput = LinkedLists.Partition(new LinkedListStruct(0), 90);

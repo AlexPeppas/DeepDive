@@ -1268,6 +1268,270 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             return validPairs;
         }
 
+        /// <summary>
+        /// GeeksForGeeks : https://practice.geeksforgeeks.org/problems/search-in-a-rotated-array4618/1
+        /// </summary>
+        public static void SearchInRotatedArray()
+        {
+            List<int> rotatedArray = new List<int> { 5, 6, 7, 8, 1, 2, 3 };
+            int target = 8;
+            SearchInRotatedArrayHelper(rotatedArray, 0, rotatedArray.Count - 1, target);
+            if (index != -1)
+                Console.WriteLine($"Target's {target} index is : {index}");
+
+            index = -1;
+            target = 3;
+            SearchInRotatedArrayHelper(rotatedArray, 0, rotatedArray.Count - 1, target);
+            if (index != -1)
+                Console.WriteLine($"Target's {target} index is : {index}");
+
+            index = -1;
+            target = 6;
+            SearchInRotatedArrayHelper(rotatedArray, 0, rotatedArray.Count - 1, target);
+            if (index != -1)
+                Console.WriteLine($"Target's {target} index is : {index}");
+
+            index = -1;
+            target = 113;
+            SearchInRotatedArrayHelper(rotatedArray, 0, rotatedArray.Count - 1, target);
+            if (index != -1)
+                Console.WriteLine($"Target's {target} index is : {index}");
+            else
+                Console.WriteLine($"Target not found {target}");
+        }
+
+        public static int index = -1;
+
+        public static void SearchInRotatedArrayHelper(List<int> input, int start, int end, int target)
+        {
+            if (start > end)
+                return;
+
+            int mid = (start + end) / 2;
+
+            if (input[mid] == target)
+            {
+                index = mid;
+                return;
+            }
+
+            //if (input[mid] < target)
+            //{
+
+                if (target <= input[end]) //search right
+                {
+                    SearchInRotatedArrayHelper(input, mid + 1, end, target);
+                    if (index == -1)
+                        SearchInRotatedArrayHelper(input, start, mid - 1, target); //search left
+                    else
+                        return;
+                }
+                else
+                {
+                    SearchInRotatedArrayHelper(input, start, mid - 1, target);
+                    if (index == -1)
+                        SearchInRotatedArrayHelper(input, mid + 1, end, target);
+                    else
+                        return;
+                }
+            //}
+            //else { }
+            
+        }
+
+        /// <summary>
+        /// GeeksForGeeks : https://www.geeksforgeeks.org/connect-nodes-at-same-level/
+        /// Input Tree
+        ///  A
+        /// / \
+       /// B   C
+      /// / \   \
+      /// D E   F
+
+        /// Output Tree
+        ///  A--->NULL
+        /// / \
+        ///B-->C-->NULL
+      /// / \   \
+     /// D-->E-->F-->NULL
+        /// </summary>
+        public static void ConnectNodesSameLevel()
+        {
+            ComplexTreeNode head = new ComplexTreeNode(1) ;
+            head.left = new ComplexTreeNode(2);
+            head.right = new ComplexTreeNode(3);
+            head.left.left = new ComplexTreeNode(4);
+            head.left.right = new ComplexTreeNode(5);
+            head.right.right = new ComplexTreeNode(6);
+
+            var levelToNodes = new Dictionary<int, List<ComplexTreeNode>>();
+            levelToNodes.Add(0, new List<ComplexTreeNode> { head });
+            ConnectedNodesHelper(head, 1,levelToNodes);
+
+            foreach (var item in levelToNodes)
+            {
+                int index = 0;
+                while (index < item.Value.Count-1)
+                {
+                    item.Value[index].next = item.Value[index + 1];
+                    index++;
+                }
+                item.Value[index].next = null; //last neighbor
+            }
+
+            PrintTree(head);
+        }
+
+        public static void ConnectedNodesHelper(ComplexTreeNode node, int level, Dictionary<int,List<ComplexTreeNode>> levelToNodes)
+        {
+            if (node == null)
+                return;
+            if (levelToNodes.ContainsKey(level))
+                levelToNodes[level].Add(node);
+            else
+                levelToNodes.Add(level, new List<ComplexTreeNode> { node });
+
+            ConnectedNodesHelper(node.left, level + 1, levelToNodes);
+            ConnectedNodesHelper(node.right, level + 1, levelToNodes);
+        }
+
+        public static void PrintTree(ComplexTreeNode node)
+        {
+            if (node == null)
+                return;
+            //-999 signifies NULL next neighbor
+            Console.WriteLine($"Current node {node.data} and his next neighbor is {node.next?.data ?? -999}");
+
+            PrintTree(node.left);
+            PrintTree(node.right);
+        }
+
+        /// <summary>
+        /// GeekForGeeks : https://www.geeksforgeeks.org/lowest-common-ancestor-binary-tree-set-1/
+        /// </summary>
+        public static void FindLCA ()
+        {
+            ComplexTreeNode head = new ComplexTreeNode(1);
+            head.left = new ComplexTreeNode(2);
+            head.right = new ComplexTreeNode(3);
+            head.left.left = new ComplexTreeNode(4);
+            head.left.right = new ComplexTreeNode(5);
+            head.left.right.right = new ComplexTreeNode(7);
+            head.right.right = new ComplexTreeNode(6);
+
+            var firstNode = head.right.right; //6
+            var secondNode = head.left.right; //5
+
+            var LCA = FindLCAHelper(head, firstNode, secondNode);
+
+            if (firstFound && secondFound)
+                Console.WriteLine($"Lowest Common Ancestor in input tree is {LCA.data}"); //1
+
+            //reset
+            firstNode = head.left; //2 
+            secondNode= head.left.left; //4 
+            firstFound = false;
+            secondFound = false;
+            LCA = FindLCAHelper(head, firstNode, secondNode);
+
+            if (firstFound && secondFound)
+                Console.WriteLine($"Lowest Common Ancestor in input tree is {LCA.data}"); //2
+        }
+
+        private static bool firstFound = false;
+        private static bool secondFound = false;
+
+        public static ComplexTreeNode FindLCAHelper(ComplexTreeNode node, ComplexTreeNode firstNode, ComplexTreeNode secondNode)
+        {
+            if (node == null)
+                return null;
+
+            ComplexTreeNode tempNode = null;
+
+            if (node == firstNode)
+            {
+                tempNode = firstNode;
+                firstFound = true;
+            }
+            else if (node == secondNode)
+            {   
+                tempNode = secondNode;
+                secondFound = true;
+            }
+
+            var leftNeighbors = FindLCAHelper(node.left, firstNode, secondNode);
+            var rightNeighbors = FindLCAHelper(node.right, firstNode, secondNode);
+
+            if (tempNode == null && leftNeighbors == null && rightNeighbors == null)
+                return null;
+            if (leftNeighbors != null && rightNeighbors != null)
+                return node;
+            if (tempNode != null)
+                return tempNode;
+            return (leftNeighbors ?? rightNeighbors);
+        }
+
+        /// <summary>
+        /// GeekForGeeks : https://www.geeksforgeeks.org/detect-and-remove-loop-in-a-linked-list/
+        /// </summary>
+        public static void RemoveLoopFromLinkedList()
+        {
+            //1 - 2 - 3 - 4 - 5 - 2
+            var head = new LinkedListNode(1);
+            head.next = new LinkedListNode(2);
+            head.next.next = new LinkedListNode(3);
+            head.next.next.next = new LinkedListNode(4);
+            head.next.next.next.next = new LinkedListNode(5);
+            head.next.next.next.next.next = head.next;
+
+            bool flag;
+            LinkedListNode pointOfCollision;
+
+            (flag,pointOfCollision) = CircleDetection(head);
+
+            if (!flag)
+                Console.WriteLine("There is no Loop");
+            else
+            {
+                Console.WriteLine($"Point of collision was {pointOfCollision.data} and his neighbor should be null {pointOfCollision.next}");
+            }
+
+        }
+
+        public static Tuple<bool, LinkedListNode> CircleDetection (LinkedListNode node)
+        {
+            var head = node;
+            var slowPointer = node;
+            var fastPointer = node;
+
+            while (fastPointer != null || fastPointer?.next != null)
+            {
+                fastPointer = fastPointer.next.next;
+                slowPointer = slowPointer.next;
+
+                if (slowPointer == fastPointer)
+                {
+                    var collision = RemoveLoop(slowPointer,head);
+                    collision.next = null; //remove loop
+                    return new Tuple<bool, LinkedListNode>(true, collision);
+                }
+            }
+            return new Tuple<bool, LinkedListNode>(false, null);
+        }
+
+        public static LinkedListNode RemoveLoop (LinkedListNode node, LinkedListNode head)
+        {
+            var tempNode = node;
+            while (head != node)
+            {
+                tempNode = node;
+                node = node.next;
+                head = head.next;
+            }
+            return tempNode;
+
+        }
+
         public class LinkedListNode
         {
             public int data;
@@ -1290,6 +1554,22 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
                 this.data = data;
                 this.left = null;
                 this.right = null;
+            }
+        }
+
+        public class ComplexTreeNode
+        {
+            public int data;
+            public ComplexTreeNode left;
+            public ComplexTreeNode right;
+            public ComplexTreeNode next;
+
+            public ComplexTreeNode(int data)
+            {
+                this.data = data;
+                this.left = null;
+                this.right = null;
+                this.next = null;
             }
         }
     }

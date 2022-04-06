@@ -781,5 +781,52 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
                 return node;
             return (nodeLeft != null) ? nodeLeft : nodeRight;
         }
+
+        public static void TreeFromList(List<int> input)
+        {
+            // 1 2 3 4 5 6 7 8 9 10
+            // 1 2 3 4 5
+            input = input.OrderBy(it => it)?.ToList();
+            var head = BSTHelper(input, 0, input.Count - 1);
+            PreOrderLogging(head);
+        }
+
+        public static void PreOrderLogging(TreeNode head)
+        {
+            if (head == null)
+                return;
+            Console.WriteLine(head.data);
+            PreOrderLogging(head.left);
+            PreOrderLogging(head.right);
+        }
+
+        public static TreeNode BSTHelper(List<int> input, int start, int end)
+        {
+            if (start > end)
+                return null;
+
+            int mid = (start + end) / 2;
+
+            var node = new TreeNode(input[mid]);
+
+            node.left = BSTHelper(input,start,mid-1);
+
+            node.right = BSTHelper(input, mid + 1, end);
+
+            return node;
+        }
+    }
+
+    public class TreeNode 
+    {
+        public int data;
+        public TreeNode left;
+        public TreeNode right;
+        public TreeNode(int data)
+        {
+            this.data = data;
+            this.left = null;
+            this.right = null;
+        }
     }
 }
