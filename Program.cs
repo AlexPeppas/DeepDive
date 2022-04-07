@@ -4,6 +4,7 @@ using DeepDiveTechnicals.DataStructures.ArraysAndStrings;
 using DeepDiveTechnicals.DataStructures.LinkedList;
 using DeepDiveTechnicals.DataStructures.TreesAndGraphs;
 using DeepDiveTechnicals.DynamicProgramming;
+using DeepDiveTechnicals.FrequentlyAskedQuestions;
 using DeepDiveTechnicals.Services;
 using DeepDiveTechnicals.SortingSearching;
 using Lucene.Net.Support;
@@ -16,6 +17,7 @@ namespace DeepDiveTechnicals
 {
     class Program
     {
+        
         public enum Map
         {
             comp = 0
@@ -95,7 +97,15 @@ namespace DeepDiveTechnicals
             //input larget dataSet and binWidth (for histogram chunks) = 2 etc. [0,1] [2,3] [4,5]
             #endregion
 
-            #region Microsoft Final Problem
+            #region Microsoft
+            /*Dublin, AZURE 365 Task2 System Design
+             * What is data sharding and how can you shard it. (range of ids or entityWise)
+             * How can you reach a new added node when you shard. (hash partition and using hash consistent algorithms)
+             * How can a user on Amazon register and order an item and also check inventory if it exists. (messaging queue, microservices)
+             */
+            new FrequentlyAskedQuestions.MicrosoftTask4(new List<InventoryRecord>()); // Dublin, AZURE 365 Task4
+            FrequentlyAskedQuestions.Interview.MicrosoftTask3();//Dublin, AZURE 365 Task3
+            new FrequentlyAskedQuestions.CollectionClass(10); //Dublin, AZURE 365 Task1
             TreesAndGraphs.Solution(new int[5] { 5, 6, 6, 7, -10 }, new int[6] { 0, 0, 0, 1, 2, 3 }, new int[6] { 1, 2, 3, 3, 1, 2 });
             FrequentlyAskedQuestions.Interview.MicrosoftValidPair(); //Dublin, AZURE 365
             FrequentlyAskedQuestions.Interview.ProjectsBuildOrder(5, new int[1],new int[1],new int[1]); //HARD MICROSOFT dummy inputs
@@ -343,6 +353,7 @@ namespace DeepDiveTechnicals
             #endregion
         }
 
+        
         public static void ParseInt(string input)
         {
             //"1012"

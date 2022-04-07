@@ -4,6 +4,14 @@ using System.Text;
 
 namespace DeepDiveTechnicals.ObjectOrientedDesign
 {
+
+    public class SingletonUser : CustomSingleton
+    {
+        //return instance
+        private CustomSingleton instance = getInstance();
+        
+    }
+
     public class CustomSingleton
     {
         private static CustomSingleton _instance = null;
@@ -20,4 +28,5 @@ namespace DeepDiveTechnicals.ObjectOrientedDesign
             return _instance;
         }
     }
+
 }

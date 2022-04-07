@@ -10,9 +10,9 @@ namespace DeepDiveTechnicals.ObjectOrientedDesign
         BlackJack = 1
     };
 
- /*   public class CustomFactoryMethod
+    /*public class CustomFactoryMethod
     {
-        public static CustomFactoryMethod getCardGame(GameType type)
+        public static T getCardGame<T>(GameType type) where T:class
         {
             if (type == GameType.Poker)
                 return new PokerGame();
@@ -20,4 +20,14 @@ namespace DeepDiveTechnicals.ObjectOrientedDesign
                 return new BlackJackGame();
         }
     }*/
+
+    public class PokerGame
+    {
+
+    }
+
+    public class BlackJackGame
+    {
+    }
+
 }

@@ -2643,7 +2643,247 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
             return output;
         }
+
+        /// <summary>
+        /// MICROSOFT DUBLIN Task3
+        /// You are given a large integer represented as an integer array of digits,
+        /// each digit[i] is the ith digit of the integer. The digits are ordered from most
+        /// significant to least significant in left-to-right order. The large integer does not
+        /// contain any leading 0's.
+        /// Increment the large integer by one and return the resulting array of digits
+        /// </summary>
+        public static void MicrosoftTask3()
+        {
+            var input = new int[3]
+            {
+                9,9,9
+            };
+            List<int> output = new List<int>();
+            output = Increment(input);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in output)
+            {
+                sb.Append(item);
+            }
+            Console.WriteLine($"final output : {sb.ToString()}");
+            //[ 9 , 7 , 5 ] -> [9 , 7 , 6] [length.-1]+1
+            //[ 9 , 9 , 9 ]
+
+        }
+
+        private static List<int> ArrayToList(int[] input)
+        {
+            List<int> output = new List<int>();
+            foreach (var item in input)
+            {
+                output.Add(item);
+            }
+            return output;
+        }
+
+        public static List<int> Increment(int[] input)
+        {
+            int length = input.GetLength(0) - 1;
+
+            if (input[length] < 9)
+            {
+                input[length] += 1;
+                return ArrayToList(input);
+            }
+            else
+            {
+                //[ 9 , 9 , 9 ] --> 1 , 0 , 0 ,0
+                //[7 7 9 9 9]
+                int index = length;
+                while (index > 0 && input[index] == 9)
+                {
+                    input[index] = 0;
+                    index--;
+                }
+                if (input[index] != 9)
+                {
+                    input[index] += 1;
+                    return ArrayToList(input);
+                }
+                else
+                {
+                    input[index] = 0;
+                    int[] newArray = new int[input.GetLength(0) + 1];
+                    newArray[0] = 1;
+                    int newindex = 1;
+                    foreach (var item in input)
+                    {
+                        newArray[newindex] = item;
+                        newindex++;
+                    }
+                    return ArrayToList(newArray);
+                }
+            }
+
+        }
     }
+
+    /// <summary>
+    /// MICROSOFT DUBLIN Task1
+    /// Design a collection class with the following capabilities:
+    /// It should be able to store integer values.
+    /// It should be possible to specify how many elements the collection will store.
+    /// Each value in the collection should have a position (from 0 to max number of elements minus 1). 
+    /// It should be possible to set the integer value of an element in a given position.
+    /// It should be possible to retrieve sum of elements from position a to position b.
+
+    /// Basically a collection class that is very similar to array with 3 APIs
+    /// Instantiate the collection
+    /// Set value at a given position
+    /// Get sum of values from position a to position b.
+    /// </summary>
+    public class CollectionClass
+    {
+        private int[] myCollection;
+        private static int _thresHold = 0;
+        private List<int> totalSums;
+        public CollectionClass(int thresHold)
+        {
+            myCollection = new int[thresHold + 1]; //0 - threshold-1 index.
+            Array.Fill(myCollection, 0);
+            _thresHold = thresHold;
+            totalSums = new List<int>();
+        }
+
+        public int[] SetInteger(int value, int index)
+        {
+            //input valid no conditions
+            myCollection[index] = value;
+            return myCollection;
+        }
+
+        private void PreComputation()
+        {
+
+            //1 ,2 ,3 ,4 ,5 
+            int firstvalue = myCollection[0];
+            int sum = firstvalue;
+            totalSums.Add(sum);
+            for (int i = 1; i < myCollection.Length; i++)
+            {
+                sum += myCollection[i];
+                totalSums.Add(sum);
+            }
+        }
+
+        public int Sum(int positionA, int positionB)
+        {
+            int sum = 0;
+            for (int i = positionA; i <= positionB; i++)
+            {
+                sum += myCollection[i];
+            }
+            return sum;
+        }
+
+        public int AdvancedSum(int posA, int posB)
+        {
+            // 1 ,2 ,3, 4 , 5 
+            // 1, 3, 6, 10, 15
+
+            // 15 - 3 - 10 = 2
+            // 15 - 3 - 15 = -3
+
+
+            int wholeSum = 0;
+            if (posA == 0)
+            {
+                return totalSums[posB];
+            }
+            else
+            {
+                wholeSum = totalSums[posB];
+                wholeSum -= totalSums[posA - 1];
+            }
+            return wholeSum;
+        }
+    }
+
+
+    /// <summary>
+        /*InventoryRecord:
+        {
+        "product": "Bike", 
+        "country": "China",
+        "store": "Shanghai",
+        "quantity": 4
+        },
+        {
+        "product": "Bike", 
+        "country": "Ireland",
+        "store": "Shanghai",
+        "quantity": 3
+        }
+    */
+    //<string,int> product -> n
+    //if you have 10-15 filters do not use MAPS. Go for MAP-REDUCE over different servers MAP over the given filter and reduce over quantity
+    //with this you will not have to keep in memory every available combination of filters as filters combinations get to increment expotentionaly.
+    /// </summary>
+    public class MicrosoftTask4
+    {
+        public Dictionary<string, int> productQuantityMap;
+        public Dictionary<string, List<string>> productToCountriesQuantity;
+        //Dictionary<string,Dictionary<string,int>> //O(n) Space
+
+        public MicrosoftTask4(List<InventoryRecord> records) //precompute
+        {
+            productQuantityMap = new Dictionary<string, int>();
+            ProductToQunatityMap(records);
+        }
+
+        private void ProductToQunatityMap(List<InventoryRecord> input)
+        {
+            foreach (var item in input)
+            {
+                ProductToQunatity(item.product.ToLower(), item.quantity);
+            }
+        }
+
+        private void ProductToQunatity(string product, int quantity)
+        {
+            product = product.ToLower();
+            if (productQuantityMap.ContainsKey(product))
+                productQuantityMap[product] += quantity;
+            else
+                productQuantityMap.Add(product, quantity);
+        }
+
+        int GetTotalQuantity(string product)
+        {
+            if (productQuantityMap.ContainsKey(product))
+                return productQuantityMap[product]; //return quantity
+            else
+                return 0;
+        }
+
+        int GetTotalQuantity(string product, string country)
+        {
+            return 0;
+        }
+
+        int GetTotalQuantity(string product, string country, string store)
+        {
+            return 0;
+        }
+    }
+
+    public class InventoryRecord
+    {
+        public string product { get; set; }
+
+        public string country { get; set; }
+
+        public string store { get; set; }
+
+        public int quantity { get; set; }
+    }
+
     /// <summary>
     /// LRU CACHE DESIGN
     /// </summary>
