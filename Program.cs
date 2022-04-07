@@ -4,7 +4,6 @@ using DeepDiveTechnicals.DataStructures.ArraysAndStrings;
 using DeepDiveTechnicals.DataStructures.LinkedList;
 using DeepDiveTechnicals.DataStructures.TreesAndGraphs;
 using DeepDiveTechnicals.DynamicProgramming;
-using DeepDiveTechnicals.FrequentlyAskedQuestions;
 using DeepDiveTechnicals.Services;
 using DeepDiveTechnicals.SortingSearching;
 using Lucene.Net.Support;
@@ -103,7 +102,7 @@ namespace DeepDiveTechnicals
              * How can you reach a new added node when you shard. (hash partition and using hash consistent algorithms)
              * How can a user on Amazon register and order an item and also check inventory if it exists. (messaging queue, microservices)
              */
-            new FrequentlyAskedQuestions.MicrosoftTask4(new List<InventoryRecord>()); // Dublin, AZURE 365 Task4
+            new FrequentlyAskedQuestions.MicrosoftTask4(new List<FrequentlyAskedQuestions.InventoryRecord>()); // Dublin, AZURE 365 Task4
             FrequentlyAskedQuestions.Interview.MicrosoftTask3();//Dublin, AZURE 365 Task3
             new FrequentlyAskedQuestions.CollectionClass(10); //Dublin, AZURE 365 Task1
             TreesAndGraphs.Solution(new int[5] { 5, 6, 6, 7, -10 }, new int[6] { 0, 0, 0, 1, 2, 3 }, new int[6] { 1, 2, 3, 3, 1, 2 });
