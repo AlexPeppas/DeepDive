@@ -713,6 +713,73 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
         }
 
+        public static int MaxSubsetSum(int[] arr)
+        {
+            var maxArr = new List<Tuple<int, int>>(); //actual value, accumulative sum
+            maxArr.Add(new Tuple<int, int>(arr[0], arr[0]));
+            maxArr.Add(new Tuple<int, int>(arr[1], arr[1]));
+            //-2 , 1 ,3 ,-4 , 5
+            int totalMax = Math.Max(Math.Max(maxArr[0].Item1, maxArr[0].Item2), Math.Max(maxArr[1].Item1, maxArr[1].Item2));
+            for (int i = 2; i < arr.Count(); i++)
+            {
+                int max = int.MinValue;
+                for (int j = i - 2; j >= 0; j--)
+                {
+                    var temp = Math.Max(max, Math.Max(maxArr[j].Item1, maxArr[j].Item2));
+                    if (temp > max)
+                        max = temp;
+                }
+                maxArr.Add(new Tuple<int, int>(arr[i], max+arr[i]));
+                if (Math.Max(maxArr[i].Item1, maxArr[i].Item2) > totalMax) totalMax = Math.Max(maxArr[i].Item1, maxArr[i].Item2);
+            }
+            return totalMax;
+        }
+
+        /// <summary>
+        /// Problem : Max Array Sum (SubSets) Hackerrank : https://www.hackerrank.com/challenges/max-array-sum/problem?isFullScreen=true&h_l=interview&playlist_slugs%5B%5D=interview-preparation-kit&playlist_slugs%5B%5D=dynamic-programming
+        /// Description : Given an array of integers, find the subset of non-adjacent elements with the maximum sum. Calculate the sum of that subset. It is possible that the maximum sum is 0, the case when all elements are negative.
+        /// Example
+        /// [-2 , 1 ,3 ,-4 , 5]
+        /// The following subsets with more than 1 element exist.These exclude the empty subset and single element subsets which are also valid.
+        /// Subset      Sum
+        /// [-2, 3, 5]   6
+        /// [-2, 3]      1
+        /// [-2, -4]    -6
+        /// [-2, 5]      3
+        /// [1, -4]     -3
+        /// [1, 5]       6
+        /// [3, 5]       8
+        /// The maximum subset sum is 8. Note that any individual element is a subset as well.
+        /// Approach : Index 0 and Index 1 
+        /// </summary>
+
+        public static int MaxSubsetSumCache(int[] arr)
+        {
+            var cacheSum = new List<int>(); //actual value, accumulative sum
+            cacheSum.Add(arr[0]);
+            cacheSum.Add(arr[1]);
+            int dummyMax = Math.Max(arr[0], arr[2]);
+            dummyMax = Math.Max(dummyMax, arr[2] + arr[0]);
+            cacheSum.Add(dummyMax);                         
+            //-2 , 1 ,3 ,-4 , 5
+            int totalMax = Math.Max(cacheSum[0], cacheSum[1]);
+            totalMax = Math.Max(totalMax, cacheSum[2]);
+
+            for (int i = 3; i < arr.Count(); i++)
+            {
+                int max1 = Math.Max(arr[i], cacheSum[i-2]);
+                max1 = Math.Max(max1, arr[i] + cacheSum[i-2]);
+
+                int max2 = Math.Max(arr[i], cacheSum[i - 3]);
+                max2 = Math.Max(max2, arr[i] + cacheSum[i - 3]);
+
+                int currentMax = Math.Max(max1, max2);
+                if (currentMax > totalMax) totalMax = currentMax;
+                cacheSum.Add(currentMax);
+            }
+            return totalMax;
+        }
+
         /// <summary>
         /// Problem : 8.1
         /// Description : A child is running up a staircase with n steps and can hop either 1 step, 2 steps, or 3
@@ -1530,6 +1597,76 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
             }
             return tempNode;
 
+        }
+
+        /// <summary>
+        /// Given two strings your function should return YES if a can be identical to b after operations,
+        /// available operations : 
+        /// convert small letter to capital letter (from a)
+        /// delete small letter (from a)
+        /// a is consisted of small and capital letters (ASCII) and b only from capital letters.
+        /// </summary>
+        public static string output = "NO";
+        public static string Abbreviation(string a, string b)
+        {
+            if (a.Length < b.Length) return output;
+            indexTarget = b.Length - 1;
+            AbbrevHelper(a, b, 0);
+            return output;
+        }
+        public static int indexTarget = 0;
+        public static int charSum = 0;
+        public static bool violation = false;
+        //A-Z 65-90
+        //a-z 97-122
+        public static void AbbrevHelper(string input, string target, int indexInput)
+        {
+            if (indexInput < input.Length-1)
+                AbbrevHelper(input, target, indexInput + 1);
+            if (indexInput < indexTarget && (target.Length - 1 - charSum < indexInput)) { output = "NO"; return; } //speedUp
+            if (violation) return;
+            if (charSum == target.Length)
+            {
+                int inputAscii = input[indexInput];
+                if (inputAscii <= 90) //capital letter
+                    output = "NO";
+                return;
+            }
+            if (input[indexInput] == target[indexTarget])
+            {
+                indexTarget--;
+                charSum++;
+                if (charSum == target.Length)
+                    output = "YES";
+                return;
+            }
+            else
+            {
+                int inputAscii = input[indexInput];
+                int targetAscii = target[indexTarget];
+                if (inputAscii > 90) //not capital
+                {
+                    int inputAsciiToCapital = 65 + (inputAscii - 97);
+                    if (inputAsciiToCapital == targetAscii) // same letter toUpper()
+                    {
+                        indexTarget--;
+                        charSum++;
+                        if (charSum == target.Length)
+                            output = "YES";
+                        return;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else //reset
+                {
+                    violation = true;
+                    output = "NO";
+                    return;
+                }
+            }
         }
 
         public class LinkedListNode
