@@ -384,11 +384,8 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         {
             if (row == grid)
             {
-                List<int> placesClone = new List<int>();
-                foreach (var item in places)
-                {
-                    placesClone.Add(item);
-                }
+                var placesClone = new List<int>(places);
+                
                 validBoards.Add(placesClone);
                 return;
             }

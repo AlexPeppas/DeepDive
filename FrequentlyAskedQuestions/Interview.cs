@@ -1082,6 +1082,56 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// Approach : Build the base case and then recurse over the incoming string (based on decrement index -- st.Length--) until you finally 
         /// build the list of all available permutaitons. Each permutation is the output of the previous layer and just append the current letter to 
         /// every possible position (for every item in the list of strings).
+        public static void BuildPermutationsV2(int index, string input, List<string> combos)
+        {
+            // abcd
+            // d, | cd, dc | bcd, cbd, cdb, bdc, dbc, dcb | ...
+            if (index == input.Length - 1)
+            {
+                //baseline
+                combos.Add(" ");
+
+                return;
+            }
+
+            BuildPermutationsV2(index + 1, input, combos);
+            BuilderV2(input[index], combos);
+        }
+
+        private static void BuilderV2(char letter, List<string> combos)
+        {
+            if (combos.Count == 1 && combos[0] == " ")
+            {
+                //baseline
+                combos[0] = letter.ToString();
+                return;
+            }
+
+            // d, | cd, dc | bcd, cbd, cdb, bdc, dbc, dcb | ...
+            var pairs = combos.Last().Split(",");
+            var wordIndex = 0;
+
+            var sb = new StringBuilder();
+            foreach (var word in pairs)
+            {
+                for (var lettInd = 0; lettInd < word.Length; lettInd++)
+                {
+                    sb.Append(word.Substring(0, lettInd));
+                    sb.Append(letter);
+                    sb.Append(word.Substring(lettInd));
+                    sb.Append(",");
+                }
+
+                sb.Append(word + letter);
+                wordIndex++;
+                if (wordIndex < pairs.Length)
+                {
+                    sb.Append(",");
+                }
+            }
+
+            combos.Add(sb.ToString());
+        }
 
         public static void PrintAllPermutations(string st)
         {
@@ -2345,7 +2395,68 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// 5       abcdefg 4           undo the last operation, index 0
         /// 6       abcde   3 4         print the 4th character - d
         /// </summary>
+        public sealed class TextEditorV2 : IDisposable
+        {
+            private string s;
 
+            private Stack<string> states;
+
+            public TextEditorV2(string s)
+            {
+                this.s = s;
+                this.states = new();
+            }
+
+            public string Append(string input)
+            {
+                this.states.Push(this.s);
+
+                this.s = $"{this.s}{input}";
+
+                return this.s;
+            }
+
+            public string DeletedKthChars(int k)
+            {
+                // abcdefg
+                if (k > this.s.Length)
+                {
+                    throw new InvalidOperationException("");
+                }
+
+                this.states.Push(this.s);
+
+                this.s = this.s.Substring(0, this.s.Length - k);
+
+                return this.s;
+            }
+
+            public void PrintKthChar(int k)
+            {
+                if (k - 1 >= this.s.Length)
+                {
+                    throw new InvalidOperationException("");
+                }
+
+                Console.WriteLine(this.s[k - 1]);
+            }
+
+            public string Undo()
+            {
+                if (this.states.TryPop(out var previousState))
+                {
+                    this.s = previousState;
+                }
+
+                return this.s;
+            }
+
+            public void Dispose()
+            {
+                this.states = new();
+                this.s = string.Empty;
+            }
+        }
         public static void TextEditor(string input, List<string> operations)
         {
             //precompute to reform the operations in a desired more readable format

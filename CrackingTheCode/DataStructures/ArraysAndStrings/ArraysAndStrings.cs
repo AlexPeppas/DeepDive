@@ -217,6 +217,41 @@ namespace DeepDiveTechnicals.DataStructures.ArraysAndStrings
         ///"compressed" string would not become smaller than the original string, your method should return
         ///the original string. You can assume the string has only uppercase and lowercase letters(a - z).
         /// </summary>
+        /// 
+        public static string Comp(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+            
+            var temp = input[0];
+            var tempC = 1;
+            var b = new StringBuilder(temp);
+            for (var i = 1; i < input.Length; i++)
+            {
+                if (input[i] == temp)
+                {
+                    tempC++;
+                }
+                else
+                {
+                    b.Append(temp);
+                    if (tempC > 1)
+                    {
+                        b.Append(tempC);
+                        tempC = 1;
+                    }
+                    temp = input[i];
+                }
+            }
+
+            var output = b.ToString();
+            return output.Length > input.Length 
+                ? input
+                : output;
+        }
+
         public static string StringCompression(string phrase)
         {
             StringBuilder output = new StringBuilder();
@@ -248,21 +283,43 @@ namespace DeepDiveTechnicals.DataStructures.ArraysAndStrings
         /// <summary>
         /// Problem : 1.9
         /// Description : Assume you have a method isSubstring which checks if one word is a substring
-        /// of another.Given two strings, 51 and 52, write code to check if 52 is a rotation of 51 using only one
-        /// call to i5Sub5tring(e.g., "waterbottle" is a rotation of" erbottlewat").
+        /// of another.Given two strings, s1 and s2, write code to check if s2 is a rotation of s1 using only one
+        /// call to isSubstring(e.g., "waterbottle" is a rotation of" erbottlewat").
         /// </summary>
         public static bool StringRotation (string s1, string s2)
         {
             if (s1.Length==s2.Length && s1.Length>0)
             {
                 string s1s1 = s1 + s1;
-                return isSubstring(s1s1, s2);
+                return IsSubstring(s1s1, s2);
             }
             return false;
         }
-        public static bool isSubstring(string s1, string s2)
+
+        public static bool IsSubstring(string s1s1, string s2)
         {
-            return true; //mock
+            // "waterbottlewaterbottle" "erbottlewat"
+            var s2C = 0;
+            var s2Pointer = s2[s2C];
+            
+            foreach (var s in s1s1)
+            {
+                if (s.Equals(s2Pointer))
+                {
+                    s2C++;
+                    if (s2C == s2.Length-1)
+                    {
+                        return true;
+                    }
+                    s2Pointer = s2[s2C];
+                }
+                else
+                {
+                    s2C = 0;
+                }
+            }
+
+            return false;
         }
     }
 }

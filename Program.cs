@@ -4,22 +4,69 @@ using DeepDiveTechnicals.DataStructures.ArraysAndStrings;
 using DeepDiveTechnicals.DataStructures.LinkedList;
 using DeepDiveTechnicals.DataStructures.TreesAndGraphs;
 using DeepDiveTechnicals.DynamicProgramming;
+using DeepDiveTechnicals.RecursionAndDynamicProgramming;
 using DeepDiveTechnicals.Services;
 using DeepDiveTechnicals.SortingSearching;
-using Lucene.Net.Support;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using static DeepDiveTechnicals.FrequentlyAskedQuestions.Interview;
 namespace DeepDiveTechnicals
 {
     class Program
     {
+        private static void TextEditorInvoker()
+        {
+            var stringInput = "abcde";
+            var operations = new List<string> { "1fg", "36", "25", "4", "37", "4", "34" };
+            var output = string.Empty;
 
+            using var editor = new TextEditorV2(stringInput);
+            foreach (var opString in operations)
+            {
+                var operation = opString[0];
+                switch (operation)
+                {
+                    case '1':
+                        output = editor.Append(opString.Substring(1));
+                        Console.WriteLine("case1: " + output);
+                        break;
+                    case '2':
+                        output = editor.DeletedKthChars(Int32.Parse(opString.Substring(1)));
+                        Console.WriteLine("case2: " + output);
+                        break;
+                    case '3':
+                        editor.PrintKthChar(Int32.Parse(opString.Substring(1)));
+                        break;
+                    case '4':
+                        output = editor.Undo();
+                        Console.WriteLine("case4: " + output);
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
         public static void Main(string[] args)
         {
-            
+            TextEditorInvoker();
+
+            var input = new List<int> { 3, 5, 1, 9, 12, 59, 0, 1 };
+            SortingAndSearching.QuickSortV2(input, 0, 7);
+
+            var expected3 = new List<int> { 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 6, 8, 99 };
+            var expected8 = new List<int> { 2, 3, 5, 5, 5, 6, 8, 8, 8, 8, 8, 8, 8, 99 };
+            var notMagicIndex = new List<int> { 2, 3, 5, 5, 99, 99, 99 };
+            var is3 = RecursionAndDynamic.MagicIndexDuplicatesV2(expected3);
+            var is8 = RecursionAndDynamic.MagicIndexDuplicatesV2(expected8);
+            var isNotMagic = RecursionAndDynamic.MagicIndexDuplicatesV2(notMagicIndex);
+
+            RecursionAndDynamic.RobotInAGridDiscoverAllPathsV2();
+            RecursionAndDynamic.RobotInAGridV2();
+            var dout = RecursionAndDynamic.TripleStep(5);
             var toTest = new Hashing().Base62(999);
             #region WarmUp
             FrequentlyAskedQuestions.WarmUp.MaxSubsetSumCache(new int[5] { -2, 1, 3, -4, 5 });
@@ -276,11 +323,17 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Trees
+            var found0 = TreesAndGraphs.CheckSubtreeV2();
+            var found = TreesAndGraphs.TryFindCommonAncestorV2(out var commonAncestor);
+            var exists = TreesAndGraphs.TryBuildOrderV2(new List<string> { "a", "b", "c", "d", "e", "f" }, new List<Tuple<string, string>> { new("a", "d"), new("f", "b"), new("b", "d"), new("f", "a"), new("d", "c") }, out var order);
+            var loopDetected = TreesAndGraphs.TryBuildOrderV2(new List<string> { "a", "b", "c", "d", "e", "f" }, new List<Tuple<string, string>> { new("a", "d"), new("f", "b"), new("b", "d"), new("f", "a"), new("d", "c"), new("c", "f") }, out var order2);
             TreesAndGraphs.TreeFromList(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
             TreesAndGraphs.FirstCommonNode();
             TreesAndGraphs.BuildOrder();
             var partitionOutput = LinkedLists.Partition(new LinkedListStruct(0), 90);
             LinkedLists.RemoveDups();
+            TreesAndGraphs.ConstructMinimalTreeV2([1, 3, 4, 6, 8, 9, 12, 15, 21]);
+            TreesAndGraphs.RouteBetweenNodesV2(4);
             #endregion
 
             #region Arrays And Strings
@@ -295,86 +348,8 @@ namespace DeepDiveTechnicals
             oneAwayOutput = ArraysAndStrings.OneAway("pale", "bake");
             var r = ArraysAndStrings.CheckPermutation("abcd", "cbda");
             var urlifyOutput = ArraysAndStrings.URLify("Mr John Smith ");
+            var isRotation = ArraysAndStrings.StringRotation("waterbottle", "erbottlewat");
             #endregion
-
-            #region Previous Preparation
-            permutation("ale", "");
-            string stop = string.Empty;
-
-            //
-            //array1: 50 5 20 30 40
-            //array2 : 5 10 20 0 2
-            //array3 : 5 10 30 20 5
-            int[] arr = new int[5];
-            arr[0] = 5; arr[1] = 6; arr[2] = 20; arr[3] = 10; arr[4] = 5;
-            var rotatedArray = new SearchRotatedArray().Sort(arr, 0, arr.Length - 1, 10);
-            //
-            var result = new Parenthesis().isValid();
-            new MagicIndex().ComputeWithFast();
-            //1 , 1 , 2 , 3 , 5 , 8
-            int N = 6;
-            var fiboN = Fibonacci.Compute(N);
-            var fiboNRecursive = Fibonacci.ComputeRecursively(0, 1, N, 2);
-            var fiboNCache = Fibonacci.CacheFiboOptimization(N);
-            var fiboCache = Fibonacci.CacheReturnStack(N);
-
-
-
-            var minimalTree = new MinimalTree();
-            Node node = minimalTree.CreateBinaryTree(new List<int> { 1, 5, 7, 10, 15, 20, 25, 30 });
-
-            var linkedlist = new RemoveDups();
-            linkedlist.main();
-
-            //dummy tree traverse
-            var treeLogic = new TreeLogic();
-            treeLogic.TreeTraverse();
-            //
-
-            //dummy order date for balancer
-            var datesOrdered = Order_DateTimes.OrderDate();
-            //
-
-            // table manipulation BP Services
-            var tableManip = new TableManipulation();
-            tableManip.Manipulate();
-            //
-
-            var dict = new Dictionary<int, int> { { 0, 2 } };
-            var dum = 5;
-            var pos = dict.FirstOrDefault(it => it.Value > dum);
-            if (pos.Value == 0) throw new Exception("Empty Dict");
-            Console.WriteLine("pos" + pos);
-
-            #endregion
-        }
-
-        public static void ParseInt(string input)
-        {
-            //"1012"
-            int res = input[0] - 48;
-            for (int i = 1; i < input.Length; i++)
-            {
-                res *= 10;
-                int tempCode = input[i] - 48;
-                res += tempCode;
-            }
-        }
-
-        public static void permutation(string str, string prefix)
-        {
-            if (str.Count() == 0)
-            {
-                Console.WriteLine(prefix);
-            }
-            else
-            {
-                for (int i = 0; i < str.Count(); i++)
-                {
-                    string rem = str.Substring(0, i) + str.Substring(i + 1);
-                    permutation(rem, prefix + str[i]);
-                }
-            }
         }
     }
 

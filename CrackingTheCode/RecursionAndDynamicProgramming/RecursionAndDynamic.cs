@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security;
 using System.Text;
 
 namespace DeepDiveTechnicals.RecursionAndDynamicProgramming
@@ -15,6 +16,20 @@ namespace DeepDiveTechnicals.RecursionAndDynamicProgramming
          * f0 , f1 , f2 , f3 , f4 , f5 , f6 , f7
            0  , 1  , 1  , 2  ,  3 , 5 , 8 , 13 
         */
+        public static int FiboV2(int n0, int n1, int nth, int current)
+        {
+            if (current == nth)
+            {
+                return n1;
+            }
+
+            int temp = n1;
+            n1 = n1 + n0;
+            n0 = temp;
+
+            return FiboV2(n0, n1, nth, current + 1);
+        }
+
         public static int Fibo(int nth)
         {
             if (nth == 0)
@@ -70,6 +85,83 @@ namespace DeepDiveTechnicals.RecursionAndDynamicProgramming
         /// Description : A child is running up a staircase with n steps and can hop either 1 step, 2 steps, or 3
         ///steps at a time.Implement a method to count how many possible ways the child can run up the stairs.
         /// </summary>
+        /*public static List<List<string>> TripleStepPathsV2(int n)
+        {
+            var memoStair = new int[n + 1];
+            var memoPath = new List<List<string>>();
+            Array.Fill(memoStair, -1);
+
+            return memoPath;
+        }
+
+        private static List<List<string>> MemoPaths = new List<List<string>>();
+
+        private static int TripleStepInternal(int stair, int[] memoStair, List<string> currentPath, string step)
+        {
+            if (stair < 0)
+            {
+                if (step == "3")
+                {
+                    MemoPaths.Add(currentPath);
+                }
+                return 0;
+            }
+
+            if (stair == 0)
+            {
+                currentPath.Add(step);
+                if (step == "3")
+                {
+                    MemoPaths.Add(currentPath);
+                }
+                return 1;
+            }
+
+            if (memoStair[stair]>-1)
+            {
+                if (step == "3")
+                {
+                    MemoPaths.Add(currentPath);
+                }
+                return memoStair[stair];
+            }
+
+            memoStair[stair] = TripleStepInternal(stair - 1, memoStair, currentPath, "1") + TripleStepInternal(stair - 2, memoStair, currentPath, "2") + TripleStepInternal(stair - 3, memoStair, currentPath, "3");
+
+            return memoStair[stair];
+        }*/
+
+        public static int TripleStepV2(int n)
+        {
+            var memo = new int[n + 1];
+            Array.Fill(memo, -1);
+            return TripleStepInternal(n, memo);
+        }
+
+        private static int TripleStepInternal(int stair, int[] memo)
+        {
+            if (stair < 0)
+            { 
+                return 0;
+            }
+
+            if (stair == 0)
+            {
+                return 1;
+            }
+
+            if (memo[stair] > -1)
+            {
+                return memo[stair];
+            }
+            else
+            {
+                memo[stair] = TripleStepInternal(stair - 1, memo) + TripleStepInternal(stair - 2, memo) + TripleStepInternal(stair - 3, memo);
+            }
+
+            return memo[stair];
+        }
+
         public static int TripleStep(int n)
         {
             int[] memo = new int[n + 1];
@@ -100,6 +192,87 @@ namespace DeepDiveTechnicals.RecursionAndDynamicProgramming
         /// the bottom right.
         /// </summary>
         /// Time Complexity O(row*col)
+        /// 
+        public static List<Stack<Point>> RobotInAGridDiscoverAllPathsV2()
+        {
+            var grid = new bool[3, 4]
+            {
+                { true, true, true, false },
+                { true, true, true, true },
+                { true, false, true, true}
+            };
+
+            var path = new Stack<Point>();
+            var paths = new List<Stack<Point>>();
+            MoveRobotAndDiscoverAllPaths(0, 0, grid, path, paths);
+
+            return paths;
+        }
+
+        public static Stack<Point> RobotInAGridV2()
+        {
+            var grid = new bool[3, 4] 
+            {
+                { true, true, true, false },
+                { true, true, true, true },
+                { true, false, true, true}
+            };
+
+            var path = new Stack<Point>();
+
+            var found = MoveRobot(0, 0, grid, path);
+
+            return path;
+        }
+
+        public static bool MoveRobot(int row, int col, bool[,] grid, Stack<Point> path)
+        {
+            if (row < 0 || row >= grid.GetLength(0) || col < 0 || col >= grid.GetLength(1) || !grid[row,col])
+            {
+                return false;
+            }
+
+            var point = new Point(row, col);
+            path.Push(point);
+
+            if (row == grid.GetLength(0) -1 && col == grid.GetLength(1)-1)
+            {
+                return true;
+            }
+
+            var found = MoveRobot(row + 1, col, grid, path) || MoveRobot(row, col+1, grid, path);  
+            
+            if (!found)
+            {
+                path.Pop();
+            }
+
+            return found;
+        }
+
+        public static void MoveRobotAndDiscoverAllPaths(int row, int col, bool[,] grid, Stack<Point> path, List<Stack<Point>> paths)
+        {
+            if (row < 0 || row >= grid.GetLength(0) || col < 0 || col >= grid.GetLength(1) || !grid[row, col])
+            {
+                return; // either out of bounds or blocker
+            }
+
+            var point = new Point(row, col);
+            path.Push(point);
+
+            if (row == grid.GetLength(0) - 1 && col == grid.GetLength(1) - 1)
+            {
+                var clonePath = new Stack<Point>(path);
+                paths.Add(clonePath);
+                return;
+            }
+
+            MoveRobotAndDiscoverAllPaths(row + 1, col, grid, path, paths);
+            MoveRobotAndDiscoverAllPaths(row, col + 1, grid, path, paths);
+
+            path.Pop();
+        }
+
         public class Point 
         {
             
@@ -154,7 +327,7 @@ namespace DeepDiveTechnicals.RecursionAndDynamicProgramming
         /// FOLLOW UP
         /// What if the values are not distinct?
         /// </summary>
-        
+       
         public static int MagicIndex(List<int> sortedList)
         {
             sortedList.Add(-5);
@@ -235,6 +408,47 @@ namespace DeepDiveTechnicals.RecursionAndDynamicProgramming
             int startTemp = Math.Max(midValue, midIndex + 1);
             int right = BinarySearchInMagicIndexDuplicates(list, startTemp, end);
             return right;
+        }
+
+        public static int MagicIndexDuplicatesV2(List<int> input)
+        {
+            if (input.Count == 0) return -1;
+
+            return MagicIndexDuplicatesHelperV2(input, 0, input.Count-1);
+        }
+
+        public static int MagicIndexDuplicatesHelperV2(List<int> input, int start, int end)
+        {
+            if (start > end || start < 0 || end > input.Count-1)
+            {
+                return -1;
+            }
+
+            //      2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 6, 8, 99
+            //ind   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13
+            var mid = (start + end) / 2;
+
+            if (input[mid] == mid)
+            {
+                return mid;
+            }
+
+            var leftMaybe = -1;
+            var rightMaybe = -1;
+            int ceiling = 0;
+
+            if (input[mid] < mid)
+            {
+                ceiling = Math.Min(input[mid], mid - 1);
+                leftMaybe = MagicIndexDuplicatesHelperV2(input, start, ceiling);
+            }
+            else
+            {
+                ceiling = Math.Max(input[mid], mid + 1);
+                rightMaybe = MagicIndexDuplicatesHelperV2(input, ceiling, end);
+            }
+
+            return Math.Max(leftMaybe, rightMaybe);
         }
 
         /// <summary>

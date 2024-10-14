@@ -1,10 +1,20 @@
-﻿using DeepDiveTechnicals.DataStructures.LinkedList;
+﻿using DeepDiveTechnicals.Common.Helpers;
+using DeepDiveTechnicals.Common.Models;
+using DeepDiveTechnicals.DataStructures.LinkedList;
 using DeepDiveTechnicals.DataStructures.StacksAndQueues;
+using DeepDiveTechnicals.FrequentlyAskedQuestions;
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Authentication.ExtendedProtection;
 using System.Text;
+
+using static DeepDiveTechnicals.Common.Models.GraphStructs;
+using static DeepDiveTechnicals.Common.Models.TreeStructs;
 using static DeepDiveTechnicals.DataStructures.TreesAndGraphs.TreesAndGraphs;
+using static Lucene.Net.Documents.Field;
 
 namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
 {
@@ -116,8 +126,7 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
         /// Description : Route Between Nodes: Given a directed graph, design an algorithm to find out whether there is a
         ///route between two nodes.
         /// </summary>
-        public enum State { unvisited = 0, visiting, visited };
-
+        /// 
         public static bool RouteBetweenNodes(GraphStruct graph, GraphNode source, GraphNode destination)
         {
             if (source == destination) return true;
@@ -151,30 +160,180 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
             return false;
         }
 
+        public static bool RouteBetweenNodesV2(int nodesNo)
+        {
+            var graph = GraphHelpers.CreateRandomGraph(nodesNo);
+            Debug.WriteLine($"GRAPH: **** \n {graph}");
+
+            var src = graph.Nodes[1];
+            var dst = graph.Nodes[3];
+
+            ApplyDFS(src, dst, out var exists);
+            return exists;
+        }
+
+        private static void ApplyDFS(GNode current, GNode dest, out bool routeExists)
+        {
+            if (current is null)
+            {
+                routeExists = false;
+                return;
+            }
+
+            current.State = GState.Visited;
+
+            if (ReferenceEquals(current, dest))
+            {
+                routeExists = true;
+                return;
+            }
+
+            foreach (var node in current.Adjacents)
+            {
+                if (node.State == GState.Unvisited)
+                {
+                    ApplyDFS(node, dest, out routeExists);
+                    if (routeExists is true)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            routeExists = false;
+        }
+
+        public enum State { unvisited = 0, visiting, visited };
+
         /// <summary>
         /// Problem : 4.2
         /// Description : Given a sorted (increasing order) array with unique integer elements, write an
-        ///algorithm to create a binary search tree with minimal height.
+        /// algorithm to create a binary search tree with minimal height.
         ///
         /// Explanation : 
         /// To create a tree of minimal height we need to match the number of nodes in the left subtree to the number of nodes in the right subtree
         /// as much as possible. This means that we want the root to be the middle of the array, since half the elements (placed left) should be less than the root
         /// and half (placed right) should be greater than the root.
         /// </summary>
-        public static NodeStruct MinimalTree(int[] array)
+        public static NodeStruct ConstructMinimalTree(int[] array)
         {
-            NodeStruct root = MinimalTree(array, 0, array.Length); // this will return the first array[mid] which is going to be the root of the BST
+            NodeStruct root = MinimalTreeInternal(array, 0, array.Length); // this will return the first array[mid] which is going to be the root of the BST
             return root;
         }
-        public static NodeStruct MinimalTree(int[] array, int start, int end)
+
+        private static NodeStruct MinimalTreeInternal(int[] array, int start, int end)
         {
             if (end < start)
                 return null;
 
             int mid = (start + end) / 2;
             NodeStruct node = new NodeStruct(array[mid]);
-            node.left = MinimalTree(array, start, mid - 1);
-            node.right = MinimalTree(array, mid + 1, end);
+            node.left = MinimalTreeInternal(array, start, mid - 1);
+            node.right = MinimalTreeInternal(array, mid + 1, end);
+            return node;
+        }
+
+        public static GTreeNode ConstructMinimalTreeV2(int[] array)
+        {
+            // 1, 3, 4, 6, 8, 9, 12, 15, 21
+            // VISUALIZE THE TREE
+            /*                      8
+                        3                   15      21
+                    1       4          9
+                              6           12
+            */
+            var root = MinimalTreeInternalV2(array, 0, array.Length); // this will return the first array[mid] which is going to be the root of the BST
+            // PrintTree(root);
+            return root;
+        }
+
+        /*private static void PrintTree(GTreeNode root, string indent = "", bool isLeft = true)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            // Print the current node (right-most first for better visual alignment)
+            if (root.Right != null)
+            {
+                PrintTree(root.Right, indent + (isLeft ? "│   " : "    "), false);
+            }
+
+            // Print current node's data
+            Debug.WriteLine(indent + (isLeft ? "└── " : "┌── ") + root.Data);
+
+            // Print the left subtree
+            if (root.Left != null)
+            {
+                PrintTree(root.Left, indent + (isLeft ? "    " : "│   "), true);
+            }
+        }
+
+        private static void PrintTree(GTreeNode root, int midPointer, bool leftIndent, bool comesFromLeft, bool isFirst)
+        {
+            if (root is null)
+            {
+                return;
+            }
+
+            if (midPointer<0)
+                return;
+
+            if (isFirst)
+            {
+                var nodeVisual = root.Data.ToString().PadLeft(midPointer,' ');
+                Debug.WriteLine(nodeVisual);
+            }
+
+            var tempMidPointer = midPointer;
+
+            if (comesFromLeft && !isFirst)
+            {
+                if (leftIndent)
+                {
+                    tempMidPointer -= 2;
+                    var nodeVisual = root.Data.ToString().PadLeft(tempMidPointer, ' ');
+                    Debug.WriteLine(nodeVisual);
+                }
+                else
+                {
+                    tempMidPointer -= 1;
+                    var nodeVisual = root.Data.ToString().PadLeft(tempMidPointer, ' ');
+                    Debug.WriteLine(nodeVisual);
+                }
+            }
+            else if (!comesFromLeft && !isFirst)
+            {
+                if (leftIndent)
+                {
+                    tempMidPointer += 1;
+                    var nodeVisual = root.Data.ToString().PadLeft(tempMidPointer, ' ');
+                    Debug.WriteLine(nodeVisual);
+                }
+                else
+                {
+                    tempMidPointer += 2;
+                    var nodeVisual = root.Data.ToString().PadLeft(tempMidPointer + 2, ' ');
+                    Debug.WriteLine(nodeVisual);
+                }
+            }
+
+            PrintTree(root.Left, tempMidPointer, true, true, false);
+            PrintTree(root.Right, tempMidPointer, false, false, false);
+        }*/
+
+        private static GTreeNode MinimalTreeInternalV2(int[] array, int start, int end)
+        {
+            if (end <= start)
+                return null;
+
+            var mid = (start + end) / 2;
+
+            var node = GTreeNode.Init(array[mid]);
+            node.Left = MinimalTreeInternalV2(array, start, mid-1);
+            node.Right = MinimalTreeInternalV2(array, mid + 1, end);
+
             return node;
         }
 
@@ -270,14 +429,16 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
         {
             if (root == null) return true;
 
-            if (!ValidateBSTInOrderTraversal(root.left)) return false;
+            if (!ValidateBSTInOrderTraversal(root.left)) 
+                return false;
 
             if (root.data < minimumV && minimumV != null)
                 return false;
             else
                 minimumV = root.data;
 
-            if (!ValidateBSTInOrderTraversal(root.right)) return false;
+            if (!ValidateBSTInOrderTraversal(root.right)) 
+                return false;
 
             return true;
         }
@@ -333,8 +494,105 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
         /// Input:
         /// projects: a, b, c, d, e, f
         /// dependencies: (a, d), (f, b), (b, d), (f, a), (d, c)
+        /// c-->d, d-->a,b b-->f a-->f
         /// Output: f, e, a, b, d, c
         /// </summary>
+        
+        public static bool TryBuildOrderV2(List<string> projects, List<Tuple<string,string>> dependencies, out HashSet<string> order)
+        {
+            order = new HashSet<string>();
+
+            var graph = PrepareGraphFromDeps(dependencies, projects.Count);
+
+            var exists = true;
+            foreach(var node in graph.Nodes)
+            {
+                if (node.State == GState.Unvisited)
+                {
+                    exists &= TraverseBuildOrderWithLoopDetection(node, node, order);
+                }
+            }
+
+            if (exists)
+            {
+                foreach(var proj in projects)
+                {
+                    // non-dependent stuff
+                    if (!order.Contains(proj))
+                    {
+                        order = order.Prepend(proj).ToHashSet();
+                    }
+                }
+            }
+
+            return exists;
+        }
+
+        private static GGraph PrepareGraphFromDeps(List<Tuple<string, string>> dependencies, int graphNodes)
+        {
+            var graph = GGraph.Init(graphNodes);
+            var projToNode = new Dictionary<string,GNode>();
+
+            foreach(var pair in dependencies)
+            {
+                GNode masterNode;
+                GNode dependentNode;
+
+                if (!projToNode.ContainsKey(pair.Item1))
+                {
+                    masterNode = GNode.Init(pair.Item1, 0);
+                    projToNode.Add(pair.Item1, masterNode);
+                    graph.Nodes.Add(masterNode);
+                }
+                else
+                {
+                    masterNode = projToNode[pair.Item1];
+                }
+
+                if (!projToNode.ContainsKey(pair.Item2))
+                {
+                    dependentNode = GNode.Init(pair.Item2, 0);
+                    projToNode.Add(pair.Item2, dependentNode);
+                    graph.Nodes.Add(dependentNode);
+                }
+                else
+                {
+                    dependentNode = projToNode[pair.Item2];
+                }
+
+                dependentNode.Adjacents.Add(masterNode);
+            }
+
+            return graph;
+        }
+
+        private static bool TraverseBuildOrderWithLoopDetection(GNode started, GNode node, HashSet<string> order)
+        {
+            node.State = GState.Visited;
+
+            foreach (var neighbor in node.Adjacents)
+            {
+                if (ReferenceEquals(started, neighbor))
+                {
+                    Debug.WriteLine("Cycle detected");
+                    order = [];
+                    return false;
+                }
+
+                if (neighbor.State == GState.Unvisited)
+                {
+                    if (!TraverseBuildOrderWithLoopDetection(started, neighbor, order))
+                    {
+                        return false; // cycle detected break
+                    }
+                }
+            }
+
+            order.Add(node.Data.ToString());
+
+            return true;
+        }
+
         public static List<string> BuildOrder()
         {
             var projects = new List<string>
@@ -361,7 +619,7 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
             var projectsToAdd = projects.Where(it => !dependencies.Any(dep => dep.Contains(it))).ToList();
             buildOrder.AddRange(projectsToAdd);
 
-            projects.RemoveAll(item => projectsToAdd.Contains(item));
+            projects.RemoveAll(projectsToAdd.Contains);
 
             var dict = new Dictionary<string, bool>();
             foreach (var proj in projects)
@@ -474,6 +732,74 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
         /// of two nodes in a binary tree.Avoid storing additional nodes in a data structure.NOTE: This is not
         /// necessarily a binary search tree.
         /// </summary>
+        public static bool TryFindCommonAncestorV2(out GTreeNode common)
+        {
+            var (first, second) = BuildTreeParentsV2();
+
+            common = null;
+
+            if (first is null || second is null) 
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(first, second))
+            {
+                common = first;
+                return true;
+            }
+
+            common = FindCommonAncestorInternal(first, second);
+
+            return common is not null;
+        }
+
+        private static GTreeNode FindCommonAncestorInternal(GTreeNode first, GTreeNode second)
+        {
+            if (first is not null)
+            {
+                if (first.Status == GTreeNodeStatus.Visisted)
+                {
+                    return first;
+                }
+
+                first.Status = GTreeNodeStatus.Visisted;
+                first = first.Parent;
+            }
+
+            if (second is not null)
+            {
+                if (second.Status == GTreeNodeStatus.Visisted)
+                {
+                    return second;
+                }
+
+                second.Status = GTreeNodeStatus.Visisted;
+                second = second.Parent;
+            }
+
+            if (second is null &&  first is null)
+            {
+                throw new Exception("this should not happen or the tree structure is invalid.");
+            }
+
+            return FindCommonAncestorInternal(first, second);
+        }
+
+        public static (GTreeNode, GTreeNode) BuildTreeParentsV2()
+        {
+            var first = GTreeNode.Init(
+                1, parent: GTreeNode.Init(
+                    2, parent: GTreeNode.Init(
+                        3, parent: GTreeNode.Init(4))));
+
+            var second = GTreeNode.Init(
+                5, parent: GTreeNode.Init(
+                    6, parent: first.Parent.Parent));
+
+            return (first, second);
+        }
+
         public class CustomNode
         {
             public int data;
@@ -684,6 +1010,72 @@ namespace DeepDiveTechnicals.DataStructures.TreesAndGraphs
         /// A tree T2 is a subtree of Tl if there exists a node n in Tl such that the subtree of n is identical to T2.
         /// That is, if you cut off the tree at node n, the two trees would be identical.
         /// 
+        private static (GTreeNode, GTreeNode) BuildTreeAndSubtreeV2()
+        {
+            var second = GTreeNode.Init(3, left: GTreeNode.Init(2, left: GTreeNode.Init(1)), right: GTreeNode.Init(6, right: GTreeNode.Init(5)));
+            var first = GTreeNode.Init(4, left: second);
+
+            return (first, second);
+        }
+
+        public static bool CheckSubtreeV2()
+        {
+            var (t1Root, t2Root) = BuildTreeAndSubtreeV2();
+
+            if (t1Root is null)
+            {
+                return false; // empty tree
+            }
+
+            if (t2Root is null)
+            {
+                return true; // empty sub tree 
+            }
+
+            return CheckSubTreeNodesInternal(t1Root.Left, t2Root) || CheckSubTreeNodesInternal(t1Root.Right, t2Root);
+        }
+
+        private static bool CheckSubTreeNodesInternal(GTreeNode t1Node, GTreeNode t2Node)
+        {
+            if (t1Node is null)
+            {
+                return false;
+            }
+
+            if (t1Node.Data == t2Node.Data)
+            {
+                var match = CheckSubTreeBodiesInternal(t1Node, t2Node);
+                if (match)
+                {
+                    return true;
+                }
+            }
+
+            return CheckSubTreeNodesInternal(t1Node.Left, t2Node) || CheckSubTreeNodesInternal(t1Node.Right, t2Node);
+        }
+
+        private static bool CheckSubTreeBodiesInternal(GTreeNode t1Node, GTreeNode t2Node)
+        {
+            if (t1Node is not null && t2Node is not null)
+            {
+                if (t1Node.Data == t2Node.Data)
+                {
+                    return CheckSubTreeBodiesInternal(t1Node.Left, t2Node.Left) && CheckSubTreeBodiesInternal(t1Node.Right, t2Node.Right);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (t1Node is null && t2Node is null)
+            {
+                return true; //match
+            }
+
+            return false; //misalignment
+        }
+
         public static bool CheckSubtree(CustomNode t1, CustomNode t2)
         {
             if (t2 == null) return true; //null tree is always a subtree

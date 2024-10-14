@@ -53,6 +53,51 @@ namespace DeepDiveTechnicals.CrackingTheCode
         /// <summary>
         /// WarmUp : QuickSort
         /// </summary>
+        public static void QuickSortV2(List<int> input, int low, int high)
+        {
+            if (low < high)
+            {
+                var index = PartitionV2(input, low, high);
+            
+                QuickSortV2(input, low, index-1);
+                QuickSortV2(input, index + 1, high);
+            }
+        }
+
+        public static int PartitionV2(List<int> list, int low, int high)
+        {
+            // 3, 5, 1, 9, 12, 59, 0, 1
+            var mid = (low + high) / 2;
+            var pivot = list[mid];
+
+            while (low <= high)
+            {
+                while (list[low] < pivot)
+                {
+                    low++;
+                }
+                while (list[high] > pivot)
+                {
+                    high--;
+                }
+
+                if (low<=high)
+                {
+                    if (list[low] > list[high])
+                    {
+                        int temp = list[high];
+                        list[high] = list[low];
+                        list[low] = temp;
+                    }
+
+                    low++;
+                    high--;
+                }
+            }
+
+            return low;
+        }
+
         public static void QuickSort(int[] arr, int left, int right)
         {
             int index = Partition(arr, left, right);
