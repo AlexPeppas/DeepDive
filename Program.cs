@@ -1,73 +1,27 @@
-﻿using DeepDiveTechnicals.CrackingTheCode;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Collections.Concurrent;
+using System.Security.Cryptography;
+
+using DeepDiveTechnicals.CrackingTheCode;
 using DeepDiveTechnicals.CrackingTheCode.ObjectOrientedDesign;
 using DeepDiveTechnicals.DataStructures.ArraysAndStrings;
 using DeepDiveTechnicals.DataStructures.LinkedList;
 using DeepDiveTechnicals.DataStructures.TreesAndGraphs;
-using DeepDiveTechnicals.DynamicProgramming;
 using DeepDiveTechnicals.RecursionAndDynamicProgramming;
-using DeepDiveTechnicals.Services;
-using DeepDiveTechnicals.SortingSearching;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using static DeepDiveTechnicals.FrequentlyAskedQuestions.Interview;
 namespace DeepDiveTechnicals
 {
     class Program
     {
-        private static void TextEditorInvoker()
+        public static void Main()
         {
-            var stringInput = "abcde";
-            var operations = new List<string> { "1fg", "36", "25", "4", "37", "4", "34" };
-            var output = string.Empty;
-
-            using var editor = new TextEditorV2(stringInput);
-            foreach (var opString in operations)
-            {
-                var operation = opString[0];
-                switch (operation)
-                {
-                    case '1':
-                        output = editor.Append(opString.Substring(1));
-                        Console.WriteLine("case1: " + output);
-                        break;
-                    case '2':
-                        output = editor.DeletedKthChars(Int32.Parse(opString.Substring(1)));
-                        Console.WriteLine("case2: " + output);
-                        break;
-                    case '3':
-                        editor.PrintKthChar(Int32.Parse(opString.Substring(1)));
-                        break;
-                    case '4':
-                        output = editor.Undo();
-                        Console.WriteLine("case4: " + output);
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-        public static void Main(string[] args)
-        {
-            TextEditorInvoker();
-
-            var input = new List<int> { 3, 5, 1, 9, 12, 59, 0, 1 };
-            SortingAndSearching.QuickSortV2(input, 0, 7);
-
-            var expected3 = new List<int> { 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 6, 8, 99 };
-            var expected8 = new List<int> { 2, 3, 5, 5, 5, 6, 8, 8, 8, 8, 8, 8, 8, 99 };
-            var notMagicIndex = new List<int> { 2, 3, 5, 5, 99, 99, 99 };
-            var is3 = RecursionAndDynamic.MagicIndexDuplicatesV2(expected3);
-            var is8 = RecursionAndDynamic.MagicIndexDuplicatesV2(expected8);
-            var isNotMagic = RecursionAndDynamic.MagicIndexDuplicatesV2(notMagicIndex);
-
-            RecursionAndDynamic.RobotInAGridDiscoverAllPathsV2();
-            RecursionAndDynamic.RobotInAGridV2();
-            var dout = RecursionAndDynamic.TripleStep(5);
-            var toTest = new Hashing().Base62(999);
             #region WarmUp
             FrequentlyAskedQuestions.WarmUp.MaxSubsetSumCache(new int[5] { -2, 1, 3, -4, 5 });
             FrequentlyAskedQuestions.WarmUp.Abbreviation("beFgH", "EFH");
@@ -109,9 +63,10 @@ namespace DeepDiveTechnicals
             FrequentlyAskedQuestions.WarmUp.StringCompression("aabcccccaaa");
             FrequentlyAskedQuestions.WarmUp.IsRotation("waterbottle", "erbottlewat");
             #endregion
-
+            
             #region My Custom Problems
             MyCustomProblems.RatInMazeCached();
+            MyCustomProblems.RobotInGridCycleDetection();
             #endregion
 
             #region Hard Problems
@@ -130,6 +85,11 @@ namespace DeepDiveTechnicals
             });
             #endregion
 
+            ///TO SOLVE///
+            #region ByteDance
+            FrequentlyAskedQuestions.ByteDanceDubaiInterview.FindLongestIncreasingPathInMaze();
+            #endregion
+
             #region Amazon 1st
             FrequentlyAskedQuestions.Interview.AmazonMainFirstProb(); // To Optimize, Tricky Medium~Hard
             FrequentlyAskedQuestions.Interview.AmazonMainSecondProb(new List<int> { -5, -3, 0, 1, 2 }, 3, 8); // AMAZON MEDIUM Tricky
@@ -146,7 +106,7 @@ namespace DeepDiveTechnicals
              * How can you reach a new added node when you shard. (hash partition and using hash consistent algorithms)
              * How can a user on Amazon register and order an item and also check inventory if it exists. (messaging queue, microservices)
              */
-            new FrequentlyAskedQuestions.MicrosoftTask4(new List<FrequentlyAskedQuestions.InventoryRecord>()); // Dublin, AZURE 365 Task4
+            new FrequentlyAskedQuestions.MicrosoftTask4(new List<FrequentlyAskedQuestions.MicrosoftTask4.InventoryRecord>()); // Dublin, AZURE 365 Task4
             FrequentlyAskedQuestions.Interview.MicrosoftTask3();//Dublin, AZURE 365 Task3
             new FrequentlyAskedQuestions.CollectionClass(10); //Dublin, AZURE 365 Task1
             TreesAndGraphs.Solution(new int[5] { 5, 6, 6, 7, -10 }, new int[6] { 0, 0, 0, 1, 2, 3 }, new int[6] { 1, 2, 3, 3, 1, 2 });
@@ -157,6 +117,7 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Hashing 
+            var toTest = new Hashing().Base62(999);
             long hashWithShift = new Hashing().UniqueHashShifting(
             "Tesla Community in California, Please help stop the Solar Tax by "
             + " GavinNewsom  ! Make your voice heard! All the information is posted here!"
@@ -237,6 +198,8 @@ namespace DeepDiveTechnicals
             FrequentlyAskedQuestions.Interview.PathToNode(new FrequentlyAskedQuestions.Node(0), new FrequentlyAskedQuestions.Node(1));
             FrequentlyAskedQuestions.Interview.FindCommonAncestorBST();
             RecursionAndDynamicProgramming.RecursionAndDynamic.FirstNValidPairsParens(3);
+            ModerateProbs.URLShortnerInvoker();
+            ModerateProbs.TextEditorInvoker();
             #endregion
 
             #region Moderate Problems
@@ -268,6 +231,9 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Sorting and Searching
+            var input = new List<int> { 3, 5, 1, 9, 12, 59, 0, 1 };
+            SortingAndSearching.QuickSortV2(input, 0, 7);
+
             string stringTosearch = "car";
             SortingAndSearching.SparseSearch(new List<string>
             {"at","","","","ball","car","","","","dad","","" }, stringTosearch);
@@ -304,6 +270,16 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Recursion
+            var expected3 = new List<int> { 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 6, 8, 99 };
+            var expected8 = new List<int> { 2, 3, 5, 5, 5, 6, 8, 8, 8, 8, 8, 8, 8, 99 };
+            var notMagicIndex = new List<int> { 2, 3, 5, 5, 99, 99, 99 };
+            var is3 = RecursionAndDynamic.MagicIndexDuplicatesV2(expected3);
+            var is8 = RecursionAndDynamic.MagicIndexDuplicatesV2(expected8);
+            var isNotMagic = RecursionAndDynamic.MagicIndexDuplicatesV2(notMagicIndex);
+
+            RecursionAndDynamic.RobotInAGridDiscoverAllPathsV2();
+            RecursionAndDynamic.RobotInAGridV2();
+            var dout = RecursionAndDynamic.TripleStep(5);
             RecursionAndDynamicProgramming.RecursionAndDynamic.EightQueens();
             RecursionAndDynamicProgramming.RecursionAndDynamic.PaintHelper();
             var parens = RecursionAndDynamicProgramming.RecursionAndDynamic.Parens(3, 0);
@@ -337,7 +313,6 @@ namespace DeepDiveTechnicals
             #endregion
 
             #region Arrays And Strings
-
             var stringCompressionOutput = ArraysAndStrings.StringCompression("aabccccaaa");
             stringCompressionOutput = ArraysAndStrings.StringCompression("abcaaabccdeefqqkddddddddp");
             stringCompressionOutput = ArraysAndStrings.StringCompression("aabbbbbbbbscccsadpqwww");

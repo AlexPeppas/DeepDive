@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace DeepDiveTechnicals
@@ -120,5 +122,78 @@ namespace DeepDiveTechnicals
                 }
             }
         }
+
+        /// <summary>
+        /// Start from (0,0) in a grid. Your robot starts moving forward. Every time it hits a blocking position (=-1) or
+        /// out of bounds rotate 90degrees and keep moving.
+        /// When you detect a cycle print the cycle block and return the list of all visited blocks.
+        /// </summary>
+        public static void RobotInGridCycleDetection()
+        {
+            var grid = new int[4, 4]
+            {
+                {0, 2, 3, 4 },
+                {8, -1, 4, 5 },
+                {9, 1, 5, 6 },
+                {6, -1, 7, 8 }
+            };
+
+            DetectCycleAndReturnPath(grid, 0, 0, new List<(int row, int col, int angle)>());
+        }
+
+        private static int currentAngleDirection = 0; // 0, 90, 180, 270
+
+        private static bool DetectCycleAndReturnPath(int[,] grid, int row, int col, List<(int row, int col, int angle)> path)
+        {
+            if (row < 0 || row >= grid.GetLength(0) || col < 0 || col >= grid.GetLength(1) || grid[row, col] == -1)
+            {
+                // out of bounds or blocking position
+                if (currentAngleDirection + 90 > 270)
+                {
+                    currentAngleDirection = 0;
+                }
+                else
+                {
+                    currentAngleDirection += 90;
+                }
+
+                return false;
+            }
+
+            var syntheticKey = $"{row}{col}{currentAngleDirection}";
+            if (SyntheticKeys.Contains(syntheticKey))
+            {
+                Debug.WriteLine($"Cycled detected at row {row}, col {col} with direction {currentAngleDirection}.");
+                Debug.WriteLine($"Path is: {string.Join("|>", path.Select(item => $"[{item.row},{item.col},{item.angle}]"))}");
+                return true;
+            }
+
+            SyntheticKeys.Add(syntheticKey);
+
+            path.Add(new(row, col, currentAngleDirection));
+
+            var firstPossibleDirection = PickMove(row, col, currentAngleDirection);
+            var secondPossibleDirection = PickMove(row, col, currentAngleDirection+90);
+            var thridPossibleDirection = PickMove(row, col, currentAngleDirection + 180);
+            var fourthPossibleDirection = PickMove(row, col, currentAngleDirection + 270);
+            
+            return DetectCycleAndReturnPath(grid, firstPossibleDirection.row, firstPossibleDirection.col, path)
+                || DetectCycleAndReturnPath(grid, secondPossibleDirection.row, secondPossibleDirection.col, path)
+                || DetectCycleAndReturnPath(grid, thridPossibleDirection.row, thridPossibleDirection.col, path)
+                || DetectCycleAndReturnPath(grid, fourthPossibleDirection.row, fourthPossibleDirection.col, path);
+        }
+
+        private static (int row, int col) PickMove(int row, int col, int angleDirection)
+        {
+            return angleDirection switch
+            {
+                90 => (row + 1, col), // move downards
+                180 => (row, col - 1), // move backwrds left
+                270 => (row - 1, col), // move upwards
+                _ => (row, col + 1) // 0, 360 move forward right
+            };
+        }
+
+        private static readonly HashSet<string> SyntheticKeys = new(); // to detect cycles we keep (int,row,angleDirection)
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Lucene.Net.Search;
+using System.IO;
 
 namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 {
@@ -2259,7 +2261,6 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         /// </summary>
         public static int HospitalsGraph(int N, int[] A, int[] B, int[] H)
         {
-            // write your code in C# 6.0 with .NET 4.5 (Mono)
             //HashSet<BiDirectGraph> set = new HashSet<BiDirectGraph>();
             var graphNodeCreated = new Dictionary<int, BiDirectGraph>();
             for (int i = 0; i < N; i++)
@@ -2982,17 +2983,95 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         {
             return 0;
         }
+
+        public class InventoryRecord
+        {
+            public string product { get; set; }
+
+            public string country { get; set; }
+
+            public string store { get; set; }
+
+            public int quantity { get; set; }
+        }
     }
 
-    public class InventoryRecord
+    /// Question description
+    /// Given an m x n integers matrix, return the length of the longest increasing path in matrix.​
+    /// From each cell, you can either move in four directions: left, right, up, or down.You may not move diagonally or move outside the boundary (i.e., wrap-around is not allowed).​
+    ///  ​
+    /// Example 1:​
+    //​/ 
+    //​/ 
+    //​/ 
+    /// Input: matrix = [[9, 9, 4],[6, 6, 8],[2, 1, 1]]​
+    /// Output: 4​
+    /// Explanation: The longest increasing path is ​
+    //​/ 
+    /// [1, 2, 6, 9]​​
+    //​/ 
+    /// .​
+    /// Example 2:​
+    //​/ 
+    //​/ 
+    //​/ 
+    /// Input: matrix = [[3, 4, 5],[3, 2, 6],[2, 2, 1]]​
+    /// Output: 4​
+    /// Explanation: The longest increasing path is ​
+    //​/ 
+    /// [3, 4, 5, 6]​​
+    //​/ 
+    /// . Moving diagonally is not allowed.​
+    /// Example 3:​
+    /// Input: matrix = [[1]]​
+    /// Output: 1​
+    ///  ​
+    /// Constraints:​
+    /// m == matrix.length​
+    /// n == matrix[i].length​
+    /// 1 <= m, n <= 200​
+    /// 0 <= matrix[i][j] <= 231 - 1Question description
+    /// Given an m x n integers matrix, return the length of the longest increasing path in matrix.​
+    /// From each cell, you can either move in four directions: left, right, up, or down. You may not move diagonally or move outside the boundary (i.e., wrap-around is not allowed).​
+    ///  ​
+    /// Example 1:​
+    //​/ 
+    //​/ 
+    //​/ 
+    /// Input: matrix = [[9, 9, 4],[6, 6, 8],[2, 1, 1]]​
+    /// Output: 4​
+    /// Explanation: The longest increasing path is ​
+    //​/ 
+    /// [1, 2, 6, 9]​​
+    //​/ 
+    /// .​
+    /// Example 2:​
+    //​/  
+    //​/ 
+    //​/ 
+    /// Input: matrix = [[3, 4, 5],[3, 2, 6],[2, 2, 1]]​
+    /// Output: 4​
+    /// Explanation: The longest increasing path is ​
+    //​/ 
+    /// [3, 4, 5, 6]​​
+    //​/ 
+    /// . Moving diagonally is not allowed.​
+    /// Example 3:​
+    /// Input: matrix = [[1]]​
+    /// Output: 1​
+    ///  ​
+    /// Constraints:​
+    /// m == matrix.length​
+    /// n == matrix[i].length​
+    /// 1 <= m, n <= 200​
+    /// 0 <= matrix[i][j] <= 231 - 1
+    ///
+    public static class ByteDanceDubaiInterview
     {
-        public string product { get; set; }
-
-        public string country { get; set; }
-
-        public string store { get; set; }
-
-        public int quantity { get; set; }
+        public static int[] FindLongestIncreasingPathInMaze()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>

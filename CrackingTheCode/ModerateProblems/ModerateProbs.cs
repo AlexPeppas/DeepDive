@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+
+using static DeepDiveTechnicals.FrequentlyAskedQuestions.Interview;
 
 namespace DeepDiveTechnicals.CrackingTheCode
 {
@@ -822,6 +825,119 @@ namespace DeepDiveTechnicals.CrackingTheCode
             if (Hset.Contains(new Tuple<int, int>(r, c)))
                 return true;
             return false;
+        }
+
+        public sealed class URLShortener
+        {
+            private Dictionary<string, string> lookup = new Dictionary<string, string>();
+
+            private const string MyAppBaseAddress = "https://myurlShortner.io/";
+
+            public string ShortenURL(string longURL)
+            {
+                if (!longURL.StartsWith("https"))
+                {
+                    throw new NotSupportedException();
+                }
+
+                var pointer = 0;
+                var slashCounter = 0;
+
+                while (slashCounter < 2)
+                {
+                    if (longURL[pointer] == '/')
+                    {
+                        slashCounter++;
+                    }
+
+                    pointer++;
+                }
+
+                var url = longURL.Substring(pointer);
+
+                Console.WriteLine("my base URI " + url);
+                //https://app.coderpad.io/YWW2NTKR
+                //https://myurlShortner.io/212512511
+
+                var hash = GenerateHash(url);
+
+                lookup.Add(hash, url);
+
+                return $"{MyAppBaseAddress}{hash}";
+            }
+
+            public string ExpandURL(string shortURL)
+            {
+                string hash = RetrieveHash(shortURL);
+
+                Console.WriteLine("My hash " + hash);
+
+                if (this.lookup.TryGetValue(hash, out var longUrl))
+                {
+                    return $"https://{longUrl}";
+                }
+
+                throw new KeyNotFoundException();
+            }
+
+            private string RetrieveHash(string shortURL)
+            {
+                return shortURL.Replace(MyAppBaseAddress, "");
+            }
+
+            private string GenerateHash(string input)
+            {
+                using (var sha = SHA256.Create())
+                {
+                    var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+                    return Convert.ToBase64String(hashBytes).Substring(0, 6);
+                }
+            }
+        }
+
+        public static void URLShortnerInvoker()
+        {
+            var service = new URLShortener();
+            var url = Console.ReadLine();
+
+            var shortURL = service.ShortenURL(url);
+            Console.WriteLine("ShortURL " + shortURL);
+
+            var longURL = service.ExpandURL(shortURL);
+            Console.WriteLine("LongURL " + longURL);
+        }
+
+        public static void TextEditorInvoker()
+        {
+            var stringInput = "abcde";
+            var operations = new List<string> { "1fg", "36", "25", "4", "37", "4", "34" };
+            var output = string.Empty;
+
+            using var editor = new TextEditorV2(stringInput);
+            foreach (var opString in operations)
+            {
+                var operation = opString[0];
+                switch (operation)
+                {
+                    case '1':
+                        output = editor.Append(opString.Substring(1));
+                        Console.WriteLine("case1: " + output);
+                        break;
+                    case '2':
+                        output = editor.DeletedKthChars(int.Parse(opString.Substring(1)));
+                        Console.WriteLine("case2: " + output);
+                        break;
+                    case '3':
+                        editor.PrintKthChar(int.Parse(opString.Substring(1)));
+                        break;
+                    case '4':
+                        output = editor.Undo();
+                        Console.WriteLine("case4: " + output);
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
         }
     }
 }
