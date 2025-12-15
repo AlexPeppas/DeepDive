@@ -16,12 +16,15 @@ using DeepDiveTechnicals.RecursionAndDynamicProgramming;
 
 
 using static DeepDiveTechnicals.FrequentlyAskedQuestions.Interview;
+using DeepDiveTechnicals.OpenAIPrep;
 namespace DeepDiveTechnicals
 {
     class Program
     {
         public static void Main()
         {
+            new CdCanonicalizationTests().Cd_VariousScenarios_Success();
+
             #region WarmUp
             FrequentlyAskedQuestions.WarmUp.MaxSubsetSumCache(new int[5] { -2, 1, 3, -4, 5 });
             FrequentlyAskedQuestions.WarmUp.Abbreviation("beFgH", "EFH");
