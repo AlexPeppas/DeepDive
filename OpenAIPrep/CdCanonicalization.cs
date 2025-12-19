@@ -48,6 +48,11 @@ namespace DeepDiveTechnicals.OpenAIPrep
             var components = new Stack<string>();
             foreach (var component in currentDir.Split('/', StringSplitOptions.RemoveEmptyEntries))
             {
+                if (component == "..")
+                {
+                    components.TryPop(out _);
+                    continue;
+                }
                 components.Push(component);
             }
 
@@ -156,6 +161,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
             new(10, "/a/b", "../../..", "You're out of limit"),
             new(11, "/", "..", "You're out of limit"),
             new(12, "/users/apeppas", "../.config", "/users/.config" ),
+            new(13, "/users/apeppas/../unknown", "../.config", "/users/.config" ),
         };
 
         public void Cd_VariousScenarios_Success()

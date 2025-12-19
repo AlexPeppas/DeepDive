@@ -17,13 +17,17 @@ using DeepDiveTechnicals.RecursionAndDynamicProgramming;
 
 using static DeepDiveTechnicals.FrequentlyAskedQuestions.Interview;
 using DeepDiveTechnicals.OpenAIPrep;
+using System.Linq.Expressions;
 namespace DeepDiveTechnicals
 {
     class Program
     {
         public static void Main()
         {
+            #region OpenAI
+            
             new CdCanonicalizationTests().Cd_VariousScenarios_Success();
+            #endregion
 
             #region WarmUp
             FrequentlyAskedQuestions.WarmUp.MaxSubsetSumCache(new int[5] { -2, 1, 3, -4, 5 });
