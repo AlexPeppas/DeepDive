@@ -12,24 +12,28 @@ namespace DeepDiveTechnicals.OpenAIPrep
     {
         private readonly ConcurrentDictionary<string, Cell> _sheets = new();
         private readonly ConcurrentDictionary<string, ImmutableList<Cell>> _inverseCellDependents = new();
-        private readonly ConcurrentDictionary<string, ImmutableHashSet<string>> _parentToChildrenBookeeping = new();
+        ///rivate readonly ConcurrentDictionary<string, ImmutableHashSet<string>> _parentToChildrenBookeeping = new(); good idea but gets too complex
         private readonly ConcurrentDictionary<string, int> _computedCellCached = new();
 
-        public void SetCell(string cellKey, string expr)
+        public bool TrySetCell(string cellKey, string expr)
         {
             if (string.IsNullOrEmpty(cellKey))
             {
                 throw new ArgumentException("Key cannot be null or empty;");
             }
 
-            var (NodeExpression, inverseDependents) = TransformExpression(expr);
+            var (NodeExpression, inverseDependents) = TokenizeExpAndLocateDependents(expr);
 
             var cell = new Cell { Key = cellKey, Value = NodeExpression };
-            _sheets[cellKey] = cell;
+            
+            var pendingTransaction = new List<Action>
+            {
+                () => _sheets[cellKey] = cell
+            };
 
             foreach (var dependent in inverseDependents)
             {
-                ///Bookeeping
+                /*///Bookeeping
                 if (_parentToChildrenBookeeping.TryGetValue(cellKey, out ImmutableHashSet<string> children))
                 {
                     _parentToChildrenBookeeping[cellKey] = children.Add(dependent.Key);
@@ -38,15 +42,16 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 {
                     _parentToChildrenBookeeping.TryAdd(cellKey, [dependent.Key]);
                 }
-
+*/
                 ///Inverse Dependencies
                 if (_inverseCellDependents.TryGetValue(dependent.Key, out ImmutableList<Cell> value))
                 {
-                    _inverseCellDependents[dependent.Key] = value.Add(cell);
+                    pendingTransaction.Add(() => _inverseCellDependents[dependent.Key] = value.Add(cell));
                 }
                 else
                 {
-                    _inverseCellDependents.TryAdd(dependent.Key, [cell]);
+                    pendingTransaction.Add(() => _inverseCellDependents.TryAdd(dependent.Key, [cell]));
+                    
                 }
             }
 
@@ -54,7 +59,18 @@ namespace DeepDiveTechnicals.OpenAIPrep
             {
                 { cellKey, VisitState.NotVisited}
             };
-            InvalidateParents(cell, cyclicalDetector);
+
+            if (ShouldInvalidateParents(cell, cyclicalDetector, ref pendingTransaction))
+            {
+                foreach(var trx in pendingTransaction)
+                {
+                    trx.Invoke();
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         // if cell not set return 0
@@ -109,19 +125,45 @@ namespace DeepDiveTechnicals.OpenAIPrep
 
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
             Node? topSign = null;
+            Node? topSignWithinParentheses = null;
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
             var finalOutput = 0;
+            var localFinalOutputWithinParentheses = 0;
+
+            var foundOpenParentheses = false;
 
             foreach (var node in currentCell.Value)
             {
                 if (node is LiteralNode l)
                 {
+                    if (foundOpenParentheses)
+                    {
+                        UpdateOutputValue(ref topSignWithinParentheses, ref localFinalOutputWithinParentheses, l);
+                        continue;
+                    }
+
                     UpdateOutputValue(ref topSign, ref finalOutput, l);
+                    continue;
+                }
+                else if (node is OpenParantheses)
+                {
+                    foundOpenParentheses = true;
+                }
+                else if (node is CloseParantheses)
+                {
+                    foundOpenParentheses = false; //reset signal
+                    UpdateOutputValue(ref topSign, ref finalOutput, new LiteralNode { Value = localFinalOutputWithinParentheses });
                     continue;
                 }
                 else if (IsSign(node))
                 {
+                    if (foundOpenParentheses)
+                    {
+                        topSignWithinParentheses = node;
+                        continue;
+                    }
+
                     topSign = node;
                     continue;
                 }
@@ -136,16 +178,36 @@ namespace DeepDiveTechnicals.OpenAIPrep
                     }
                     if (_computedCellCached.ContainsKey(refNode.CellKey))
                     {
+                        if (foundOpenParentheses)
+                        {
+                            UpdateOutputValue(ref topSignWithinParentheses, ref localFinalOutputWithinParentheses, new LiteralNode { Value = _computedCellCached[refNode.CellKey] }); // MEMO
+                            continue;
+                        }
+
                         UpdateOutputValue(ref topSign, ref finalOutput, new LiteralNode { Value = _computedCellCached[refNode.CellKey] }); // MEMO
                         continue;
                     }
 
                     var evaluatedCell = EvaluateCell(_sheets[refNode.CellKey], cyclicalDetector);
-                    UpdateOutputValue(ref topSign, ref finalOutput, new LiteralNode { Value = evaluatedCell }); // MEMO
+
+                    if (foundOpenParentheses)
+                    {
+                        UpdateOutputValue(ref topSignWithinParentheses, ref localFinalOutputWithinParentheses, new LiteralNode { Value = evaluatedCell });
+                    }
+                    else
+                    {
+                        UpdateOutputValue(ref topSign, ref finalOutput, new LiteralNode { Value = evaluatedCell });
+                    }
                 }
             }
 
             cyclicalDetector[currentCell.Key] = VisitState.Visited;
+            if (foundOpenParentheses)
+            {
+                _computedCellCached[currentCell.Key] = localFinalOutputWithinParentheses;
+                return localFinalOutputWithinParentheses;
+            }
+            
             _computedCellCached[currentCell.Key] = finalOutput;
             return finalOutput;
         }
@@ -153,7 +215,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
         /// <summary>
         ///  Simple DFS cache invalidation
         /// </summary>
-        private void InvalidateParents(Cell cell, Dictionary<string, VisitState> cyclicalDetector)
+        private bool ShouldInvalidateParents(Cell cell, Dictionary<string, VisitState> cyclicalDetector, ref List<Action> pendingTransaction)
         {
             if (!cyclicalDetector.ContainsKey(cell.Key) || cyclicalDetector[cell.Key] == VisitState.NotVisited)
             {
@@ -162,23 +224,25 @@ namespace DeepDiveTechnicals.OpenAIPrep
             else if (cyclicalDetector[cell.Key] == VisitState.Visiting)
             {
                 Console.Write("Cyclical Dependency Detected upon Set, exit.");
-                return;
+                return false;
             }
             else // already visited
             {
-                return;
+                return true;
             }
 
             // reset
-            _computedCellCached.TryRemove(cell.Key, out _);
+            pendingTransaction.Add(() => _computedCellCached.TryRemove(cell.Key, out _));
 
             if (_inverseCellDependents.ContainsKey(cell.Key))
             {
                 foreach (var parent in _inverseCellDependents[cell.Key])
                 {
-                    InvalidateParents(parent, cyclicalDetector);
+                    ShouldInvalidateParents(parent, cyclicalDetector, ref pendingTransaction);
                 }
             }
+
+            return true;
         }
 
         private static bool IsSign(Node node) => node is PlusNode || node is MinusNode || node is MultiplyNode || node is DivideNode;
@@ -216,7 +280,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
             }
         }
 
-        private (List<Node> NodeExpression, List<Cell> Dependents) TransformExpression(string expression)
+        private (List<Node> NodeExpression, List<Cell> Dependents) TokenizeExpAndLocateDependents(string expression)
         {
             // examples
             // A1 + B1 
@@ -234,7 +298,25 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 {
                     continue; // just skip spaces
                 }
-                if (ch == '+')
+                if (ch == '(')
+                {
+                    if (nodeBuilder.Builder.Length > 0)
+                    {
+                        nodeBuilder = Flush(ref nodesOutput, ref dependentCells, nodeBuilder.Semaphore, nodeBuilder.Builder);
+                    }
+
+                    nodesOutput.Add(new OpenParantheses());
+                }
+                else if (ch == ')')
+                {
+                    if (nodeBuilder.Builder.Length > 0)
+                    {
+                        nodeBuilder = Flush(ref nodesOutput, ref dependentCells, nodeBuilder.Semaphore, nodeBuilder.Builder);
+                    }
+
+                    nodesOutput.Add(new CloseParantheses());
+                }
+                else if (ch == '+')
                 {
                     if (nodeBuilder.Builder.Length > 0)
                     {
@@ -339,6 +421,10 @@ namespace DeepDiveTechnicals.OpenAIPrep
         
         private sealed class DivideNode : Node { }
 
+        private sealed class OpenParantheses : Node {}
+
+        private sealed class CloseParantheses : Node { }
+
         private abstract class Node{ }
 
         private sealed class Cell
@@ -361,19 +447,14 @@ namespace DeepDiveTechnicals.OpenAIPrep
         public void ExcelSheet_VariousOperations_Handled()
         {
             var excelSheet = new ExcelSheet();
-            excelSheet.SetCell("A1", "1+2");
-            var A1 = excelSheet.GetCell("A1");
-            excelSheet.SetCell("B1", "10*A1");
-            var B1 = excelSheet.GetCell("B1");
+            excelSheet.TrySetCell("A1", "1+2");
+            var A1 = excelSheet.GetCell("A1"); // should be 3
+            excelSheet.TrySetCell("B1", "10*A1");
+            var B1 = excelSheet.GetCell("B1"); // should be 30
 
-            try
-            {
-                excelSheet.SetCell("A1", "B1");
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine(e.Message); //"Cyclical Dependency Detected!"
-            }
+            excelSheet.TrySetCell("C1", "(B1-A1)/3*(1+0)"); 
+            var C1 = excelSheet.GetCell("C1"); // should be (30-3)/3*(1) = 9
+            excelSheet.TrySetCell("A1", "B1");
         }
     }
 }
