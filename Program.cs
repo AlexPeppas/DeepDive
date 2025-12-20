@@ -25,7 +25,7 @@ namespace DeepDiveTechnicals
         public static void Main()
         {
             #region OpenAI
-            
+            new ExcelSheetTests().ExcelSheet_VariousOperations_Handled();
             new CdCanonicalizationTests().Cd_VariousScenarios_Success();
             #endregion
 
@@ -92,8 +92,8 @@ namespace DeepDiveTechnicals
             });
             #endregion
 
-            ///TO SOLVE///
             #region ByteDance
+            ///TO SOLVE///
             FrequentlyAskedQuestions.ByteDanceDubaiInterview.FindLongestIncreasingPathInMaze();
             #endregion
 

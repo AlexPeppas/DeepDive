@@ -3137,7 +3137,7 @@ namespace DeepDiveTechnicals.FrequentlyAskedQuestions
         {
             if (!LRUmap.ContainsKey(key))
             {
-                if (LRUmap.Count() >= this.maxSize)
+                if (LRUmap.Count >= this.maxSize)
                 {
                     //if it exceeds its size delete the least recently used node from cache
                     //and update double linked list by removing the current tail and updating with the new.
