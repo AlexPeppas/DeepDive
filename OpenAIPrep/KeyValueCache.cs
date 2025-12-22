@@ -15,13 +15,13 @@ namespace DeepDiveTechnicals.OpenAIPrep
         /// <summary>
         /// If we do have large objects that live on the LOH (large-object-heap) we do not want to cache the entire graph and overhead, instead churn CPU cycles for ser/deser and store the byte[]
         /// </summary>
-        // THESE ALL CAN BE COLLAPSED IN A SINGLE DICTIONARY AND A Record(byte[] Value, DT ExpiresAt, LLNode node)
-        private readonly ConcurrentDictionary<string, byte[]> _internalStore = new();
-        private readonly ConcurrentDictionary<string, DateTime> _expirationPerKey = new();
-        private readonly ConcurrentDictionary<string, SemaphoreSlim> _lockersPerKey = new();
-        private readonly ConcurrentDictionary<string, LRUNode> _entryNodes = new();
         
-        private readonly object _globalLock = new(); // Global critical lock for head & tail
+        private record CacheEntry(byte[] Value, DateTime ExpiresAt, LRUNode? NodePointer);
+        private readonly ConcurrentDictionary<string, CacheEntry> _internalStore = new();
+        
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _lockersPerKeyForEntries = new();
+        private readonly object _globalLRULock = new(); // Global critical lock LRU shuffling operations
+
         private LRUNode? _globalTail = null;
         private LRUNode? _globalHead = null;
 
@@ -42,122 +42,47 @@ namespace DeepDiveTechnicals.OpenAIPrep
         public void Put(string key, string value, TimeSpan ttl)
         {
             // add or update
-            _expirationPerKey[key] = DateTime.UtcNow + ttl; // first the TTL update to avoid race condition of PUT and then immediate eviction 
-            _internalStore[key] = Encoding.UTF8.GetBytes(value); // here we could go with OCC and version tagging but keep simple for this draft.
-            UpdateLRUHead(key);
-        }
-
-        private void UpdateLRUHead(string key)
-        {
-            if (_entryNodes.TryGetValue(key, out var lruNode))
+            var expiresAt = DateTime.UtcNow + ttl; // first the TTL update to avoid race condition of PUT and then immediate eviction 
+            if (_internalStore.TryGetValue(key, out var entry))
             {
-                if (lruNode.Head is not null && lruNode.Tail is not null)
-                {
-                    lruNode.Head.Tail = lruNode.Tail;
-                    lruNode.Tail.Head = lruNode.Head;
-
-                    // move to top
-                    MoveLRUToTop(lruNode);
-                }
-                else if (lruNode.Head is null && lruNode.Tail is null) // first entry
-                {
-                    lock(_globalLock)
-                    {
-                        _globalTail = lruNode;
-                        _globalHead = lruNode;
-                    }
-                }
-                else if (lruNode.Head is null)
-                {
-                    // it's the bottomost node;
-                    lruNode.Tail!.Head = null;
-
-                    // move to top
-                    MoveLRUToTop(lruNode);
-
-                }
-                else // lruNode.Head is null
-                {
-                    // it's the topmost node, do nothing
-                }
+                entry = new CacheEntry(Value: Encoding.UTF8.GetBytes(value), expiresAt, entry.NodePointer);
             }
             else
             {
-                lruNode = new LRUNode(key);
-
-                // new addition
-                if (_maxItems < _entryNodes.Count)
-                {
-                    throw new Exception("Cache Size overflow");
-                }
-                else if (_maxItems == _entryNodes.Count)
-                {
-                    // we need to pop
-                    Purge(_globalHead?.Key ?? string.Empty);
-                    
-                    lock (_globalLock)
-                    {
-                        // set new tail
-                        var newTail = _globalHead?.Tail;
-                        newTail?.Head = null;
-                    
-                        _globalHead = newTail;
-                    }
-                    
-                    // move new entry to top
-                    _entryNodes[key] = lruNode!;
-                    MoveLRUToTop(lruNode);
-                }
-                else
-                {
-                    // add on top, still within limits
-                    // move to top
-                    _entryNodes[key] = lruNode!;
-                    MoveLRUToTop(lruNode);
-                }
+                entry = new CacheEntry(Value: Encoding.UTF8.GetBytes(value), expiresAt, null); // here we could go with OCC and version tagging but keep simple for this draft.
             }
+
+            UpdateLRUHead(key, entry);
         }
 
-        private void Purge(string key)
-        {
-            if (string.IsNullOrEmpty(key))
-            { return; }
-
-            _entryNodes.TryRemove(key, out _);
-            _internalStore.TryRemove(key, out _);
-            _expirationPerKey.TryRemove(key, out _);
-            _lockersPerKey.TryRemove(key, out _);
-        }
-
-        private void MoveLRUToTop(LRUNode lruNode)
-        {
-            lock(_globalLock)
-            {
-                lruNode.Head = _globalTail;
-                lruNode.Tail = null;
-                _globalTail?.Tail = lruNode;
-                _globalTail = lruNode;
-            }
-        }
-
+        /// <summary>
+        ///  Lazy expiration eviction upon Get.
+        ///  Thread-safe for multi-threading environments per-key
+        ///  Global lock per LRU operation for the entire process
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public async ValueTask<string?> Get(string key)
         {
-            if (_expirationPerKey.TryGetValue(key, out var expiresAt))
+            if (_internalStore.TryGetValue(key, out var entry))
             {
+                var expiresAt = entry.ExpiresAt;
                 if (DateTime.UtcNow < expiresAt)
                 {
                     // if not expired try lock
-                    var locker = _lockersPerKey.GetOrAdd(key, new SemaphoreSlim(1,1));
+                    var locker = _lockersPerKeyForEntries.GetOrAdd(key, new SemaphoreSlim(1, 1));
                     var leaseAqcuired = false;
                     try
                     {
                         if (await locker.WaitAsync(TimeSpan.FromSeconds(5)))
                         {
                             leaseAqcuired = true;
-                            if (_internalStore.TryGetValue(key, out var store))
+                            if (_internalStore.TryGetValue(key, out entry))
                             {
-                                UpdateLRUHead(key); // update LRU ONLY if read successfully
-                                return Encoding.UTF8.GetString(store);
+                                if (DateTime.UtcNow < expiresAt)
+                                {
+                                    return Encoding.UTF8.GetString(entry.Value); // for the sake of simplicity we'll not handle release lock and acquire global lock for LRU purge/dettach here
+                                }
                             }
                         }
                     }
@@ -172,25 +97,124 @@ namespace DeepDiveTechnicals.OpenAIPrep
                         if (leaseAqcuired)
                         {
                             locker.Release(1);
+
+                            // ONLY and if ONLY we acquired the lease and the 2nd entry get was not null means that we successfully SERVED
+                            // Thus after we release the per-key lock, we attempt the LRU update on a global lock without mixing and nesting lockings from keyLock -> global and vice-versa
+                            if (entry is not null)
+                            {
+                                UpdateLRUHead(key, entry); // update LRU ONLY if read successfully
+                            }
                         }
                     }
                 }
                 else
                 {
-                    // expired but not housekeeped, purge
-                    Purge(key);
+                    // expired but not housekeeped, purge under global lock to ensure we update the LRU
+                    lock (_globalLRULock)
+                    {
+                        Purge(key, out var purgedEntry);
+                        if (purgedEntry is not null && purgedEntry.NodePointer is not null)
+                        {
+                            Dettach(purgedEntry.NodePointer);
+                        }
+                    }
                 }
             }
             return null;
+        }
+
+        private void UpdateLRUHead(string key, CacheEntry entry)
+        {
+            lock(_globalLRULock)
+            {
+                if (entry.NodePointer is not null)
+                {
+                    var lruNode = entry.NodePointer;
+                    if (lruNode.Head is not null && lruNode.Tail is not null)
+                    {
+                        lruNode.Head.Tail = lruNode.Tail;
+                        lruNode.Tail.Head = lruNode.Head;
+
+                        // move to top
+                        MoveLRUToTop(lruNode);
+                    }
+                    else if (lruNode.Head is null && lruNode.Tail is null) // first entry
+                    {
+                        _globalTail = lruNode;
+                        _globalHead = lruNode;
+                    }
+                    else if (lruNode.Head is null)
+                    {
+                        // it's the bottomost node;
+                        lruNode.Tail!.Head = null;
+
+                        // move to top
+                        MoveLRUToTop(lruNode);
+
+                    }
+                    else // lruNode.Head is null
+                    {
+                        // it's the topmost node, do nothing
+                    }
+
+                    _internalStore[key] = entry;
+                }
+                else
+                {
+                    var lruNode = new LRUNode(key);
+
+                    // new addition
+                    if (_maxItems < _internalStore.Count)
+                    {
+                        throw new Exception("Cache Size overflow");
+                    }
+                    else if (_maxItems == _internalStore.Count)
+                    {
+                        // set new tail
+                        var newTail = _globalHead?.Tail;
+                        newTail?.Head = null;
+
+                        // we need to pop
+                        Purge(_globalHead?.Key ?? string.Empty, out var purgedEntry);
+                        Dettach(purgedEntry!.NodePointer!);
+
+                        _globalHead = newTail;
+                    }
+
+                    // move new entry to top
+                    _internalStore[key] = new CacheEntry(entry!.Value, entry.ExpiresAt, lruNode);
+                    MoveLRUToTop(lruNode);
+                }
+            }
+        }
+
+        private void Purge(string key, out CacheEntry? purgedEntry)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                purgedEntry = null;
+                return; 
+            }
+
+            _internalStore.TryRemove(key, out purgedEntry);
+            _lockersPerKeyForEntries.TryRemove(key, out _);
+        }
+
+        private void MoveLRUToTop(LRUNode lruNode)
+        {           
+            lruNode.Head = _globalTail;
+            lruNode.Tail = null;
+            _globalTail?.Tail = lruNode;
+            _globalTail = lruNode;    
         }
 
         private async Task ExpirationManagerDaemon()
         {
             do
             {
-                foreach (var (key, expiresAt) in _expirationPerKey)
+                foreach (var (key, entry) in _internalStore)
                 {
-                    if (expiresAt <= DateTime.UtcNow)
+                    if (entry.ExpiresAt <= DateTime.UtcNow)
                     {
                         await RecordEviction(key);
                     }
@@ -205,14 +229,15 @@ namespace DeepDiveTechnicals.OpenAIPrep
 
         private async Task RecordEviction(string key)
         {
-            var locker = _lockersPerKey.GetOrAdd(key, new SemaphoreSlim(1, 1));
+            var locker = _lockersPerKeyForEntries.GetOrAdd(key, new SemaphoreSlim(1, 1));
             var leaseAqcuired = false;
+            CacheEntry? purgedEntry = null;
             try
             {
                 if (await locker.WaitAsync(TimeSpan.FromSeconds(5)))
                 {
                     leaseAqcuired = true;
-                    Purge(key);
+                    Purge(key, out purgedEntry);
                 }
             }
             catch
@@ -224,15 +249,52 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 if (leaseAqcuired)
                 {
                     locker.Release(1);
+
+                    // keep the global lock for the LRU shuffling
+                    if (purgedEntry is not null && purgedEntry.NodePointer is not null)
+                    {
+                        lock (_globalLRULock)
+                        {
+                            Dettach(purgedEntry.NodePointer);
+                        }
+                    }
+                    
+
                 }
             }
         }
 
-        private record LRUNode(string Key)
+        private void Dettach(LRUNode node)
+        {             
+            var tail = node.Tail;
+            var head = node.Head;
+
+            tail?.Head = head;
+            head?.Tail = tail;
+
+            if (node == _globalHead)
+            {
+                _globalHead = tail;
+            }
+            if (node == _globalTail)
+            {
+                _globalTail = head;
+            }
+
+            node.Dispose();
+        }
+
+        private record LRUNode(string Key) : IDisposable
         {
             public LRUNode? Tail { get; set; } = null;
 
             public LRUNode? Head { get; set; } = null;
+
+            public void Dispose()
+            {
+                this.Tail = null;
+                this.Head = null;
+            }
         }
     }
 
