@@ -16,7 +16,6 @@ namespace DeepDiveTechnicals.OpenAIPrep
         private readonly ConcurrentDictionary<string, ImmutableList<Cell>> _inverseCellDependents = new();
         private readonly ConcurrentDictionary<string, ImmutableHashSet<string>> _forwardDependencies = new();
         private readonly ConcurrentDictionary<string, int> _computedCellCached = new();
-        private readonly ConcurrentDictionary<string, SemaphoreSlim> _lockers = new();
 
         public bool TrySetCell(string cellKey, string expr)
         {
@@ -72,6 +71,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
 
             if (ShouldInvalidateParents(cell, cyclicalDetector, ref pendingTransaction))
             {
+                /// This is good only for single-threaded. We will use semaphoreSlim for locking per key so it can be ACID.
                 foreach (var trx in pendingTransaction)
                 {
                     trx.Invoke();
