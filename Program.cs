@@ -25,6 +25,7 @@ namespace DeepDiveTechnicals
         public static void Main()
         {
             #region OpenAI
+            new RateLimiterTests().TryAllow_VariousScenarios_Succeeds().Wait();
             KeyValueCacheTests.KeyValueCache_VariousGetSet_Expiration_Success().Wait();
             new ExcelSheetTests().ExcelSheet_VariousOperations_Handled();
             new CdCanonicalizationTests().Cd_VariousScenarios_Success();
