@@ -193,9 +193,17 @@ namespace DeepDiveTechnicals.OpenAIPrep
                         == (int)State.Idle; 
             }
 
+            /// <summary>
+            ///  Volatile write guarantess that every other write happened before this line is first visible to all other consumer threads before this happened.
+            ///  In low-level multi-threading we know that JIT/CPU/Compiler can perform read/write reorderings for efficiency
+            ///  Given the following example,
+            ///  var a = new Confg() // write 1
+            ///  _state = State.Working // plain write 2
+            ///  Another thread may see _state as working but still see a as null before JIT reordered them for efficiency which in multi-threading can be cruicial for strong consistency.
+            ///  Volatile ensures that every preceding line, has been written before this is executed.
+            /// </summary>
             private void SetWorking()
             {
-                Interlocked.Ex
                 Volatile.Write(ref _internalState, (int)State.Working);
             }
 
