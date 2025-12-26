@@ -25,6 +25,7 @@ namespace DeepDiveTechnicals
         public static void Main()
         {
             #region OpenAI
+            new ResumableIteratorTests().MultiFileResumableJsonFileIterator_VariousScenarios_Succeeds().Wait();
             new ResumableIteratorTests().ResumableJsonFileIterator_VariousScenarios_Succeeds();
             new ResumableIteratorTests().ResumableListIterator_VariousScenarios_Succeeds();
             new RateLimiterTests().TryAllow_VariousScenarios_Succeeds().Wait();
