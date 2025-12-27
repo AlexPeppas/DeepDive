@@ -443,8 +443,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
             Xunit.Assert.Throws<FilesExhaustedException>(() => iterator.Next());
             Xunit.Assert.Throws<ArgumentOutOfRangeException>(() => iterator.SetState(new MultiFileState()));
         }
-
-    #endregion UTs
     }
+    #endregion UTs
 }
 #pragma warning restore CA1416 // Validate platform compatibility
