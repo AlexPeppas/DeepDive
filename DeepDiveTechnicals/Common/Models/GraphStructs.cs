@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
-
-using Lucene.Net.Search.Function;
 
 namespace DeepDiveTechnicals.Common.Models
 {

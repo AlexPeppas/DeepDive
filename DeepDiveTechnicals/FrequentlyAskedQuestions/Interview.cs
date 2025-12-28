@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using Lucene.Net.Search;
-using System.IO;
 
 namespace DeepDiveTechnicals.FrequentlyAskedQuestions
 {
