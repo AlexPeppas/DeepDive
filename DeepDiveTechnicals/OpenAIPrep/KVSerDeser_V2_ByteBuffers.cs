@@ -2,13 +2,25 @@
 using System.Buffers;
 using System.Buffers.Text;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+
+using DeepDiveTechnicals.Services;
+
+using Newtonsoft.Json;
 
 namespace DeepDiveTechnicals.OpenAIPrep;
 #nullable enable
+/// <summary>
+/// Raw bytes (MemoryStream + stackalloc + ArrayPool) — low-allocation, precise writes
+/// Same framing protocol, but operate on bytes: write markers as single bytes(*, $), numbers as ASCII via Utf8Formatter into stackalloc spans, and strings as UTF-8 bytes.
+/// For payloads, rent a byte[] from ArrayPool<byte> sized to GetByteCount, encode via span overloads, then write only the bytes actually written(stream.Write(rented, 0, written)), finally return to the pool.For parsing, read byte-by-byte, validate CRLF strictly, parse ASCII ints with Utf8Parser, and ReadExactly(len) for payload bytes → Encoding.UTF8.GetString.Fast + low GC, but more error-prone and requires careful bounds/CRLF/pool handling.
+/// </summary>
 public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuffers>
 {
     private Dictionary<string, string?> _kvP = new();

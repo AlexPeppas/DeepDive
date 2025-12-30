@@ -1,11 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace DeepDiveTechnicals.OpenAIPrep;
 #nullable enable
+
+/// <summary>
+/// Text framing (StreamWriter/StreamReader) — length-prefix, human-readable
+/// Serialize a KV store using a RESP-style framing: *{count}\r\n then repeated ${len}\r\n{key}\r\n${len|-1}\r\n{value}\r\n. Length-prefixing makes delimiters safe even when keys/values contain any characters.
+/// Implementation is simplest with StreamWriter/StreamReader: write tokens + CRLF, read lines for numeric lengths, then read exactly len chars/bytes for payload. Great for readability/debugging, but costs extra allocations/encoding work (strings, intermediate buffers).
+/// </summary>
 public sealed class KVSerDeser : IEquatable<KVSerDeser>
 {
     private Dictionary<string, string?> _kvP = new();

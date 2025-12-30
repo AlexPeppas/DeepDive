@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using DeepDiveTechnicals.OpenAIPrep;
+﻿using DeepDiveTechnicals.OpenAIPrep;
 
 using FluentAssertions;
-
-using Moq;
-using Xunit;
 
 namespace DeepDiveTechnicals.Tests.OpenAIPrep
 {
