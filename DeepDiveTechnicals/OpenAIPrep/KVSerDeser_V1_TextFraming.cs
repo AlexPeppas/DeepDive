@@ -5,12 +5,10 @@ using System.Linq;
 using System.Text;
 
 namespace DeepDiveTechnicals.OpenAIPrep;
-
+#nullable enable
 public sealed class KVSerDeser : IEquatable<KVSerDeser>
 {
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
     private Dictionary<string, string?> _kvP = new();
-
 
     public KVSerDeser()
     {
@@ -21,16 +19,17 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
     { 
         _kvP = seed; 
     }
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
     public void Set(string key, string value)
-    {
-        _kvP.TryAdd(key, value);
+    {                                               
+        _kvP[key] = value;
     }
 
-    public string Get(string key)
+    public string? Get(string key)
     {
-        return _kvP[key];
+        _kvP.TryGetValue(key, out var value);
+
+        return value;                                                                                                                                           
     }
 
     public byte[] Serialize()
@@ -67,7 +66,7 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
         return buffer.ToArray();
     }
 
-    public Dictionary<string,string> Deserialize(Stream input)
+    public Dictionary<string,string?> Deserialize(Stream input)
     {
         using var bufferReader = new StreamReader(input);
         var result = new Dictionary<string, string>();
@@ -82,7 +81,7 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
             if (byt == '*')
             {
                 var line = bufferReader.ReadLine();
-                expectedSerializedResultSize = int.Parse(line); // let's assume a size less than 10 for now for testing;
+                expectedSerializedResultSize = int.Parse(line!);
                 continue; // Init, used for bulk if needed later
             }
 
@@ -97,7 +96,7 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
                 if (keyFound)
                 {
                     keyFound = false;
-                    result.Add(currentKey, FindValue(bufferReader));
+                    result.Add(currentKey, FindValue(bufferReader)!);
                     continue;
                 }
                 else
@@ -115,7 +114,7 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
             }
         }
 
-        return result;
+        return result!;
     }
 
     private static string FindKey(StreamReader bufferReader)
@@ -125,6 +124,11 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
         do
         {
             var byt = bufferReader.Read();
+
+            if (byt == -1)
+            {
+                throw new IndexOutOfRangeException($"Unexpected EoF, the value is truncated!");
+            }
             if (byt == '\r')
             {
                 continue;
@@ -149,9 +153,7 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
         return keyResult;
     }
 
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
     private string? FindValue(StreamReader bufferReader)
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
     {
         {
             string valueResult;
@@ -159,13 +161,18 @@ public sealed class KVSerDeser : IEquatable<KVSerDeser>
             do
             {
                 var byt = bufferReader.Read();
+                if (byt == -1)
+                {
+                    throw new IndexOutOfRangeException($"Unexpected EoF, the value is truncated!");
+                }
+
                 if (byt == '\r')
                 {
                     continue;
                 }
                 else if (byt == '\n')
                 {
-                    var length = Convert.ToInt16(lengthStr.ToString());
+                    var length = int.Parse(lengthStr.ToString());
 
                     var value = new char[length];// allocate length memory
                     bufferReader.Read(value, 0, length);
