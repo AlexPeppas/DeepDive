@@ -58,8 +58,11 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
 
     private void WriteUtf8String(MemoryStream stream, string value)
     {
-        var bytes = Encoding.UTF8.GetBytes(value);
-        stream.Write(bytes.AsSpan());
+        var byteNeeded = Encoding.UTF8.GetByteCount(value);
+        var rented = ArrayPool<byte>.Shared.Rent(byteNeeded);
+        Encoding.UTF8.GetBytes(value.AsSpan(), rented);
+        stream.Write(rented.AsSpan()[..byteNeeded]);
+        ArrayPool<byte>.Shared.Return(rented);
     }
 
     public byte[] Serialize()
@@ -101,7 +104,7 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
 
     public Dictionary<string, string?> Deserialize(Stream input)
     {
-        var result = new Dictionary<string, string>();
+        var result = new Dictionary<string, string?>();
         var expectedSerializedResultSize = 0;
 
         var keyFound = false;
@@ -126,12 +129,16 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
                     }
                     if (byt == '\r')
                     {
-                        continue;
-                    }
-                    else if (byt == '\n')
-                    {
-                        // in theory we should keep track that the previous was CR but let's not overcomplicate for now.
-                        break;
+                        byt = input.ReadByte();
+                        if (byt == '\n')
+                        {
+                            // CRLF found
+                            break;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException("CRLF not found");
+                        }
                     }
                     else
                     {
@@ -141,7 +148,11 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
                 }
                 while (true);
 
-                Utf8Parser.TryParse(dictionarySizeEst, out expectedSerializedResultSize, out int _);
+                if (!Utf8Parser.TryParse(dictionarySizeEst[..sizeIndex], out expectedSerializedResultSize, out int _))
+                {
+                    throw new InvalidDataException("Bad dictionary size.");
+                }
+                sizeIndex = 0;
                 dictionarySizeEst.Clear();
                 continue; // Init, used for bulk if needed later
             }
@@ -168,10 +179,17 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
                 }
             }
 
-            if (byt == '\n' || byt == '\r')
+            if (byt == '\r')
             {
-                // half delimiter
-                continue;
+                byt = input.ReadByte();
+                if (byt == '\n')
+                {
+                    continue;
+                }
+                else
+                {
+                    throw new InvalidDataException("CRLF not found");
+                }
             }
         }
 
@@ -193,17 +211,21 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
             }
             if (byt == '\r')
             {
-                continue;
-            }
-            else if (byt == '\n')
-            {
-                // in case the key is a stringified nubmer, that's why we don't check only for a-z A-Z ascii
-                _ = Utf8Parser.TryParse(lengthInBytes[..index], out int length, out _);
+                byt = bufferReader.ReadByte();
+                if (byt == '\n')
+                {
+                    // in case the key is a stringified nubmer, that's why we don't check only for a-z A-Z ascii
+                    _ = Utf8Parser.TryParse(lengthInBytes[..index], out int length, out _);
 
-                var keyBuffered = new byte[length];// allocate length memory
-                bufferReader.ReadExactly(keyBuffered, 0, length);
-                keyResult = Encoding.UTF8.GetString(keyBuffered);
-                break;
+                    var keyBuffered = new byte[length];// allocate length memory
+                    bufferReader.ReadExactly(keyBuffered, 0, length);
+                    keyResult = Encoding.UTF8.GetString(keyBuffered);
+                    break;
+                }
+                else
+                {
+                    throw new InvalidDataException("CRLF not found");
+                }
             }
             else
             {
@@ -230,16 +252,20 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
 
             if (byt == '\r')
             {
-                continue;
-            }
-            else if (byt == '\n')
-            {
-                _ = Utf8Parser.TryParse(lengthInBytes[..index], out int length, out _);
+                byt = bufferReader.ReadByte();
+                if (byt == '\n')
+                {
+                    _ = Utf8Parser.TryParse(lengthInBytes[..index], out int length, out _);
 
-                var valueBuffered = new byte[length];// allocate length memory
-                bufferReader.ReadExactly(valueBuffered, 0, length);
-                valueResult = Encoding.UTF8.GetString(valueBuffered);
-                break;
+                    var valueBuffered = new byte[length];// allocate length memory
+                    bufferReader.ReadExactly(valueBuffered, 0, length);
+                    valueResult = Encoding.UTF8.GetString(valueBuffered);
+                    break;
+                }
+                else
+                {
+                    throw new InvalidDataException("CRLF not found");
+                }
             }
             else
             {
@@ -252,16 +278,23 @@ public sealed class KVSerDeser_V2_ByteBuffers : IEquatable<KVSerDeser_V2_ByteBuf
                         byt = bufferReader.ReadByte();
                         if (byt == '1')
                         {
-                            continue;
-                        }
-                        else if (byt == '\r')
-                        {
-                            continue;
-                            // we should have another guard of how many CRs are prefixed which could be malicious. Keep simple for now
-                        }
-                        else if (byt == '\n')
-                        {
-                            return null;
+                            byt = bufferReader.ReadByte();
+                            if (byt == '\r')
+                            {
+                                byt = bufferReader.ReadByte();
+                                if (byt == '\n')
+                                {
+                                    return null;
+                                }
+                                else
+                                {
+                                    throw new InvalidDataException("CRLF not found");
+                                }
+                            }
+                            else 
+                            {
+                                throw new InvalidDataException("CRLF not found");
+                            }
                         }
                         else
                         {
