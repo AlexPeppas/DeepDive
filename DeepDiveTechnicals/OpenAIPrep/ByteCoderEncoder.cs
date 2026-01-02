@@ -73,20 +73,21 @@ namespace DeepDiveTechnicals.OpenAIPrep
         private string FindKey(MemoryStream stream)
         {
             int byt;
-            var keyLength = new StringBuilder();
+            Span<byte> keyLength = stackalloc byte[11];
+            var index = 0; 
 
             while ((byt = stream.ReadByte()) != -1)
             {
                 if ((char)byt>='0' && (char)byt<='9')
                 {
-                    keyLength.Append((char)byt);
+                    keyLength[index++] = (byte)byt;
                 }
                 else if ((char)byt == '\r')
                 {
                     byt = stream.ReadByte();
                     if ((char)byt == '\n')
                     {
-                        var keyLengthInt = int.Parse(keyLength.ToString());
+                        Utf8Parser.TryParse(keyLength, out int keyLengthInt, out _);
                         var rented = ArrayPool<byte>.Shared.Rent(keyLengthInt);
                         stream.ReadExactly(rented, 0, keyLengthInt);
                         var key = Encoding.UTF8.GetString(rented[..keyLengthInt]);
@@ -106,20 +107,22 @@ namespace DeepDiveTechnicals.OpenAIPrep
         private string FindValue(MemoryStream stream)
         {
             int byt;
-            var valueLength = new StringBuilder();
+            Span<byte> valueLength = stackalloc byte[11];
+            var index = 0;
 
             while ((byt = stream.ReadByte()) != -1)
             {
                 if ((char)byt >= '0' && (char)byt <= '9')
                 {
-                    valueLength.Append((char)byt);
+                    valueLength[index++] = (byte)byt;
                 }
                 else if ((char)byt == '\r')
                 {
                     byt = stream.ReadByte();
                     if ((char)byt == '\n')
                     {
-                        var valueLengthInt = int.Parse(valueLength.ToString());
+                        Utf8Parser.TryParse(valueLength, out int valueLengthInt, out _);
+
                         var rented = ArrayPool<byte>.Shared.Rent(valueLengthInt);
                         stream.ReadExactly(rented, 0, valueLengthInt);
                         var value = Encoding.UTF8.GetString(rented[..valueLengthInt]);
