@@ -13,9 +13,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
         private readonly int _maxThreads;
         
         private readonly ConcurrentQueue<Uri> _urisToBeCrawled = new();
-        private readonly HashSet<string> _urlsCrawled = new();
-        
-        private readonly ConcurrentDictionary<string, SemaphoreSlim> _crawlLock;
+        private readonly ConcurrentDictionary<string, byte> _urlsCrawled = new();
         private readonly CancellationTokenSource _globalCancelSignal;
         
         private readonly HtmlParser _htmlParser;
@@ -23,9 +21,9 @@ namespace DeepDiveTechnicals.OpenAIPrep
         public WebCrawlerBoundedMultiThreading(int maxThreads)
         {
             _maxThreads = maxThreads;
-            _crawlLock = new();
             _globalCancelSignal = new CancellationTokenSource();
             _htmlParser = new HtmlParser();
+            _inFlightCounter = 0;
         }
 
         public async Task<List<Uri>> OrchestrateCrawlingAsync(string url, CancellationToken cts)
@@ -50,8 +48,10 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 return [];
             }
             
-            return [.. _urlsCrawled.Select(crawled => new Uri(crawled))];
+            return [.. _urlsCrawled.Select(crawled => new Uri(crawled.Key))];
         }
+
+        private long _inFlightCounter;
 
         /// <summary>
         ///  Competing consuming long polling workers pattern
@@ -65,41 +65,32 @@ namespace DeepDiveTechnicals.OpenAIPrep
 
             while (currentAttempt < maxStaleAttempts)
             {
-                while (_urisToBeCrawled.Count > 0)
+                while (!_urisToBeCrawled.IsEmpty || Volatile.Read(ref _inFlightCounter) > 0)
                 {
                     currentAttempt = 0; // reset attempt
                     if (_urisToBeCrawled.TryDequeue(out var uriBeingCrawled))
                     {
-                        var lockAcquired = false;
-                        SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
                         try
                         {
-                            if (!_urlsCrawled.Contains(uriBeingCrawled.AbsoluteUri))
+                            if (_urlsCrawled.TryAdd(uriBeingCrawled.AbsoluteUri, 0))
                             {
-                                if(_crawlLock.TryGetValue(uriBeingCrawled.AbsoluteUri, out _))
-                                {
-                                    // a competing instance is already crawling this
-                                    continue;
-                                }
-                                
-                                if (_crawlLock.TryAdd(uriBeingCrawled.AbsoluteUri, semaphore))
-                                {
-                                    if (await semaphore.WaitAsync(TimeSpan.FromSeconds(5), cts))
-                                    {
-                                        lockAcquired = true;
-                                        var parsed = await _htmlParser.ParseAsync(uriBeingCrawled, cts);
-                                        _urlsCrawled.Add(uriBeingCrawled.AbsoluteUri);
+                                // ACTIVE CRAWL COUNT MODEL
+                                Interlocked.Increment(ref _inFlightCounter); // try parse, got the lease
 
-                                        foreach (var newUrl in parsed)
-                                        {
-                                            if (newUrl.Host == host && !_urlsCrawled.Contains(newUrl.AbsoluteUri)) // if newUrl has same host and not already crawled - cycle prevention
-                                            {
-                                                _urisToBeCrawled.Enqueue(newUrl); // even if we add a uri that just has been added to the urlsCrawled hashset we'll skip it when one of the competing workers consumes it. Lazy clean.
-                                            }
-                                        }
+                                var parsed = await _htmlParser.ParseAsync(uriBeingCrawled, cts);
+
+                                foreach (var newUrl in parsed)
+                                {
+                                    if (newUrl.Host == host && !_urlsCrawled.TryGetValue(newUrl.AbsoluteUri, out _)) // if newUrl has same host and not already crawled - cycle prevention
+                                    {
+                                        _urisToBeCrawled.Enqueue(newUrl); // even if we add a uri that just has been added to the urlsCrawled map we'll skip it when one of the competing workers consumes it. Lazy clean.
                                     }
                                 }
-                                
+                            }
+                            else
+                            {
+                                // a competing instance is already crawling this
+                                // continue;
                             }
                         }
                         catch (TaskCanceledException)
@@ -116,10 +107,8 @@ namespace DeepDiveTechnicals.OpenAIPrep
                         }
                         finally
                         {
-                            if (lockAcquired)
-                            {
-                                semaphore.Release(1);
-                            }
+                            Interlocked.Decrement(ref _inFlightCounter); // finished with this uriBeingCrawled.
+                            // Decrement after enqueing new uris to be crawled because the idea is that if a competing worker woke up checks if he has more work to do we don't want to signal him false-negative as there are more URIs to be parsed.
                         }
                     }
                 }
@@ -139,7 +128,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
             ["http://a.com/a"] = new List<Uri> { new("http://a.com/b")},
             ["http://a.com/b"] = new List<Uri> { new("http://a.com/c"), new("http://a.com/d"), new("http://a.com/e"), new("http://b.com/x"), new("http://b.com/xx") },
             ["http://a.com/c"] = new List<Uri> { new("http://a.com/b") },
-            ["http://a.com/c"] = [],
+            ["http://a.com/d"] = [],
             ["http://a.com/e"] = new List<Uri> { new("http://a.com/f"), new("http://a.com/e"), new("http://a.com/c"), new("http://a.com/c?utf8=true"), new("http://a.com/c?fcbStream=true&groupSession=false"), new("http://b.com/x"), new("http://b.com/xx") },
             ["http://a.com/f"] = [],
             ["http://a.com/c?utf8=true"] = [],
