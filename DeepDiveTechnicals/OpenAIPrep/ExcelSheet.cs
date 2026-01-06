@@ -153,7 +153,12 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 }
 
 
-                if (IsSign(node))
+                if (node is NegateNode)
+                {
+                    var a = rpnEvaluated.Pop();
+                    rpnEvaluated.Push(-a);
+                }
+                else if (IsSign(node))
                 {
                     if (rpnEvaluated.Count < 2)
                     {
@@ -272,6 +277,10 @@ namespace DeepDiveTechnicals.OpenAIPrep
 
             (bool Semaphore, StringBuilder Builder) currentRefOrLiteralBuilder = new(false, new StringBuilder());
 
+            var expectOperand = true; // if we expect an Operand and find '-' it means it should be a Negate and not a subtraction
+            // example 2*(-1)-(-3) = -2 + 3 = 1 --> after the first '(' we expect an operand but we find '-' thus its a negation.
+            // although after the first ')' we do not expect an operand and we find '-' thus it's subtraction.
+
             foreach (var ch in expression)
             {
                 if (ch == ' ')
@@ -280,6 +289,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 }
                 if (ch == '(')
                 {
+                    expectOperand = true;
                     if (currentRefOrLiteralBuilder.Builder.Length > 0)
                     {
                         currentRefOrLiteralBuilder = FlushNodeBuilder(ref nodesOutput, ref dependentCells, currentRefOrLiteralBuilder.Semaphore, currentRefOrLiteralBuilder.Builder);
@@ -289,6 +299,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 }
                 else if (ch == ')')
                 {
+                    expectOperand = false;
                     if (currentRefOrLiteralBuilder.Builder.Length > 0)
                     {
                         currentRefOrLiteralBuilder = FlushNodeBuilder(ref nodesOutput, ref dependentCells, currentRefOrLiteralBuilder.Semaphore, currentRefOrLiteralBuilder.Builder);
@@ -309,6 +320,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 }
                 else if (ch == '+')
                 {
+                    expectOperand = true;
                     if (currentRefOrLiteralBuilder.Builder.Length > 0)
                     {
                         currentRefOrLiteralBuilder = FlushNodeBuilder(ref nodesOutput, ref dependentCells, currentRefOrLiteralBuilder.Semaphore, currentRefOrLiteralBuilder.Builder);
@@ -324,11 +336,20 @@ namespace DeepDiveTechnicals.OpenAIPrep
                         currentRefOrLiteralBuilder = FlushNodeBuilder(ref nodesOutput, ref dependentCells, currentRefOrLiteralBuilder.Semaphore, currentRefOrLiteralBuilder.Builder);
                     }
 
-                    var plus = new MinusNode();
-                    RPNHousekeepOperators(plus, ref nodesOutput, ref operations);
+                    if (expectOperand)
+                    {
+                        var neg = new NegateNode();
+                        RPNHousekeepOperators(neg, ref nodesOutput, ref operations);
+                    }
+                    else
+                    {
+                        var minus = new MinusNode();
+                        RPNHousekeepOperators(minus, ref nodesOutput, ref operations);
+                    }
                 }
                 else if (ch == '/')
                 {
+                    expectOperand = true;
                     if (currentRefOrLiteralBuilder.Builder.Length > 0)
                     {
                         currentRefOrLiteralBuilder = FlushNodeBuilder(ref nodesOutput, ref dependentCells, currentRefOrLiteralBuilder.Semaphore, currentRefOrLiteralBuilder.Builder);
@@ -339,6 +360,7 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 }
                 else if (ch == '*')
                 {
+                    expectOperand = true;
                     if (currentRefOrLiteralBuilder.Builder.Length > 0)
                     {
                         currentRefOrLiteralBuilder = FlushNodeBuilder(ref nodesOutput, ref dependentCells, currentRefOrLiteralBuilder.Semaphore, currentRefOrLiteralBuilder.Builder);
@@ -349,11 +371,13 @@ namespace DeepDiveTechnicals.OpenAIPrep
                 }
                 else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))
                 {
+                    expectOperand = false;
                     currentRefOrLiteralBuilder.Builder.Append(ch);
                     currentRefOrLiteralBuilder.Semaphore = true;
                 }
                 else if (int.TryParse(ch.ToString(), CultureInfo.InvariantCulture, out var number))
                 {
+                    expectOperand = false;
                     currentRefOrLiteralBuilder.Builder.Append(number);
                 }
                 else
@@ -423,6 +447,8 @@ namespace DeepDiveTechnicals.OpenAIPrep
             public int Value { get; set; }
         }
 
+        private sealed class NegateNode : Operator { public override int Priority { get; set; } = 3; }
+
         private sealed class PlusNode : Operator { public override int Priority { get; set; } = 1; }
 
         private sealed class MinusNode : Operator { public override int Priority { get; set; } = 1; }
@@ -462,6 +488,13 @@ namespace DeepDiveTechnicals.OpenAIPrep
         public void ExcelSheet_VariousOperations_Handled()
         {
             var excelSheet = new ExcelSheet();
+
+            excelSheet.TrySetCell("Z1", "-(1+2)");
+            var Z1 = excelSheet.GetCell("Z1"); // should be -3
+
+            excelSheet.TrySetCell("Z2", "2*(-4+3)-(-3)"); // 2*(-1)-(-3) = -2 + 3 = 1
+            var Z2 = excelSheet.GetCell("Z2"); // should be 1
+
             excelSheet.TrySetCell("A1", "1+2");
             var A1 = excelSheet.GetCell("A1"); // should be 3
             excelSheet.TrySetCell("B1", "10*A1");

@@ -24,6 +24,7 @@ namespace DeepDiveTechnicals
     {
         public static void Main()
         {
+            new ExcelSheetTests().ExcelSheet_VariousOperations_Handled();
             #region OpenAI
             new ResumableIteratorTests().MultiFileResumableJsonFileIterator_VariousScenarios_Succeeds().Wait();
             new ResumableIteratorTests().ResumableJsonFileIterator_VariousScenarios_Succeeds();
